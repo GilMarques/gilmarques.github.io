@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    @font-face {
+      font-family: Connection III;
+      font-weight: 400;
+      src: url('./fonts/Connection3.otf') format('truetype');
+    }
+}
+
