@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { blinking_star } from "../assets";
+import { blinking_star } from "../assets/index.js";
 
 const BlinkingStar = () => {
   const x = useRef(Math.floor(8000 * Math.random()));

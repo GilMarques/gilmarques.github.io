@@ -1,5 +1,6 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
-import { orb, technologies } from "../assets";
+import { orb, technologies } from "../assets/index.js";
 
 //TODO: reflections
 //ToDO: animations wheel
@@ -8,8 +9,7 @@ const Orb = ({ technology, i }) => {
   const l = 50;
   const angle = 360 / 7;
   const [position, setPosition] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+
   const animationRef = useRef(0);
   const moveDiv = () => {
     setPosition((prevPosition) => prevPosition + 0.01); // Increment position
@@ -52,11 +52,11 @@ const Orb = ({ technology, i }) => {
 
 const Skills = () => {
   return (
-    <div className="relative px-4">
-      <div className="text-md mt-20 p-4 font-custom text-4xl font-black text-white underline">
+    <div className="relative h-[700px] px-4">
+      <div className="text-md mt-20 p-4 font-custom text-4xl font-black text-black underline">
         Skills
       </div>
-      <div className="text-md relative mt-[200px] flex select-none justify-center text-white">
+      <div className="text-md relative mt-[200px] flex select-none justify-center text-black">
         {technologies.map((technology, index) => (
           <Orb key={technology} technology={technology} i={index} />
         ))}

@@ -1,9 +1,11 @@
+/* eslint-disable react/no-unescaped-entities */
 const About = () => {
   return (
     <div className="relative px-4">
       <div
         className="text-md mt-16 scroll-mt-16 p-4 font-custom text-4xl font-black text-white underline"
         id="about"
+        style={{ mixBlendMode: "difference" }}
       >
         About
       </div>

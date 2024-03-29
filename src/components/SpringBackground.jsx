@@ -1,14 +1,8 @@
+/* eslint-disable react/prop-types */
 import { animated, useSpring } from "@react-spring/web";
 import { useEffect } from "react";
 
-type Daytimes = {
-  morning: string;
-  sunset: string;
-  night: string;
-  [key: string]: string;
-};
-
-const daytimes: Daytimes = {
+const daytimes = {
   morning: "linear-gradient(to bottom,#000000 0% ,#94dfff 50%,#b7eaff 100%)",
   sunset: "linear-gradient(to bottom,#000000 0% ,#FD5E53 0%,	#FFD580 100%)",
   night: "linear-gradient(to bottom,	#000000 0%,		#00001f 100%)",

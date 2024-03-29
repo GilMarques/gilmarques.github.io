@@ -1,8 +1,7 @@
-import { MotionBlurFilter } from "@pixi/filter-motion-blur";
 import { SimpleRope, Sprite, useApp, useTick } from "@pixi/react";
 import { Point } from "pixi.js";
-import React, { useMemo, useRef, useState } from "react";
-import { cloud, tail } from "../assets";
+import { useMemo, useRef, useState } from "react";
+import { cloud, tail } from "../assets/index.js";
 const MovingCloud = () => {
   const ref = useRef(null);
   const t = useRef(0);
@@ -24,14 +23,6 @@ const MovingCloud = () => {
   const rateOfChange = useRef(0);
   const smoothingFactor = 0.005;
 
-  const filters = [
-    new MotionBlurFilter(
-      [5, 0],
-      instantaneousRate.current > 0 ? 11 : 0,
-      -instantaneousRate.current / 10
-    ),
-  ];
-
   useTick((deltaTime) => {
     const newScrollY = window.scrollY;
     const delta = newScrollY - scrollY.current;
@@ -50,7 +41,7 @@ const MovingCloud = () => {
     const iter = (t.current += 0.1 * deltaTime);
 
     if (ref.current) {
-      ref.current.y = (1 / (rateOfChange.current + 1)) * Math.sin(-iter) + y0;
+      ref.current.y = (3 / (rateOfChange.current + 1)) * Math.sin(-iter) + y0;
     }
 
     const np = [...points];
@@ -72,9 +63,8 @@ const MovingCloud = () => {
         points={points}
         x={x0 + 110}
         y={y0 + 46}
-        filters={filters}
       />
-      <Sprite ref={ref} x={x0} y={y0} image={cloud} filters={filters} />
+      <Sprite ref={ref} x={x0} y={y0} image={cloud} />
     </>
   );
 };

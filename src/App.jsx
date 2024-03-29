@@ -1,4 +1,5 @@
 import { animated, useSpring } from "@react-spring/web";
+import { useEffect, useState } from "react";
 import "./App.css";
 import About from "./components/About";
 import Clouds from "./components/Clouds";
@@ -23,6 +24,12 @@ function App() {
   const [{ background }, api] = useSpring(() => ({
     background: daytimes["day"],
   }));
+
+  const [spawnClouds, setSpawnClouds] = useState(false);
+
+  useEffect(() => {
+    setSpawnClouds(true);
+  }, []);
 
   // useEffect(() => {
   //   const getCurrentTimeOfDay = () => {
@@ -58,19 +65,18 @@ function App() {
       <animated.div className="relative min-w-full" style={{ background }}>
         <Stars />
         {/* <Moon /> */}
-        <div className="text-md font-custom top-0 z-10 mt-20 p-4 text-center text-3xl text-white">
+        <div className="text-md top-0 z-10 mt-20 p-4 text-center font-custom text-3xl text-white">
           Hi, my name is <b>Gil</b> <br /> I'm a Software Developer from
           Portugal
         </div>
 
         <About />
 
+        <Projects />
+        <Canvas />
+        {spawnClouds && <Clouds />}
         <Skills />
 
-        <Canvas />
-        <Clouds />
-
-        <Projects />
         <Footer />
       </animated.div>
       <Navbar />

@@ -1,4 +1,4 @@
-import { terrain } from "../assets";
+import { terrain } from "../assets/index.js";
 
 const Terrain = () => {
   return (

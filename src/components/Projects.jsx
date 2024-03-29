@@ -1,4 +1,5 @@
-import { projects } from "../assets";
+/* eslint-disable react/prop-types */
+import { projects } from "../assets/index.js";
 
 const Project = ({ title, description, thumbnail, url }) => {
   return (
@@ -17,9 +18,10 @@ const Project = ({ title, description, thumbnail, url }) => {
           <div className="pixel-corners mb-2 p-1">
             <img
               src={thumbnail}
-              alt="Project thumbnail"
+              alt={`${title} thumbnail`}
               className="pixel-corners rounded-lg border-[5px] border-black"
               width={200}
+              height={200}
               draggable="false"
             />
           </div>
@@ -36,25 +38,28 @@ const Project = ({ title, description, thumbnail, url }) => {
 const Projects = () => {
   return (
     <div className="px-8">
-      <p className="text-md mt-16 scroll-mt-16 font-custom text-3xl font-black text-white underline">
+      <p
+        className="text-md mt-16 scroll-mt-16 font-custom text-3xl font-black text-white underline"
+        style={{ mixBlendMode: "difference" }}
+      >
         My Work
       </p>
-      <div className="text-md font-custom text-3xl text-white" id="projects">
+      <div className="font-custom text-3xl text-white" id="projects">
         <p className="mb-8">Check out my projects</p>
         <div className="flex flex-wrap items-center justify-center gap-8">
-          <Project
-            title={"Ino Uno"}
-            description={"A clone of the popular game UNO"}
-            thumbnail={projects[0]}
-            url={"https://gilmarques.github.io/ino-uno-vite/"}
-          />
-          <Project
-            title={"Ino Uno"}
-            description={"A clone of the popular game UNO"}
-            thumbnail={projects[0]}
-            url={"https://gilmarques.github.io/ino-uno-vite/"}
-          />
+          {projects.map((project) => (
+            <Project
+              key={project.title}
+              title={project.title}
+              description={project.description}
+              thumbnail={project.thumbnail}
+              url={project.url}
+            />
+          ))}
         </div>
+        <p className="text-md mt-8 text-center font-custom text-3xl text-black">
+          And more yet to come...
+        </p>
       </div>
     </div>
   );

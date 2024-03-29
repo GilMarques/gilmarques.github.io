@@ -1,11 +1,12 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
-import { clouds } from "../assets";
+import { clouds } from "../assets/index.js";
 
 const source = clouds[Math.floor(Math.random() * clouds.length)];
 const Cloud = ({ opacity = 100, scale = 1, velocityMod = 3 }) => {
   const [position, setPosition] = useState(-800);
-  const ref = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+  const ref = useRef(null);
+  const imageRef = useRef(null);
   const animationRef = useRef(0);
 
   const moveDiv = () => {

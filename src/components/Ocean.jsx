@@ -1,4 +1,4 @@
-import { ocean } from "../assets";
+import { ocean } from "../assets/index.js";
 
 const Ocean = () => {
   return (

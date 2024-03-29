@@ -1,4 +1,4 @@
-import { moon } from "../assets";
+import { moon } from "../assets/index.js";
 
 const Moon = () => {
   return (

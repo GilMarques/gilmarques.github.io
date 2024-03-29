@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Stage } from "@pixi/react";
 import { useEffect, useRef } from "react";
 import MovingCloud from "./MovingCloud";

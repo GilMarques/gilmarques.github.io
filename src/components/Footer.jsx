@@ -1,9 +1,9 @@
-import { ocean, social } from "../assets";
+import { ocean, social } from "../assets/index.js";
 
 const Ocean = () => {
   return (
     <div
-      className="relative bottom-0 min-h-[200px] min-w-full"
+      className="relative bottom-0 mt-[100px] min-h-[200px] min-w-full"
       style={{
         backgroundImage: `url(${ocean})`,
 
@@ -22,7 +22,6 @@ const Terrain = () => {
       style={{
         backgroundImage: `url(${terrain[0]})`,
         backgroundRepeat: "repeat-x",
-        // mixBlendMode: "multiply",
       }}
     ></div>
   );
