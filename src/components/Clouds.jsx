@@ -27,7 +27,7 @@ const Cloud = ({ opacity = 100, scale = 1, velocityMod = 3 }) => {
 
     // Cleanup function to cancel animation frame
     return () => cancelAnimationFrame(animationRef.current);
-  }, []);
+  });
 
   return (
     <div ref={ref} className="relative" style={{ right: position }}>

@@ -15,13 +15,11 @@ const Project = ({ title, description, thumbnail, url }) => {
           className="pixel-corners w-[300px] cursor-pointer flex-col bg-stone-300 p-2 shadow-2xl"
           style={{ aspectRatio: "3/4" }}
         >
-          <div className="pixel-corners mb-2 p-1">
+          <div className="pixel-corners mb-2 h-[150px] w-[200px] p-1">
             <img
               src={thumbnail}
               alt={`${title} thumbnail`}
-              className="pixel-corners rounded-lg border-[5px] border-black"
-              width={200}
-              height={200}
+              className="pixel-corners min-h-full min-w-full rounded-lg border-[5px] border-black object-cover"
               draggable="false"
             />
           </div>
@@ -58,7 +56,7 @@ const Projects = () => {
           ))}
         </div>
         <p className="text-md mt-8 text-center font-custom text-3xl text-black">
-          And more yet to come...
+          And yet more to come...
         </p>
       </div>
     </div>

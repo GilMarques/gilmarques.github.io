@@ -70,3 +70,16 @@ html {
       0px calc(100% - 20px)
     );
   }
+
+  fade {
+  
+    bottom: 0px;
+
+    display: block;
+
+  
+    background-image: linear-gradient(to bottom, 
+        rgba(0, 0, 0, 0), 
+        rgb(0, 0, 0,1)
+    100%);
+}

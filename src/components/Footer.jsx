@@ -1,4 +1,4 @@
-import { ocean, social } from "../assets/index.js";
+import { ocean, social, terrain } from "../assets/index.js";
 
 const Ocean = () => {
   return (
@@ -13,20 +13,41 @@ const Ocean = () => {
   );
 };
 
-import { terrain } from "../assets";
+import { useEffect, useRef, useState } from "react";
 
 const Terrain = () => {
+  const [position, setPosition] = useState(0);
+  const ref = useRef(null);
+
+  const animationRef = useRef(0);
+
+  const moveDiv = () => {
+    setPosition((prevPosition) => (prevPosition > 1820 ? 0 : prevPosition + 2)); // Increment position
+
+    animationRef.current = requestAnimationFrame(moveDiv); // Request next frame
+  };
+
+  // Start animation on component mount
+  useEffect(() => {
+    animationRef.current = requestAnimationFrame(moveDiv);
+
+    // Cleanup function to cancel animation frame
+    return () => cancelAnimationFrame(animationRef.current);
+  }, []);
+
   return (
     <div
-      className="relative bottom-0 -mt-20 min-h-[400px] min-w-full"
+      ref={ref}
+      className="relative bottom-0 -mt-20 min-h-[400px] w-[200%]"
       style={{
         backgroundImage: `url(${terrain[0]})`,
+        right: position,
         backgroundRepeat: "repeat-x",
+        // mixBlendMode: "multiply",
       }}
     ></div>
   );
 };
-
 const Footer = () => {
   return (
     <>

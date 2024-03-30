@@ -48,7 +48,7 @@ import java from "./technologies/java.png";
 import javascript from "./technologies/javascript.png";
 import python from "./technologies/python.png";
 import react from "./technologies/react.png";
-const technologies = [c, css, html, javascript, python, react, java];
+const technologies = [html, css, javascript, react, python, java, c];
 
 import orb from "./orb.png";
 
@@ -84,6 +84,8 @@ const social = [
   },
 ];
 
+import sky from "./sky.gif";
+
 export {
   blinking_star,
   cloud,
@@ -92,6 +94,7 @@ export {
   ocean,
   orb,
   projects,
+  sky,
   social,
   tail,
   technologies,
