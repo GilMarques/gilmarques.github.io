@@ -52,11 +52,11 @@ const Orb = ({ technology, i }) => {
 
 const Skills = () => {
   return (
-    <div className="relative h-[700px] px-4">
-      <div className="text-md mt-20 p-4 font-custom text-4xl font-black text-black underline">
+    <div className="relative h-[700px] px-4 text-white">
+      <div className="text-md mt-20 p-4 font-custom text-4xl font-black underline">
         Skills
       </div>
-      <div className="text-md relative mt-[200px] flex select-none justify-center text-black">
+      <div className="text-md relative mt-[200px] flex select-none justify-center">
         {technologies.map((technology, index) => (
           <Orb key={technology} technology={technology} i={index} />
         ))}

@@ -22,7 +22,7 @@ const Canvas = () => {
   }, []);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={ref} style={{ filter: "brightness(0.3)" }}>
       <Stage
         options={{ antialias: true, backgroundAlpha: 0 }}
         ref={stageRef}

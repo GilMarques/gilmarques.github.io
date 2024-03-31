@@ -41,13 +41,13 @@ const MovingCloud = () => {
     const iter = (t.current += 0.1 * deltaTime);
 
     if (ref.current) {
-      ref.current.y = (3 / (rateOfChange.current + 1)) * Math.sin(-iter) + y0;
+      ref.current.y = (2 / (rateOfChange.current + 1)) * Math.sin(-iter) + y0;
     }
 
     const np = [...points];
 
     for (let j = 0; j < np.length; j++) {
-      np[j].y = Math.sin(j - iter) * (0.3 * j);
+      np[j].y = Math.sin(-iter + (j * Math.PI) / 2) * (0.3 * j);
       np[j].x = -j * ropeLength.current;
     }
 

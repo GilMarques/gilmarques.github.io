@@ -24,6 +24,57 @@ const clouds = [
   cloud10,
 ];
 
+import nightcloud0 from "./clouds_night/sprite_0.png";
+import nightcloud1 from "./clouds_night/sprite_1.png";
+import nightcloud10 from "./clouds_night/sprite_10.png";
+import nightcloud2 from "./clouds_night/sprite_2.png";
+import nightcloud3 from "./clouds_night/sprite_3.png";
+import nightcloud4 from "./clouds_night/sprite_4.png";
+import nightcloud5 from "./clouds_night/sprite_5.png";
+import nightcloud6 from "./clouds_night/sprite_6.png";
+import nightcloud7 from "./clouds_night/sprite_7.png";
+import nightcloud8 from "./clouds_night/sprite_8.png";
+import nightcloud9 from "./clouds_night/sprite_9.png";
+import raincloud0 from "./clouds_rain/sprite_0.png";
+import raincloud1 from "./clouds_rain/sprite_1.png";
+import raincloud10 from "./clouds_rain/sprite_10.png";
+import raincloud2 from "./clouds_rain/sprite_2.png";
+import raincloud3 from "./clouds_rain/sprite_3.png";
+import raincloud4 from "./clouds_rain/sprite_4.png";
+import raincloud5 from "./clouds_rain/sprite_5.png";
+import raincloud6 from "./clouds_rain/sprite_6.png";
+import raincloud7 from "./clouds_rain/sprite_7.png";
+import raincloud8 from "./clouds_rain/sprite_8.png";
+import raincloud9 from "./clouds_rain/sprite_9.png";
+
+const nightclouds = [
+  nightcloud0,
+  nightcloud1,
+  nightcloud2,
+  nightcloud3,
+  nightcloud4,
+  nightcloud5,
+  nightcloud6,
+  nightcloud7,
+  nightcloud8,
+  nightcloud9,
+  nightcloud10,
+];
+
+const rainclouds = [
+  raincloud0,
+  raincloud1,
+  raincloud2,
+  raincloud3,
+  raincloud4,
+  raincloud5,
+  raincloud6,
+  raincloud7,
+  raincloud8,
+  raincloud9,
+  raincloud10,
+];
+
 import cloud from "./cloud.png";
 import moon from "./moon.png";
 import tail from "./tail.png";
@@ -91,9 +142,11 @@ export {
   cloud,
   clouds,
   moon,
+  nightclouds,
   ocean,
   orb,
   projects,
+  rainclouds,
   sky,
   social,
   tail,

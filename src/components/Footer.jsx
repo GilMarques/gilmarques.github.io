@@ -8,6 +8,7 @@ const Ocean = () => {
         backgroundImage: `url(${ocean})`,
 
         backgroundRepeat: "repeat-x",
+        filter: "brightness(0.2)",
       }}
     ></div>
   );
@@ -38,12 +39,12 @@ const Terrain = () => {
   return (
     <div
       ref={ref}
-      className="relative bottom-0 -mt-20 min-h-[400px] w-[200%]"
+      className="relative bottom-0 -mt-20 min-h-[400px] w-[600%]"
       style={{
         backgroundImage: `url(${terrain[0]})`,
         right: position,
         backgroundRepeat: "repeat-x",
-        // mixBlendMode: "multiply",
+        filter: "brightness(0.2)",
       }}
     ></div>
   );
