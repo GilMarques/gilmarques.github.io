@@ -10,32 +10,30 @@ import Rain from "./components/Rain";
 import Skills from "./components/Skills";
 import Stars from "./components/Stars";
 import Canvas from "./models/Canvas";
-
 const daytimes = {
-  sunrise: "linear-gradient(to bottom,#ffc19f 50%,#f0bbc9 100%)",
-  day: "linear-gradient(to bottom,#94dfff 0%,#b7eaff 100%)",
-  sunset: "linear-gradient(to bottom,#FD5E53 50%,#FFD580 100%)",
-  night: "linear-gradient(to bottom,#000000 0% ,#00001f 100%)",
+  sunrise: "linear-gradient(to bottom,#ffc19f 50%,#f0bbc9  80%, #ffffff 100%)",
+  day: "linear-gradient(to bottom,#94dfff 0%,#b7eaff 80%, #ffffff 100%)",
+  sunset: "linear-gradient(to bottom,#FD5E53 50%,#FFD580  80%, #ffffff 100%)",
+  night: "linear-gradient(to bottom,#000000 0%, #00001f 80%, #000837 100%)",
 };
 
 function App() {
   const ref = useRef(null);
   const [{ background }, api] = useSpring(() => ({
-    background: daytimes["night"],
+    background: daytimes["day"],
+    config: { duration: 300 },
   }));
 
   const [spawnClouds, setSpawnClouds] = useState(false);
   const [weather, setWeather] = useState("");
+  const [daytime, setDaytime] = useState("");
+  const [isDay, setIsDay] = useState(true);
+  const [isRaining, setisRaining] = useState(false);
   useEffect(() => {
     setSpawnClouds(true);
   }, []);
 
   // useEffect(() => {
-  //   console.log(
-  //     `https://api.openweathermap.org/data/2.5/weather?lat=${41.55}&lon=${-8.42}&appid=${
-  //       import.meta.env.VITE_API_KEY
-  //     }`
-  //   );
   //   fetch(
   //     `https://api.openweathermap.org/data/2.5/weather?lat=${41.55}&lon=${-8.42}&appid=${
   //       import.meta.env.VITE_API_KEY
@@ -44,65 +42,57 @@ function App() {
   //     .then((response) => response.json())
   //     .then((data) => {
   //       //https://openweathermap.org/weather-conditions
-  //       const id = data.weather[0].id
+  //       const id = data.weather[0].id;
+  //       console.log(data);
   //       let r;
   //       if (id >= 200 && id <= 232) {
   //         r = "thunderstorm";
   //       }
   //       if (id >= 300 && id <= 321) {
-  //         r =  "drizzle";
+  //         r = "drizzle";
   //       }
   //       if (id >= 500 && id <= 531) {
-  //         r =  "rain";
+  //         r = "rain";
   //       }
   //       if (id >= 600 && id <= 622) {
-  //         r =  "snow";
+  //         r = "snow";
   //       }
 
   //       if (id >= 701 && id <= 781) {
-  //         r =  "clear";
+  //         r = "clear";
   //       }
   //       if (id === 800) {
-  //         r =  "clear";
+  //         r = "clear";
   //       }
   //       if (id >= 801 && id <= 804) {
-  //         r =  "clouds";
+  //         r = "clouds";
   //       }
 
   //       setWeather(r);
   //     });
-
   // }, []);
 
-  // useEffect(() => {
-  //   const getCurrentTimeOfDay = () => {
-  //     const hour = new Date().getHours();
-  //     if (hour >= 6 && hour < 8) {
-  //       api.start({
-  //         background: daytimes["sunrise"],
-  //       });
-  //     } else if (hour >= 8 && hour < 17) {
-  //       api.start({
-  //         background: daytimes["day"],
-  //       });
-  //     } else if (hour >= 17 && hour < 19) {
-  //       api.start({
-  //         background: daytimes["sunset"],
-  //       });
-  //     } else {
-  //       api.start({
-  //         background: daytimes["night"],
-  //       });
-  //     }
-  //   };
+  useEffect(() => {
+    api({
+      background: daytimes[daytime],
+    });
 
-  //   getCurrentTimeOfDay();
+    if (daytime === "night") {
+      setIsDay(false);
+      return;
+    } else {
+      setIsDay(true);
+      return;
+    }
+  }, [daytime]);
 
-  //   const interval = setInterval(getCurrentTimeOfDay, 60000); // Update every minute
+  useEffect(() => {
+    console.log(weather);
+  }, [weather]);
 
-  //   // Clean up interval on component unmount
-  //   return () => clearInterval(interval);
-  // }, []);
+  useEffect(() => {
+    console.log(daytime);
+  }, [daytime]);
 
   return (
     <>
@@ -111,25 +101,21 @@ function App() {
         className="front-row relative z-50 min-w-full"
         style={{ background }}
       >
-        <Rain />
+        {isRaining && <Rain />}
+        <Stars day={isDay} />
 
-        <Stars />
-        {spawnClouds && <Clouds type={"night"} />}
+        {spawnClouds && <Clouds day={isDay} rain={isRaining} />}
 
         {/* <Moon /> */}
-        <div className="text-md top-0 z-10 mt-20 p-4 text-center font-custom text-3xl text-white">
-          Hi, my name is <b>Gil</b> <br /> I'm a Software Developer from
-          Portugal
-        </div>
 
-        <About />
+        <About day={isDay} />
 
-        <Projects />
-        <Canvas />
+        <Projects day={isDay} />
+        <Canvas day={isDay} />
 
-        <Skills />
+        <Skills day={isDay} />
 
-        <Footer />
+        <Footer day={isDay} setDaytime={setDaytime} setWeather={setWeather} />
       </animated.div>
       <Navbar />
     </>

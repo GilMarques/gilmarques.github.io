@@ -20,14 +20,17 @@ const Rain = () => {
   }
 
   return (
-    <div ref={ref} className="rain pointer-events-none fixed h-full min-w-full">
+    <div
+      ref={ref}
+      className="rain pointer-events-none fixed top-0 min-h-full min-w-full"
+    >
       {drops.map((drop) => (
         <div
           key={drop.increment}
           className="drop"
           style={{
             left: `${drop.increment}%`,
-            bottom: `${drop.randoFiver + drop.randoFiver - 1 + 90}%`,
+            bottom: `${drop.randoFiver + 90}%`,
             animationDelay: `0.${drop.randoHundo}s`,
             animationDuration: `0.5${drop.randoHundo}s`,
           }}

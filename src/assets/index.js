@@ -99,7 +99,18 @@ import java from "./technologies/java.png";
 import javascript from "./technologies/javascript.png";
 import python from "./technologies/python.png";
 import react from "./technologies/react.png";
-const technologies = [html, css, javascript, react, python, java, c];
+const technologies = [
+  {
+    name: "HTML",
+    src: html,
+  },
+  { name: "CSS", src: css },
+  { name: "JavaScript", src: javascript },
+  { name: "React", src: react },
+  { name: "Python", src: python },
+  { name: "Java", src: java },
+  { name: "C", src: c },
+];
 
 import orb from "./orb.png";
 
@@ -111,6 +122,7 @@ const projects = [
     description: "A clone of the popular game UNO",
     thumbnail: inouno,
     url: "https://gilmarques.github.io/ino-uno-vite/",
+    code: "https://github.com/GilMarques/ino-uno-vite",
   },
 
   {
@@ -118,6 +130,7 @@ const projects = [
     description: "Retro Style Portfolio",
     thumbnail: portfolio,
     url: "https://gilmarques.github.io/",
+    code: "https://github.com/GilMarques/portfolio",
   },
 ];
 
@@ -137,10 +150,43 @@ const social = [
 
 import sky from "./sky.gif";
 
+import button0 from "./button/0.png";
+import button1 from "./button/1.png";
+
+const button = [button0, button1];
+
+import day from "./day_logos/day.png";
+import night from "./day_logos/night.png";
+import sunrise from "./day_logos/sunrise.png";
+import sunset from "./day_logos/sunset.png";
+
+const dayLogos = [
+  { name: "sunrise", src: sunrise },
+  { name: "day", src: day },
+  { name: "sunset", src: sunset },
+  { name: "night", src: night },
+];
+
+import clear from "./weather_logos/clear.png";
+import rain from "./weather_logos/rain.png";
+import snow from "./weather_logos/snow.png";
+import thunder from "./weather_logos/thunder.png";
+
+const weatherLogos = [
+  { name: "cloudy", src: clear },
+  { name: "rain", src: rain },
+  { name: "snow", src: snow },
+  { name: "thunder", src: thunder },
+];
+
+import source from "./source.png";
+
 export {
   blinking_star,
+  button,
   cloud,
   clouds,
+  dayLogos,
   moon,
   nightclouds,
   ocean,
@@ -149,8 +195,10 @@ export {
   rainclouds,
   sky,
   social,
+  source,
   tail,
   technologies,
   terrain,
   terraingif,
+  weatherLogos,
 };

@@ -4,9 +4,8 @@ import { orb, technologies } from "../assets/index.js";
 
 //TODO: reflections
 //ToDO: animations wheel
-
-const Orb = ({ technology, i }) => {
-  const l = 50;
+const l = 70;
+const Orb = ({ technology, i, setName }) => {
   const angle = 360 / 7;
   const [position, setPosition] = useState(0);
 
@@ -37,28 +36,40 @@ const Orb = ({ technology, i }) => {
       </div>
       <div className="absolute">
         <img
-          src={technology}
-          alt={technology}
-          width={l * 0.6}
-          height={l * 0.6}
+          src={technology.src}
+          alt={technology.name}
+          width={l * 0.5}
+          height={l * 0.5}
           className="opacity-80"
-          style={{ transform: `rotate(${-angle * i - position}deg)` }}
           draggable="false"
+          style={{ transform: `rotate(${-angle * i - position}deg)` }}
+          onMouseEnter={() => setName(technology.name)}
+          onMouseLeave={() => setName("")}
         />
       </div>
     </div>
   );
 };
 
-const Skills = () => {
+const Skills = ({ day }) => {
+  const [name, setName] = useState("");
+
   return (
-    <div className="relative h-[700px] px-4 text-white">
+    <div
+      className={`relative h-[700px] px-4 ${day ? "text-black" : "text-white"}`}
+    >
       <div className="text-md mt-20 p-4 font-custom text-4xl font-black underline">
         Skills
       </div>
-      <div className="text-md relative mt-[200px] flex select-none justify-center">
+      <div className="text-md relative mt-[200px] flex select-none justify-center font-custom">
+        <div className="mt-6">{name}</div>
         {technologies.map((technology, index) => (
-          <Orb key={technology} technology={technology} i={index} />
+          <Orb
+            key={technology.name}
+            technology={technology}
+            i={index}
+            setName={setName}
+          />
         ))}
       </div>
       <div></div>

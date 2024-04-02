@@ -1,7 +1,7 @@
 import { Stage } from "@pixi/react";
 import { useEffect, useRef } from "react";
 import MovingCloud from "./MovingCloud";
-const Canvas = () => {
+const Canvas = ({ day }) => {
   const ref = useRef(null);
 
   const stageRef = useRef(null);
@@ -22,7 +22,11 @@ const Canvas = () => {
   }, []);
 
   return (
-    <div className="relative" ref={ref} style={{ filter: "brightness(0.3)" }}>
+    <div
+      className="relative"
+      ref={ref}
+      style={{ filter: day ? "none" : "brightness(0.3)" }}
+    >
       <Stage
         options={{ antialias: true, backgroundAlpha: 0 }}
         ref={stageRef}

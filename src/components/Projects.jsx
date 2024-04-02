@@ -1,16 +1,15 @@
 /* eslint-disable react/prop-types */
-import { projects } from "../assets/index.js";
+import { projects, source } from "../assets/index.js";
 
-const Project = ({ title, description, thumbnail, url }) => {
+const Project = ({ title, description, thumbnail, url, code }) => {
   return (
-    <a
-      className="hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl"
+    <div
+      className="relative hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl"
       style={{
         transition: "all 0.3s",
       }}
-      href={url}
     >
-      <div className="pixel-corners w-[300px] p-2">
+      <a className="pixel-corners w-[300px] p-2" href={url}>
         <div
           className="pixel-corners w-[300px] cursor-pointer flex-col bg-stone-300 p-2 shadow-2xl"
           style={{ aspectRatio: "3/4" }}
@@ -28,31 +27,31 @@ const Project = ({ title, description, thumbnail, url }) => {
             <div className="font-custom text-xl text-black">{description}</div>
           </div>
         </div>
-      </div>
-    </a>
+      </a>
+      <a href={code} className="absolute bottom-2 right-5">
+        <img src={source} alt="Source code" width={40} height={40} />
+      </a>
+    </div>
   );
 };
 
-const Projects = () => {
+const Projects = ({ day }) => {
   return (
     <div className="px-8">
       <p
-        className="text-md mt-16 scroll-mt-16 font-custom text-3xl font-black text-white underline"
-        style={{ mixBlendMode: "difference" }}
+        className={`text-md mt-16 scroll-mt-16 font-custom text-3xl font-black ${
+          day ? "text-black" : "text-white"
+        } underline`}
       >
         My Work
       </p>
-      <div className="font-custom text-3xl text-white" id="projects">
+      <div
+        className={`font-custom text-3xl ${day ? "text-black" : "text-white"}`}
+      >
         <p className="mb-8">Check out my projects</p>
         <div className="flex flex-wrap items-center justify-center gap-8">
           {projects.map((project) => (
-            <Project
-              key={project.title}
-              title={project.title}
-              description={project.description}
-              thumbnail={project.thumbnail}
-              url={project.url}
-            />
+            <Project key={project.title} {...project} />
           ))}
         </div>
         <p className="text-md mt-8 text-center font-custom text-3xl text-black">
