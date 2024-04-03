@@ -9,19 +9,19 @@ const Terrain = ({ day }) => {
 
   const animationRef = useRef(0);
 
-  const moveDiv = () => {
-    setPosition((prevPosition) => (prevPosition > 1820 ? 0 : prevPosition + 2)); // Increment position
+  // const moveDiv = () => {
+  //   setPosition((prevPosition) => (prevPosition > 1820 ? 0 : prevPosition + 2)); // Increment position
 
-    animationRef.current = requestAnimationFrame(moveDiv); // Request next frame
-  };
+  //   animationRef.current = requestAnimationFrame(moveDiv); // Request next frame
+  // };
 
-  // Start animation on component mount
-  useEffect(() => {
-    animationRef.current = requestAnimationFrame(moveDiv);
+  // // Start animation on component mount
+  // useEffect(() => {
+  //   animationRef.current = requestAnimationFrame(moveDiv);
 
-    // Cleanup function to cancel animation frame
-    return () => cancelAnimationFrame(animationRef.current);
-  }, []);
+  //   // Cleanup function to cancel animation frame
+  //   return () => cancelAnimationFrame(animationRef.current);
+  // }, []);
 
   return (
     <div
@@ -31,7 +31,7 @@ const Terrain = ({ day }) => {
         backgroundImage: `url(${terrain[0]})`,
         right: position,
         backgroundRepeat: "repeat-x",
-
+        animation: `moveTerrain ${10}s linear infinite`,
         mixBlendMode: "multiply",
       }}
     ></div>
