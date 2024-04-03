@@ -42,6 +42,7 @@ const Projects = ({ day }) => {
         className={`text-md mt-16 scroll-mt-16 font-custom text-3xl font-black ${
           day ? "text-black" : "text-white"
         } underline`}
+        id="projects"
       >
         My Work
       </p>

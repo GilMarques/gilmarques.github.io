@@ -10,7 +10,10 @@ const About = ({ day }) => {
         Hi, my name is <b>Gil</b> <br /> I'm a Software Developer from Portugal
       </div>
       <div className={`relative px-4  ${day ? "text-black" : "text-white"}`}>
-        <div className="text-md mt-16 scroll-mt-16 p-4 font-custom text-4xl font-black underline">
+        <div
+          className="text-md mt-16 scroll-mt-16 p-4 font-custom text-4xl font-black underline"
+          id="about"
+        >
           About
         </div>
         <div className="text-md p-4 font-custom text-3xl">

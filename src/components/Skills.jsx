@@ -30,6 +30,8 @@ const Orb = ({ technology, i, setName }) => {
       style={{
         transform: `rotate(${angle * i + position}deg) translate(0%, -300%)`,
       }}
+      onMouseEnter={() => setName(technology.name)}
+      onMouseLeave={() => setName("")}
     >
       <div className="absolute">
         <img src={orb} alt="Orb" width={l} height={l} />
@@ -43,8 +45,6 @@ const Orb = ({ technology, i, setName }) => {
           className="opacity-80"
           draggable="false"
           style={{ transform: `rotate(${-angle * i - position}deg)` }}
-          onMouseEnter={() => setName(technology.name)}
-          onMouseLeave={() => setName("")}
         />
       </div>
     </div>
@@ -61,7 +61,7 @@ const Skills = ({ day }) => {
       <div className="text-md mt-20 p-4 font-custom text-4xl font-black underline">
         Skills
       </div>
-      <div className="text-md relative mt-[200px] flex select-none justify-center font-custom">
+      <div className="text-md mt-[200px] flex select-none justify-center font-custom">
         <div className="mt-6">{name}</div>
         {technologies.map((technology, index) => (
           <Orb

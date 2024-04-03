@@ -36,7 +36,7 @@ const Cloud = ({ opacity = 100, scale = 1, velocityMod = 3, type }) => {
   }, [type]);
 
   return (
-    <div ref={ref} className="relative" style={{ right: position }}>
+    <div ref={ref} className="absolute w-full" style={{ right: position }}>
       <img
         ref={imageRef}
         src={source[index]}

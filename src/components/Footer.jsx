@@ -71,31 +71,35 @@ const DayButtons = ({ setDaytime }) => {
   }, [pressed, setDaytime]);
 
   return (
-    <div className="absolute bottom-[50px]">
-      <DayButton
-        id={0}
-        src={button}
-        pressed={pressed}
-        setPressed={setPressed}
-      />
-      <DayButton
-        id={1}
-        src={button}
-        pressed={pressed}
-        setPressed={setPressed}
-      />
-      <DayButton
-        id={2}
-        src={button}
-        pressed={pressed}
-        setPressed={setPressed}
-      />
-      <DayButton
-        id={3}
-        src={button}
-        pressed={pressed}
-        setPressed={setPressed}
-      />
+    <div className="bottom-0 flex flex-row flex-wrap justify-center">
+      <div>
+        <DayButton
+          id={0}
+          src={button}
+          pressed={pressed}
+          setPressed={setPressed}
+        />
+        <DayButton
+          id={1}
+          src={button}
+          pressed={pressed}
+          setPressed={setPressed}
+        />
+      </div>
+      <div>
+        <DayButton
+          id={2}
+          src={button}
+          pressed={pressed}
+          setPressed={setPressed}
+        />
+        <DayButton
+          id={3}
+          src={button}
+          pressed={pressed}
+          setPressed={setPressed}
+        />
+      </div>
     </div>
   );
 };
@@ -133,31 +137,37 @@ const WeatherButtons = ({ setWeather }) => {
   }, [pressed, setWeather]);
 
   return (
-    <div className="absolute bottom-0">
-      <WeatherButton
-        id={0}
-        src={button}
-        pressed={pressed}
-        setPressed={setPressed}
-      />
-      <WeatherButton
-        id={1}
-        src={button}
-        pressed={pressed}
-        setPressed={setPressed}
-      />
-      <WeatherButton
-        id={2}
-        src={button}
-        pressed={pressed}
-        setPressed={setPressed}
-      />
-      <WeatherButton
-        id={3}
-        src={button}
-        pressed={pressed}
-        setPressed={setPressed}
-      />
+    <div className="text-center">
+      <div className="flex flex-row flex-wrap justify-center">
+        <div>
+          <WeatherButton
+            id={0}
+            src={button}
+            pressed={pressed}
+            setPressed={setPressed}
+          />
+          <WeatherButton
+            id={1}
+            src={button}
+            pressed={pressed}
+            setPressed={setPressed}
+          />
+        </div>
+        <div>
+          <WeatherButton
+            id={2}
+            src={button}
+            pressed={pressed}
+            setPressed={setPressed}
+          />
+          <WeatherButton
+            id={3}
+            src={button}
+            pressed={pressed}
+            setPressed={setPressed}
+          />
+        </div>
+      </div>
     </div>
   );
 };
@@ -171,31 +181,29 @@ const Footer = ({ day, setWeather, setDaytime }) => {
         className={`absolute bottom-[40px] min-w-full font-custom ${
           day ? "text-black" : "text-white"
         }`}
+        id="contact"
       >
-        <p className="text-center text-3xl">Contact Me</p>
-        <div
-          className="flex items-center justify-center gap-x-4"
-          // style={{ filter: day ? "none" : "brightness(0.2)" }}
-        >
-          {social.map((x) => (
-            <a
-              className="flex flex-col items-center"
-              href={x.link}
-              key={x.name}
-            >
-              <img
-                key={x.name}
-                src={x.src}
-                alt="logo"
-                className="m-auto inline-block h-[50px] w-[60px]"
-                draggable="false"
-              />
-              <p>{x.name}</p>
-            </a>
-          ))}
+        <div className="flex items-center justify-center gap-x-4">
+          <DayButtons setDaytime={setDaytime} />
+          <WeatherButtons setWeather={setWeather} />
+          <div className="relative">
+            <p className="text-center text-3xl">Contact Me</p>
+            {social.map((x) => (
+              <a className="flex items-center" href={x.link} key={x.name}>
+                <img
+                  key={x.name}
+                  src={x.src}
+                  alt="logo"
+                  className="left-0 inline-block h-[50px] w-[60px]"
+                  draggable="false"
+                />
+                <p className="absolute left-1/2">{x.name}</p>
+              </a>
+            ))}
+          </div>
         </div>
         <hr
-          className={`m-auto w-1/2 rounded-sm border-2  ${
+          className={`m-auto w-2/3 rounded-sm border-2  ${
             day ? "border-black" : "border-white"
           }`}
         />
@@ -203,8 +211,6 @@ const Footer = ({ day, setWeather, setDaytime }) => {
           Copyright&ensp;2024&ensp; &bull;&ensp; Gil&ensp;Marques
         </div>
       </div>
-      <DayButtons setDaytime={setDaytime} />
-      <WeatherButtons setWeather={setWeather} />
     </>
   );
 };
