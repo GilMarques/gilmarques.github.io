@@ -1,29 +1,11 @@
 /* eslint-disable react/prop-types */
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { orb, technologies } from "../assets/index.js";
 
 //TODO: reflections
 //ToDO: animations wheel
 const l = 70;
 const Orb = ({ technology, i, setName }) => {
-  const angle = 360 / 7;
-  const [position, setPosition] = useState(0);
-
-  const animationRef = useRef(0);
-  // const moveDiv = () => {
-  //   setPosition((prevPosition) => prevPosition + 0.01); // Increment position
-
-  //   animationRef.current = requestAnimationFrame(moveDiv); // Request next frame
-  // };
-
-  // // Start animation on component mount
-  // useEffect(() => {
-  //   animationRef.current = requestAnimationFrame(moveDiv);
-
-  //   // Cleanup function to cancel animation frame
-  //   return () => cancelAnimationFrame(animationRef.current);
-  // }, []);
-
   return (
     <div
       className="absolute flex items-center justify-center p-8"
@@ -67,7 +49,7 @@ const Skills = ({ day }) => {
       </div>
 
       <div className="text-md left-1/2 mt-[200px] flex select-none justify-center font-custom">
-        <div className="">{name}</div>
+        <div className="text-3xl">{name}</div>
         {technologies.map((technology, index) => (
           <Orb
             key={technology.name}

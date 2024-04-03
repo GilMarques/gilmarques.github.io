@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Projects from "./components/Projects";
 import Rain from "./components/Rain";
 import Skills from "./components/Skills";
+import Snow from "./components/Snow";
 import Stars from "./components/Stars";
 import Canvas from "./models/Canvas";
 const daytimes = {
@@ -101,6 +102,7 @@ function App() {
         className="front-row relative z-50 min-w-full"
         style={{ background }}
       >
+        <Snow />
         {isRaining && <Rain />}
         <Stars day={isDay} />
 
