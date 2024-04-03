@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { orb, technologies } from "../assets/index.js";
 
 //TODO: reflections
@@ -10,25 +10,26 @@ const Orb = ({ technology, i, setName }) => {
   const [position, setPosition] = useState(0);
 
   const animationRef = useRef(0);
-  const moveDiv = () => {
-    setPosition((prevPosition) => prevPosition + 0.01); // Increment position
+  // const moveDiv = () => {
+  //   setPosition((prevPosition) => prevPosition + 0.01); // Increment position
 
-    animationRef.current = requestAnimationFrame(moveDiv); // Request next frame
-  };
+  //   animationRef.current = requestAnimationFrame(moveDiv); // Request next frame
+  // };
 
-  // Start animation on component mount
-  useEffect(() => {
-    animationRef.current = requestAnimationFrame(moveDiv);
+  // // Start animation on component mount
+  // useEffect(() => {
+  //   animationRef.current = requestAnimationFrame(moveDiv);
 
-    // Cleanup function to cancel animation frame
-    return () => cancelAnimationFrame(animationRef.current);
-  }, []);
+  //   // Cleanup function to cancel animation frame
+  //   return () => cancelAnimationFrame(animationRef.current);
+  // }, []);
 
   return (
     <div
       className="absolute flex items-center justify-center p-8"
       style={{
-        transform: `rotate(${angle * i + position}deg) translate(0%, -300%)`,
+        animation: `spin ${10}s linear infinite`,
+        animationDelay: `${-(10 * i) / 7}s`,
       }}
       onMouseEnter={() => setName(technology.name)}
       onMouseLeave={() => setName("")}
@@ -44,7 +45,10 @@ const Orb = ({ technology, i, setName }) => {
           height={l * 0.5}
           className="opacity-80"
           draggable="false"
-          style={{ transform: `rotate(${-angle * i - position}deg)` }}
+          style={{
+            animation: "spin2 10s linear infinite",
+            animationDelay: `${-(10 * i) / 7}s`,
+          }}
         />
       </div>
     </div>
@@ -61,8 +65,9 @@ const Skills = ({ day }) => {
       <div className="text-md mt-20 p-4 font-custom text-4xl font-black underline">
         Skills
       </div>
-      <div className="text-md mt-[200px] flex select-none justify-center font-custom">
-        <div className="mt-6">{name}</div>
+
+      <div className="text-md left-1/2 mt-[200px] flex select-none justify-center font-custom">
+        <div className="">{name}</div>
         {technologies.map((technology, index) => (
           <Orb
             key={technology.name}
@@ -72,7 +77,6 @@ const Skills = ({ day }) => {
           />
         ))}
       </div>
-      <div></div>
     </div>
   );
 };

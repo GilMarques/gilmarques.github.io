@@ -189,7 +189,7 @@ body.splat-toggle .splat {
 
 @keyframes move{
   0%{
-    right: -20%;
+    right: -800px;
   }
   100%{
     right: 100%;
@@ -200,12 +200,35 @@ body.splat-toggle .splat {
 
 @keyframes moveTerrain{
   0%{
-    right: 0%;
+    right: 0px;
   }
   100%{
     right: 1819px;
   }
 }
+
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg) translate(0%,-300%);
+  }
+  to {
+    transform: rotate(360deg) translate(0%,-300%);
+  }
+}
+
+@keyframes spin2 {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+
+
 
 
 
