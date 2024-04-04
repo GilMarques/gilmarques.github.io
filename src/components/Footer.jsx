@@ -183,7 +183,7 @@ const Footer = ({ day, setWeather, setDaytime }) => {
         }`}
         id="contact"
       >
-        <div className="flex items-center justify-center gap-x-4">
+        <div className="mx-8 flex items-center justify-center gap-x-4">
           <DayButtons setDaytime={setDaytime} />
           <WeatherButtons setWeather={setWeather} />
           <div className="relative">

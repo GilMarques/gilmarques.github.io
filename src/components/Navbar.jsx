@@ -6,7 +6,7 @@ const Navbar = () => {
           About
         </a>
         <a className="mx-5 font-custom text-xl" href="#projects">
-          My&ensp;Work
+          My Work
         </a>
         <a className="mx-5 font-custom text-xl" href="#contact">
           Contact

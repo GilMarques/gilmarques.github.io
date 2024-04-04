@@ -17,11 +17,11 @@ const About = ({ day }) => {
           About
         </div>
         <div className="text-md p-4 font-custom text-3xl">
-          I'm a software developer with experience in Javascript, and expertise
-          in frameworks like React, Node.js. I'm a quick learner and collaborate
-          closely with clients to create efficeient, scalable, and user-friendly
-          solutions that solve real-world problems. Let's work together to bring
-          your ideas to life!
+          I'm a software developer, my focus is on crafting sophisticated
+          solutions for intricate challenges. Drawing from a diverse background
+          encompassing app development and the hard sciences, I am committed to
+          utilizing my versatile skill set to make impactful contributions to
+          projects and collaborate effectively within teams.
         </div>
       </div>
     </>

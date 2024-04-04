@@ -49,13 +49,20 @@ const sources = { day: clouds, night: nightclouds, rain: rainclouds };
 //   );
 // };
 
-const Cloud = ({ opacity = 100, scale = 1, animationDuration = 10, type }) => {
+const Cloud = ({
+  opacity = 100,
+  scale = 1,
+  animationDuration = 10,
+  type,
+  delay,
+}) => {
   const source = useRef(sources[type]);
-
+  const index = useRef(Math.floor(Math.random() * 10));
   const ref = useRef(null);
 
   useEffect(() => {
     source.current = sources[type];
+    ref.current.src = source.current[index.current];
   }, [type]);
 
   return (
@@ -63,17 +70,17 @@ const Cloud = ({ opacity = 100, scale = 1, animationDuration = 10, type }) => {
       className="relative"
       style={{
         animation: `move ${animationDuration}s linear infinite`,
-        animationDelay: `${Math.floor(Math.random() * 5)}s`,
+        animationDelay: `-${delay}s`,
         right: "-20%",
       }}
       onAnimationIteration={() => {
-        ref.current.src =
-          source.current[Math.floor(Math.random() * source.current.length)];
+        index.current = Math.floor(Math.random() * 10);
+        ref.current.src = source.current[index.current];
       }}
     >
       <img
         ref={ref}
-        src={source.current[0]}
+        src={source.current[index.current]}
         alt="Moving Cloud"
         className={`absolute right-0 opacity-${opacity}`}
         width={800 * scale}
@@ -107,9 +114,10 @@ const Clouds = ({ day, rain }) => {
         day={day}
         rain={rain}
         type={type}
+        delay={10}
       />
-      <Cloud scale={0.5} velocityMod={0.5} type={type} />
-      <Cloud scale={1} velocityMod={1} type={type} />
+      <Cloud scale={0.5} velocityMod={0.5} type={type} delay={4} />
+      <Cloud scale={1} velocityMod={1} type={type} delay={0} />
     </>
   );
 };
