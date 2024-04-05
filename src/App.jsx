@@ -87,14 +87,6 @@ function App() {
     }
   }, [daytime]);
 
-  useEffect(() => {
-    console.log(weather);
-  }, [weather]);
-
-  useEffect(() => {
-    console.log(daytime);
-  }, [daytime]);
-
   return (
     <>
       <animated.div

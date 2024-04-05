@@ -3,10 +3,16 @@
 @tailwind utilities;
 
 
+@font-face {
+  font-family: myFont;
+  src: url('/fonts/Connection3.otf') format('opentype');
+}
+
+
 .sky-gradient { background: linear-gradient(to bottom ,hsl(0, 0%, 0%) 0% , #b7eaff 50%,#94dfff 100%); }
 
 body {
-
+  font-family: myFont;
     overflow-x: hidden;
   word-spacing: 7px;
 }
