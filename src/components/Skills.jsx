@@ -17,17 +17,23 @@ const Orb = ({ technology, i, setName }) => {
       onMouseLeave={() => setName("")}
     >
       <div className="absolute">
-        <img src={orb} alt="Orb" width={l} height={l} />
+        <img
+          src={orb}
+          alt="Orb"
+          style={{ minHeight: l, minWidth: l, maxHeight: l, maxWidth: l }}
+        />
       </div>
-      <div className="absolute">
+      <div className="absolute h-[35px] w-[35px]">
         <img
           src={technology.src}
           alt={technology.name}
-          width={l * 0.5}
-          height={l * 0.5}
           className="opacity-80"
           draggable="false"
           style={{
+            minHeight: l / 2,
+            minWidth: l / 2,
+            maxHeight: l / 2,
+            maxWidth: l / 2,
             animation: "spin2 10s linear infinite",
             animationDelay: `${-(10 * i) / 7}s`,
           }}
@@ -44,11 +50,11 @@ const Skills = ({ day }) => {
     <div
       className={`relative h-[700px] px-4 ${day ? "text-black" : "text-white"}`}
     >
-      <div className="text-md mt-20 p-4 font-custom text-4xl font-black underline">
+      <div className="text-md font-custom mt-20 p-4 text-4xl font-black underline">
         Skills
       </div>
 
-      <div className="text-md left-1/2 mt-[200px] flex select-none justify-center font-custom">
+      <div className="text-md font-custom left-1/2 mt-[200px] flex select-none justify-center">
         <div className="text-3xl">{name}</div>
         {technologies.map((technology, index) => (
           <Orb
