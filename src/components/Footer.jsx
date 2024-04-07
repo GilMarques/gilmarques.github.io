@@ -26,7 +26,7 @@ const Terrain = ({ day }) => {
   return (
     <div
       ref={ref}
-      className="relative bottom-0 -mt-0 min-h-[600px] w-[600%]"
+      className="relative bottom-0 -mt-0 min-h-[600px] w-[200%] min-w-[3620px]"
       style={{
         backgroundImage: `url(${terrain[0]})`,
         right: position,
@@ -47,14 +47,17 @@ const DayButton = ({ id, src, pressed, setPressed }) => {
   };
   return (
     <button onClick={handleClick}>
-      <div className="absolute">
-        <img src={dayLogos[id].src} alt="" width={50} height={50} />
+      <div className="absolute min-w-[50px]">
+        <img
+          src={dayLogos[id].src}
+          alt=""
+          style={{ minHeight: 50, minWidth: 50, maxHeight: 50, maxWidth: 50 }}
+        />
       </div>
       <img
         src={pressed === id ? src[0] : src[1]}
         alt={src}
-        width={50}
-        height={50}
+        style={{ minHeight: 50, minWidth: 50, maxHeight: 50, maxWidth: 50 }}
       />
     </button>
   );
@@ -112,14 +115,17 @@ const WeatherButton = ({ id, src, pressed, setPressed }) => {
   };
   return (
     <button onClick={handleClick}>
-      <div className="absolute">
-        <img src={weatherLogos[id].src} alt="" width={50} height={50} />
+      <div className="absolute min-w-[50px]">
+        <img
+          src={weatherLogos[id].src}
+          alt=""
+          style={{ minHeight: 50, minWidth: 50, maxHeight: 50, maxWidth: 50 }}
+        />
       </div>
       <img
         src={pressed === id ? src[0] : src[1]}
         alt={src}
-        width={50}
-        height={50}
+        style={{ minHeight: 50, minWidth: 50, maxHeight: 50, maxWidth: 50 }}
       />
     </button>
   );
@@ -133,6 +139,7 @@ const WeatherButtons = ({ setWeather }) => {
       setWeather("clear");
       return;
     }
+    console.log("pressed: " + weatherLogos[pressed].name);
     setWeather(weatherLogos[pressed].name);
   }, [pressed, setWeather]);
 
@@ -156,12 +163,6 @@ const WeatherButtons = ({ setWeather }) => {
         <div>
           <WeatherButton
             id={2}
-            src={button}
-            pressed={pressed}
-            setPressed={setPressed}
-          />
-          <WeatherButton
-            id={3}
             src={button}
             pressed={pressed}
             setPressed={setPressed}
@@ -207,7 +208,7 @@ const Footer = ({ day, setWeather, setDaytime }) => {
             day ? "border-black" : "border-white"
           }`}
         />
-        <div className="text-center font-custom text-xl">
+        <div className="font-custom text-center text-xl">
           Copyright&ensp;2024&ensp; &bull;&ensp; Gil&ensp;Marques
         </div>
       </div>

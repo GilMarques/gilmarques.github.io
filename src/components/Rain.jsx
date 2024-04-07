@@ -1,8 +1,5 @@
-import { useRef } from "react";
 //https://codepen.io/arickle/pen/XKjMZY
 const Rain = () => {
-  const ref = useRef(null);
-
   var increment = 0;
   var drops = [];
 
@@ -20,32 +17,29 @@ const Rain = () => {
   }
 
   return (
-    <div
-      ref={ref}
-      className="rain pointer-events-none fixed top-0 min-h-full min-w-full"
-    >
+    <div className="rain pointer-events-none fixed top-0 min-h-full min-w-full">
       {drops.map((drop) => (
         <div
           key={drop.increment}
           className="drop"
           style={{
             left: `${drop.increment}%`,
-            bottom: `${drop.randoFiver + 90}%`,
-            animationDelay: `0.${drop.randoHundo}s`,
+            bottom: `${drop.randoFiver + 85}%`,
+            animationDelay: `-0.${drop.randoHundo}s`,
             animationDuration: `0.5${drop.randoHundo}s`,
           }}
         >
           <div
             className="stem"
             style={{
-              animationDelay: `0.${drop.randoHundo}s`,
+              animationDelay: `-0.${drop.randoHundo}s`,
               animationDuration: `0.5${drop.randoHundo}s`,
             }}
           ></div>
           <div
             className="splat"
             style={{
-              animationDelay: `0.${drop.randoHundo}s`,
+              animationDelay: `-0.${drop.randoHundo}s`,
               animationDuration: `0.5${drop.randoHundo}s`,
             }}
           ></div>

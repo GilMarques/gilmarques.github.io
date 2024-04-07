@@ -25,7 +25,7 @@ const Canvas = ({ day }) => {
     <div
       className="relative"
       ref={ref}
-      style={{ filter: day ? "none" : "brightness(0.3)" }}
+      style={{ filter: day ? "none" : "brightness(0.6)" }}
     >
       <Stage
         options={{ antialias: true, backgroundAlpha: 0 }}

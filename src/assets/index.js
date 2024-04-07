@@ -1,51 +1,41 @@
 import cloud0 from "./clouds/sprite_0.png";
 import cloud1 from "./clouds/sprite_1.png";
-import cloud10 from "./clouds/sprite_10.png";
+
 import cloud2 from "./clouds/sprite_2.png";
 import cloud3 from "./clouds/sprite_3.png";
 import cloud4 from "./clouds/sprite_4.png";
 import cloud5 from "./clouds/sprite_5.png";
 import cloud6 from "./clouds/sprite_6.png";
 import cloud7 from "./clouds/sprite_7.png";
-import cloud8 from "./clouds/sprite_8.png";
-import cloud9 from "./clouds/sprite_9.png";
-
-const clouds = [
-  cloud0,
-  cloud1,
-  cloud2,
-  cloud3,
-  cloud4,
-  cloud5,
-  cloud6,
-  cloud7,
-  cloud8,
-  cloud9,
-  cloud10,
-];
 
 import nightcloud0 from "./clouds_night/sprite_0.png";
 import nightcloud1 from "./clouds_night/sprite_1.png";
-import nightcloud10 from "./clouds_night/sprite_10.png";
 import nightcloud2 from "./clouds_night/sprite_2.png";
 import nightcloud3 from "./clouds_night/sprite_3.png";
 import nightcloud4 from "./clouds_night/sprite_4.png";
 import nightcloud5 from "./clouds_night/sprite_5.png";
 import nightcloud6 from "./clouds_night/sprite_6.png";
 import nightcloud7 from "./clouds_night/sprite_7.png";
-import nightcloud8 from "./clouds_night/sprite_8.png";
-import nightcloud9 from "./clouds_night/sprite_9.png";
+
 import raincloud0 from "./clouds_rain/sprite_0.png";
 import raincloud1 from "./clouds_rain/sprite_1.png";
-import raincloud10 from "./clouds_rain/sprite_10.png";
 import raincloud2 from "./clouds_rain/sprite_2.png";
 import raincloud3 from "./clouds_rain/sprite_3.png";
 import raincloud4 from "./clouds_rain/sprite_4.png";
 import raincloud5 from "./clouds_rain/sprite_5.png";
 import raincloud6 from "./clouds_rain/sprite_6.png";
 import raincloud7 from "./clouds_rain/sprite_7.png";
-import raincloud8 from "./clouds_rain/sprite_8.png";
-import raincloud9 from "./clouds_rain/sprite_9.png";
+
+import graycloud0 from "./clouds_grayscale/sprite_0.png";
+import graycloud1 from "./clouds_grayscale/sprite_1.png";
+import graycloud2 from "./clouds_grayscale/sprite_2.png";
+import graycloud3 from "./clouds_grayscale/sprite_3.png";
+import graycloud4 from "./clouds_grayscale/sprite_4.png";
+import graycloud5 from "./clouds_grayscale/sprite_5.png";
+import graycloud6 from "./clouds_grayscale/sprite_6.png";
+import graycloud7 from "./clouds_grayscale/sprite_7.png";
+
+const clouds = [cloud0, cloud1, cloud2, cloud3, cloud4, cloud5, cloud6, cloud7];
 
 const nightclouds = [
   nightcloud0,
@@ -56,9 +46,6 @@ const nightclouds = [
   nightcloud5,
   nightcloud6,
   nightcloud7,
-  nightcloud8,
-  nightcloud9,
-  nightcloud10,
 ];
 
 const rainclouds = [
@@ -70,9 +57,17 @@ const rainclouds = [
   raincloud5,
   raincloud6,
   raincloud7,
-  raincloud8,
-  raincloud9,
-  raincloud10,
+];
+
+const grayclouds = [
+  graycloud0,
+  graycloud1,
+  graycloud2,
+  graycloud3,
+  graycloud4,
+  graycloud5,
+  graycloud6,
+  graycloud7,
 ];
 
 import cloud from "./cloud.png";
@@ -170,13 +165,11 @@ const dayLogos = [
 import clear from "./weather_logos/clear.png";
 import rain from "./weather_logos/rain.png";
 import snow from "./weather_logos/snow.png";
-import thunder from "./weather_logos/thunder.png";
 
 const weatherLogos = [
   { name: "cloudy", src: clear },
   { name: "rain", src: rain },
   { name: "snow", src: snow },
-  { name: "thunder", src: thunder },
 ];
 
 import source from "./source.png";
@@ -187,6 +180,7 @@ export {
   cloud,
   clouds,
   dayLogos,
+  grayclouds,
   moon,
   nightclouds,
   ocean,

@@ -16,64 +16,72 @@ const daytimes = {
   day: "linear-gradient(to bottom,#94dfff 0%,#b7eaff 80%, #ffffff 100%)",
   sunset: "linear-gradient(to bottom,#FD5E53 50%,#FFD580  80%, #ffffff 100%)",
   night: "linear-gradient(to bottom,#000000 0%, #00001f 80%, #000837 100%)",
+  cloudy: "linear-gradient(to bottom,#a0b0af 0%, #35545e 80%, #b0b0b0 100%)",
 };
 
 function App() {
   const ref = useRef(null);
   const [{ background }, api] = useSpring(() => ({
-    background: daytimes["day"],
+    background: daytimes["cloudy"],
     config: { duration: 300 },
   }));
 
   const [spawnClouds, setSpawnClouds] = useState(false);
-  const [weather, setWeather] = useState("");
-  const [daytime, setDaytime] = useState("");
+  const [cloudLevel, setCloudLevel] = useState(0);
+  const [weather, setWeather] = useState("rain");
+  const [daytime, setDaytime] = useState("cloudy");
   const [isDay, setIsDay] = useState(true);
-  const [isRaining, setisRaining] = useState(false);
+
   useEffect(() => {
     setSpawnClouds(true);
   }, []);
 
-  // useEffect(() => {
-  //   fetch(
-  //     `https://api.openweathermap.org/data/2.5/weather?lat=${41.55}&lon=${-8.42}&appid=${
-  //       import.meta.env.VITE_API_KEY
-  //     }`
-  //   )
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       //https://openweathermap.org/weather-conditions
-  //       const id = data.weather[0].id;
-  //       console.log(data);
-  //       let r;
-  //       if (id >= 200 && id <= 232) {
-  //         r = "thunderstorm";
-  //       }
-  //       if (id >= 300 && id <= 321) {
-  //         r = "drizzle";
-  //       }
-  //       if (id >= 500 && id <= 531) {
-  //         r = "rain";
-  //       }
-  //       if (id >= 600 && id <= 622) {
-  //         r = "snow";
-  //       }
+  useEffect(() => {
+    // console.log(
+    //   `https://api.openweathermap.org/data/2.5/weather?lat=${41.55}&lon=${-8.42}&appid=${
+    //     import.meta.env.VITE_API_KEY
+    //   }`
+    // );
+    fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${41.55}&lon=${-8.42}&appid=${
+        import.meta.env.VITE_API_KEY
+      }`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        //https://openweathermap.org/weather-conditions
+        const id = data.weather[0].id;
+        console.log(data);
+        let r;
+        if (id >= 200 && id <= 232) {
+          r = "rain";
+        }
+        if (id >= 300 && id <= 321) {
+          r = "drizzle";
+        }
+        if (id >= 500 && id <= 531) {
+          r = "rain";
+        }
+        if (id >= 600 && id <= 622) {
+          r = "snow";
+        }
 
-  //       if (id >= 701 && id <= 781) {
-  //         r = "clear";
-  //       }
-  //       if (id === 800) {
-  //         r = "clear";
-  //       }
-  //       if (id >= 801 && id <= 804) {
-  //         r = "clouds";
-  //       }
+        if (id >= 701 && id <= 781) {
+          r = "clear";
+        }
+        if (id === 800) {
+          r = "clear";
+        }
+        if (id >= 801 && id <= 804) {
+          r = "clouds";
+        }
 
-  //       setWeather(r);
-  //     });
-  // }, []);
+        setWeather(r);
+      });
+  }, []);
 
   useEffect(() => {
+    console.log(daytime);
     api({
       background: daytimes[daytime],
     });
@@ -85,7 +93,7 @@ function App() {
       setIsDay(true);
       return;
     }
-  }, [daytime]);
+  }, [daytime, api]);
 
   return (
     <>
@@ -94,11 +102,17 @@ function App() {
         className="front-row relative z-50 min-w-full"
         style={{ background }}
       >
-        <Snow />
-        {isRaining && <Rain />}
+        {weather === "snow" && <Snow />}
+        {weather === "rain" && <Rain />}
         <Stars day={isDay} />
 
-        {spawnClouds && <Clouds day={isDay} rain={isRaining} />}
+        {spawnClouds && (
+          <Clouds
+            daytime={daytime}
+            rain={weather === "rain"}
+            level={cloudLevel}
+          />
+        )}
 
         {/* <Moon /> */}
 
