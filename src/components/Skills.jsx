@@ -2,16 +2,14 @@
 import { useState } from "react";
 import { orb, technologies } from "../assets/index.js";
 
-//TODO: reflections
-//ToDO: animations wheel
 const l = 70;
 const Orb = ({ technology, i, setName }) => {
   return (
     <div
       className="absolute flex items-center justify-center p-8"
       style={{
-        animation: `spin ${10}s linear infinite`,
-        animationDelay: `${-(10 * i) / 7}s`,
+        animation: `spin ${20}s linear infinite`,
+        animationDelay: `${-(20 * i) / 7}s`,
       }}
       onMouseEnter={() => setName(technology.name)}
       onMouseLeave={() => setName("")}
@@ -34,8 +32,8 @@ const Orb = ({ technology, i, setName }) => {
             minWidth: l / 2,
             maxHeight: l / 2,
             maxWidth: l / 2,
-            animation: "spin2 10s linear infinite",
-            animationDelay: `${-(10 * i) / 7}s`,
+            animation: "spin2 20s linear infinite",
+            animationDelay: `${-(20 * i) / 7}s`,
           }}
         />
       </div>

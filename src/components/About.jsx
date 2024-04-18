@@ -1,27 +1,30 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react/no-unescaped-entities */
 const About = ({ day }) => {
   return (
     <>
-      <div
-        className={`text-md relative top-0 mt-20 p-4 text-center font-custom text-3xl ${
-          day ? "text-black" : "text-white"
-        }`}
-      >
-        Hi, my name is <b>Gil</b> <br /> I'm a Software Developer from Portugal
-      </div>
-      <div className={`relative px-4  ${day ? "text-black" : "text-white"}`}>
-        <div
-          className="text-md mt-16 scroll-mt-16 p-4 font-custom text-4xl font-black underline"
-          id="about"
-        >
+      <div className={`absolute px-4  ${day ? "text-black" : "text-white"}`}>
+        <div className="text-md font-custom mt-16 p-4 text-4xl font-black underline">
           About
         </div>
-        <div className="text-md p-4 font-custom text-3xl">
-          I'm a software developer, my focus is on crafting sophisticated
-          solutions for intricate challenges. Drawing from a diverse background
-          encompassing app development and the hard sciences, I am committed to
-          utilizing my versatile skill set to make impactful contributions to
-          projects and collaborate effectively within teams.
+        <div
+          className={`text-md p-4  font-custom text-3xl scroll-mt-16  ${
+            day ? "text-black" : "text-white"
+          }`}
+          id="about"
+        >
+          Hi, my name is <b>Gil</b> <br /> I'm a Software Developer from
+          Portugal
+        </div>
+        <div className="text-md font-custom p-4 text-3xl">
+          <a
+            className={`p-4 rounded-xl border-2 border-black  ${
+              day ? "text-black border-black" : "text-white border-white"
+            } `}
+            href="#contact"
+          >
+            Contact Me
+          </a>
         </div>
       </div>
     </>

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Stage } from "@pixi/react";
 import { useEffect, useRef } from "react";
 import MovingCloud from "./MovingCloud";
@@ -23,7 +24,7 @@ const Canvas = ({ day }) => {
 
   return (
     <div
-      className="relative"
+      className="pointer-events-none"
       ref={ref}
       style={{ filter: day ? "none" : "brightness(0.6)" }}
     >

@@ -37,11 +37,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // console.log(
-    //   `https://api.openweathermap.org/data/2.5/weather?lat=${41.55}&lon=${-8.42}&appid=${
-    //     import.meta.env.VITE_API_KEY
-    //   }`
-    // );
     fetch(
       `https://api.openweathermap.org/data/2.5/weather?lat=${41.55}&lon=${-8.42}&appid=${
         import.meta.env.VITE_API_KEY
@@ -51,7 +46,7 @@ function App() {
       .then((data) => {
         //https://openweathermap.org/weather-conditions
         const id = data.weather[0].id;
-        console.log(data);
+
         let r;
         if (id >= 200 && id <= 232) {
           r = "rain";
@@ -81,7 +76,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log(daytime);
     api({
       background: daytimes[daytime],
     });
@@ -113,13 +107,12 @@ function App() {
             level={cloudLevel}
           />
         )}
+        <About day={isDay} />
+        <Canvas day={isDay} />
 
         {/* <Moon /> */}
 
-        <About day={isDay} />
-
         <Projects day={isDay} />
-        <Canvas day={isDay} />
 
         <Skills day={isDay} />
 
