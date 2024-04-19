@@ -139,7 +139,7 @@ const social = [
   {
     name: "Linkedin",
     src: linkedin,
-    link: "https://www.linkedin.com/in/gilmarques/",
+    link: "https://www.linkedin.com/in/gil-marques-ab86a524b/",
   },
 ];
 
