@@ -57,7 +57,7 @@ const Projects = ({ day }) => {
         </div>
         <p className="text-md font-custom mt-8 text-center text-3xl text-black">
           <a
-            className={`p-4 rounded-xl border-2 border-black  ${
+            className={`eightbit-button ${
               day ? "text-black border-black" : "text-white border-white"
             } `}
             href="https://github.com/GilMarques"

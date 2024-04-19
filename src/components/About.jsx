@@ -16,10 +16,11 @@ const About = ({ day }) => {
           Hi, my name is <b>Gil</b> <br /> I'm a Software Developer from
           Portugal
         </div>
+
         <div className="text-md font-custom p-4 text-3xl">
           <a
-            className={`p-4 rounded-xl border-2 border-black  ${
-              day ? "text-black border-black" : "text-white border-white"
+            className={`eightbit-button ${
+              day ? "text-black border-black" : "text-white border-white "
             } `}
             href="#contact"
           >
