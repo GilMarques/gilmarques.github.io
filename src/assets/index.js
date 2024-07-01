@@ -109,6 +109,7 @@ const technologies = [
 
 import orb from "./orb.png";
 
+import gymgenius from "./projects/gymgenius.png";
 import inouno from "./projects/inouno.png";
 import portfolio from "./projects/portfolio.png";
 const projects = [
@@ -127,6 +128,13 @@ const projects = [
     url: "https://gilmarques.github.io/",
     code: "https://github.com/GilMarques/portfolio",
   },
+
+  {
+    title: "Gym Genius",
+    description: "A Workout Log",
+    thumbnail: gymgenius,
+    url: "https://github.com/GilMarques/gym-genius-rn",
+    code: "https://github.com/GilMarques/gym-genius-rn",
 ];
 
 import email from "./logos/email.png";
@@ -194,5 +202,6 @@ export {
   technologies,
   terrain,
   terraingif,
-  weatherLogos,
+  weatherLogos
 };
+
