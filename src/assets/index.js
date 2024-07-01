@@ -135,6 +135,7 @@ const projects = [
     thumbnail: gymgenius,
     url: "https://github.com/GilMarques/gym-genius-rn",
     code: "https://github.com/GilMarques/gym-genius-rn",
+  },
 ];
 
 import email from "./logos/email.png";
@@ -202,6 +203,5 @@ export {
   technologies,
   terrain,
   terraingif,
-  weatherLogos
+  weatherLogos,
 };
-
