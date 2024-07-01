@@ -120,21 +120,19 @@ const projects = [
     url: "https://gilmarques.github.io/ino-uno-vite/",
     code: "https://github.com/GilMarques/ino-uno-vite",
   },
-
+  {
+    title: "Gym Genius",
+    description: "A Workout Log (Under Development)",
+    thumbnail: gymgenius,
+    url: "https://github.com/GilMarques/gym-genius-rn",
+    code: "https://github.com/GilMarques/gym-genius-rn",
+  },
   {
     title: "Personal Portfolio",
     description: "Retro Style Portfolio",
     thumbnail: portfolio,
     url: "https://gilmarques.github.io/",
     code: "https://github.com/GilMarques/portfolio",
-  },
-
-  {
-    title: "Gym Genius",
-    description: "A Workout Log",
-    thumbnail: gymgenius,
-    url: "https://github.com/GilMarques/gym-genius-rn",
-    code: "https://github.com/GilMarques/gym-genius-rn",
   },
 ];
 

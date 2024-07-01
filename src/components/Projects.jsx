@@ -17,8 +17,8 @@ const Project = ({ title, description, thumbnail, url, code }) => {
           <div className="pixel-corners mb-2 h-[150px] w-[200px] p-1">
             <img
               src={thumbnail}
-              alt={`${title} thumbnail`}
-              className="pixel-corners min-h-full min-w-full rounded-lg border-[5px] border-black object-cover"
+              alt={`${title}`}
+              className="pixel-corners min-h-full min-w-full rounded-lg border-[5px] border-black bg-cover object-cover"
               draggable="false"
             />
           </div>
