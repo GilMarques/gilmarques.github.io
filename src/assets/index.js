@@ -112,7 +112,16 @@ import orb from "./orb.png";
 import gymgenius from "./projects/gymgenius.png";
 import inouno from "./projects/inouno.png";
 import portfolio from "./projects/portfolio.png";
+import radiostation from "./projects/radiostation.png";
 const projects = [
+  {
+    title: "Radio Station",
+    description:
+      "App that lets you explore radio stations around the world using an interactive map. It pulls data from the radio-browser.info API.",
+    thumbnail: radiostation,
+    url: "https://gilmarques.github.io/radio-station/",
+    code: "https://github.com/GilMarques/radio-station",
+  },
   {
     title: "Ino Uno",
     description: "A clone of the popular game UNO",
