@@ -2,10 +2,10 @@
 import { Stage } from "@pixi/react";
 import { useEffect, useRef } from "react";
 import MovingCloud from "./MovingCloud";
-const Canvas = ({ day }) => {
-  const ref = useRef(null);
 
-  const stageRef = useRef(null);
+const Canvas = ({ day }: { day: boolean }) => {
+  const ref = useRef(null);
+  const stageRef = useRef<any>(null);
 
   const handleResize = () => {
     if (!ref.current || !stageRef.current) return;

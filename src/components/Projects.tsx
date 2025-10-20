@@ -1,7 +1,18 @@
 /* eslint-disable react/prop-types */
-import { projects, source } from "../assets/index.js";
-
-const Project = ({ title, description, thumbnail, url, code }) => {
+import { projects } from "../assets/index.js";
+const Project = ({
+  title,
+  description,
+  thumbnail,
+  url,
+  code,
+}: {
+  title: string;
+  description: string;
+  thumbnail: string;
+  url: string;
+  code: string;
+}) => {
   return (
     <div
       className="relative hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl"
@@ -22,32 +33,37 @@ const Project = ({ title, description, thumbnail, url, code }) => {
               draggable="false"
             />
           </div>
-          <div className="w-[250px] rounded-sm bg-stone-400 p-4">
-            <div className="font-custom text-3xl text-black">{title}</div>
-            <div className="font-custom text-xl text-black">{description}</div>
+          <div className="w-[250px] rounded-sm bg-stone-400 p-4 text-black font-custom ">
+            <div className="text-3xl">{title}</div>
+            <div className="text-xl">{description}</div>
           </div>
         </div>
       </a>
-      <a href={code} className="absolute bottom-2 right-5">
-        <img src={source} alt="Source code" width={40} height={40} />
+      <a
+        href={code}
+        className="absolute font-custom text-sm bottom-5 bg-stone-300 right-5 p-1 hover:bg-stone-200"
+      >
+        &#x3c;&#x3e; Source
       </a>
     </div>
   );
 };
 
-const Projects = ({ day }) => {
+const Projects = ({ isDay }: { isDay: boolean }) => {
   return (
     <div className="px-8">
       <p
         className={`text-md mt-16 scroll-mt-16 font-custom text-3xl font-black ${
-          day ? "text-black" : "text-white"
+          isDay ? "text-black" : "text-white"
         } underline`}
         id="projects"
       >
-        My Work
+        Projects
       </p>
       <div
-        className={`font-custom text-3xl ${day ? "text-black" : "text-white"}`}
+        className={`font-custom text-3xl ${
+          isDay ? "text-black" : "text-white"
+        }`}
       >
         <p className="mb-8">Check out my featured projects</p>
         <div className="flex flex-wrap items-center justify-center gap-8">
@@ -55,16 +71,16 @@ const Projects = ({ day }) => {
             <Project key={project.title} {...project} />
           ))}
         </div>
-        <p className="text-md font-custom mt-8 text-center text-3xl text-black">
+        <div className="font-custom mt-8 text-center text-3xl text-black">
           <a
             className={`eightbit-button ${
-              day ? "text-black border-black" : "text-white border-white"
+              isDay ? "text-black border-black" : "text-white border-white"
             } `}
             href="https://github.com/GilMarques"
           >
             More on my GitHub page
           </a>
-        </p>
+        </div>
       </div>
     </div>
   );

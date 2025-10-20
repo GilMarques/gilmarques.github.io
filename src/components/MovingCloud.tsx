@@ -1,11 +1,12 @@
 import { SimpleRope, Sprite, useApp, useTick } from "@pixi/react";
 import { Point } from "pixi.js";
 import { useMemo, useRef, useState } from "react";
-import { cloud, tail } from "../assets/index.js";
+import { cloud, tail } from "../assets/index";
+
 const MovingCloud = () => {
-  const ref = useRef(null);
-  const t = useRef(0);
-  const ropeLength = useRef(60);
+  const ref = useRef<any>(null);
+  const t = useRef<number>(0);
+  const ropeLength = useRef<number>(60);
   const app = useApp();
   const x0 = app.screen.width / 2;
   const y0 = 300;
@@ -17,7 +18,7 @@ const MovingCloud = () => {
     return points;
   }, []);
 
-  const [points, setPoints] = useState(initialPoints);
+  const [points, setPoints] = useState<any>(initialPoints);
   const scrollY = useRef(window.scrollY);
   const instantaneousRate = useRef(0);
   const rateOfChange = useRef(0);
@@ -60,6 +61,7 @@ const MovingCloud = () => {
         image={tail}
         anchor={{ x: 0, y: -1 }}
         scale={{ x: 1, y: -1 }}
+        /* @ts-expect-error */
         points={points}
         x={x0 + 110}
         y={y0 + 46}

@@ -70,44 +70,13 @@ const grayclouds = [
   graycloud7,
 ];
 
-import cloud from "./cloud.png";
-import moon from "./moon.png";
 import tail from "./tail.png";
 
 // index.js
 
-import terraingif from "./terrain.gif";
 import terrain0 from "./terrain.png";
 
 const terrain = [terrain0];
-
-import blinkingstar0 from "./blinking_star/frame0.png";
-import blinkingstar1 from "./blinking_star/frame1.png";
-const blinking_star = [blinkingstar0, blinkingstar1];
-
-import ocean from "./ocean.png";
-
-import c from "./technologies/c.png";
-import css from "./technologies/css.png";
-import html from "./technologies/html.png";
-import java from "./technologies/java.png";
-import javascript from "./technologies/javascript.png";
-import python from "./technologies/python.png";
-import react from "./technologies/react.png";
-const technologies = [
-  {
-    name: "HTML",
-    src: html,
-  },
-  { name: "CSS", src: css },
-  { name: "JavaScript", src: javascript },
-  { name: "React", src: react },
-  { name: "Python", src: python },
-  { name: "Java", src: java },
-  { name: "C", src: c },
-];
-
-import orb from "./orb.png";
 
 import gymgenius from "./projects/gymgenius.png";
 import inouno from "./projects/inouno.png";
@@ -124,7 +93,7 @@ const projects = [
   },
   {
     title: "Ino Uno",
-    description: "A clone of the popular game UNO",
+    description: "A clone of the popular game UNO (server is down)",
     thumbnail: inouno,
     url: "https://gilmarques.github.io/ino-uno-vite/",
     code: "https://github.com/GilMarques/ino-uno-vite",
@@ -145,70 +114,24 @@ const projects = [
   },
 ];
 
-import email from "./logos/email.png";
-import github from "./logos/github.png";
-import linkedin from "./logos/linkedin.png";
-
-const social = [
-  { name: "Email", src: email, link: "mailto:gilmmm4@gmail.com" },
-  { name: "GitHub", src: github, link: "https://github.com/GilMarques" },
-  {
-    name: "Linkedin",
-    src: linkedin,
-    link: "https://www.linkedin.com/in/gil-marques-ab86a524b/",
-  },
-];
-
-import sky from "./sky.gif";
+import starry_sky from "./starry_sky.gif";
 
 import button0 from "./button/0.png";
 import button1 from "./button/1.png";
 
+import cloud from "./cloud.png";
+
 const button = [button0, button1];
 
-import day from "./day_logos/day.png";
-import night from "./day_logos/night.png";
-import sunrise from "./day_logos/sunrise.png";
-import sunset from "./day_logos/sunset.png";
-
-const dayLogos = [
-  { name: "sunrise", src: sunrise },
-  { name: "day", src: day },
-  { name: "sunset", src: sunset },
-  { name: "night", src: night },
-];
-
-import clear from "./weather_logos/clear.png";
-import rain from "./weather_logos/rain.png";
-import snow from "./weather_logos/snow.png";
-
-const weatherLogos = [
-  { name: "cloudy", src: clear },
-  { name: "rain", src: rain },
-  { name: "snow", src: snow },
-];
-
-import source from "./source.png";
-
 export {
-  blinking_star,
   button,
   cloud,
   clouds,
-  dayLogos,
   grayclouds,
-  moon,
   nightclouds,
-  ocean,
-  orb,
   projects,
   rainclouds,
-  sky,
-  social,
-  source,
+  starry_sky,
   tail,
-  technologies,
   terrain,
-  terraingif,
-  weatherLogos,
 };
