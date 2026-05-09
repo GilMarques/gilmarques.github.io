@@ -1,98 +1,85 @@
-import { animated, useSpring } from "@react-spring/web";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import "./App.css";
 import Canvas from "./components/Canvas";
 import Footer from "./components/Footer";
-import Navbar from "./components/Navbar";
 import Weather from "./components/Weather";
 
 import Projects from "./components/Projects";
-
-const daytimes = {
-  sunrise: "linear-gradient(to bottom,#ffc19f 50%,#f0bbc9  80%, #ffffff 100%)",
-  day: "linear-gradient(to bottom,#94dfff 0%,#b7eaff 80%, #ffffff 100%)",
-  sunset: "linear-gradient(to bottom,#FD5E53 50%,#FFD580  80%, #ffffff 100%)",
-  night: "linear-gradient(to bottom,#000000 0%, #00001f 80%, #000837 100%)",
-  cloudy: "linear-gradient(to bottom,#a0b0af 0%, #35545e 80%, #b0b0b0 100%)",
-};
-
-export type WeatherType = "rain" | "drizzle" | "snow" | "clear" | "clouds";
+import SunDial from "./components/SunDial";
+import useSkyAtmosphere from "./hooks/useSkyAtmosphere";
+import useWeather, { WeatherType } from "./hooks/useWeather";
 
 export type DaytimeType = "day" | "sunrise" | "sunset" | "night" | "cloudy";
 
+/** Discrete phase for Weather / Canvas; gradient itself is smooth from the slider. */
+function daytimeFromSliderForEffects(percent: number): DaytimeType {
+  if (percent >= 75) return "night";
+  if (percent >= 50) return "sunset";
+  if (percent >= 25) return "day";
+  return "sunrise";
+}
+
 function App() {
-  const ref = useRef(null);
-  const [{ background }, animationApi] = useSpring(() => ({
-    background: daytimes["cloudy"],
-    config: { duration: 300 },
-  }));
-
   const [spawnClouds, setSpawnClouds] = useState(true);
-  // const [cloudLevel, setCloudLevel] = useState(0);
-  const [weather, setWeather] = useState<WeatherType>("rain");
-  const [daytime, setDaytime] = useState<DaytimeType>("cloudy");
-  const isDay = useMemo(() => daytime !== "night", [daytime]);
 
-  useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    try {
-      fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${41.55}&lon=${-8.42}&appid=${apiUrl}`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          //https://openweathermap.org/weather-conditions
-          const id = data.weather[0].id;
+  const [weather, setWeather] = useState<WeatherType>(WeatherType.Snow);
+  const [daySliderValue, setDaySliderValue] = useState(50);
+  const [cloudsAll, setCloudsAll] = useState<number | undefined>();
+  const [weatherConditionId, setWeatherConditionId] = useState<
+    number | undefined
+  >();
 
-          let r: WeatherType | "clear" = "clear";
-          if (id >= 200 && id <= 232) {
-            r = "rain";
-          }
-          if (id >= 300 && id <= 321) {
-            r = "drizzle";
-          }
-          if (id >= 500 && id <= 531) {
-            r = "rain";
-          }
-          if (id >= 600 && id <= 622) {
-            r = "snow";
-          }
+  const daytime = useMemo(
+    () => daytimeFromSliderForEffects(daySliderValue),
+    [daySliderValue]
+  );
+  const isDay = useMemo(() => daySliderValue < 75, [daySliderValue]);
 
-          if (id >= 701 && id <= 781) {
-            r = "clear";
-          }
-          if (id === 800) {
-            r = "clear";
-          }
-          if (id >= 801 && id <= 804) {
-            r = "clouds";
-          }
+  const { skyGradient, cloudLevel, cloudLayers } = useSkyAtmosphere({
+    daySliderPercent: daySliderValue,
+    weather,
+    cloudsAll,
+    weatherConditionId,
+  });
 
-          setWeather(r);
-        });
-    } catch (error) {
-      console.error("Error fetching weather data:", error);
-    }
+  useWeather({
+    setWeather,
+    setDaySliderValue,
+    setCloudsAll,
+    setWeatherConditionId,
+  });
+
+  const setWeatherFromUser = useCallback((next: WeatherType) => {
+    setWeather(next);
+    setWeatherConditionId(undefined);
+    setCloudsAll(undefined);
   }, []);
-
-  useEffect(() => {
-    animationApi({
-      background: daytimes[daytime],
-    });
-  }, [daytime, animationApi]);
 
   return (
     <>
-      <Navbar />
-      <animated.div
-        ref={ref}
+      <div className="navbar z-20 flex justify-end text-nowrap border-b-4 border-r-4 border-black bg-stone-300 px-8 py-4">
+        <div className="flex gap-8 font-custom text-xl">
+          <a href="#about" className="hover:underline">
+            About
+          </a>
+          <a href="#projects" className="hover:underline">
+            Projects
+          </a>
+          <a href="#contact" className="hover:underline">
+            Contact
+          </a>
+        </div>
+      </div>
+      <div
         className="front-row relative z-10 min-w-full"
-        style={{ background }}
+        style={{ background: skyGradient }}
       >
         <Weather
           weather={weather}
           daytime={daytime}
           spawnClouds={spawnClouds}
+          cloudLevel={cloudLevel}
+          cloudLayers={cloudLayers}
         />
 
         <>
@@ -115,21 +102,16 @@ function App() {
         </>
         <Canvas day={isDay} />
 
-        <div className="flex justify-center text-md font-custom text-3xl">
-          <a
-            className={`eightbit-button ${
-              isDay ? "text-black border-black" : "text-white border-white "
-            } `}
-            href="#contact"
-          >
-            Contact Me
-          </a>
-        </div>
-
         <Projects isDay={isDay} />
 
-        <Footer isDay={isDay} setDaytime={setDaytime} setWeather={setWeather} />
-      </animated.div>
+        <Footer
+          weather={weather}
+          isDay={isDay}
+          setWeather={setWeatherFromUser}
+          daySliderValue={daySliderValue}
+          setDaySliderValue={setDaySliderValue}
+        />
+      </div>
     </>
   );
 }

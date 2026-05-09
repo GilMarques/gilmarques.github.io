@@ -35,6 +35,20 @@ import graycloud5 from "./clouds_grayscale/sprite_5.png";
 import graycloud6 from "./clouds_grayscale/sprite_6.png";
 import graycloud7 from "./clouds_grayscale/sprite_7.png";
 
+import heart from "./heart.png";
+
+import sun_icon from "./sun_icon.png";
+import moon_icon from "./moon_icon.png";
+
+import linkedin_icon from "./linkedin.png";
+import github_icon from "./github_icon.png";
+import mail_icon from "./mail.png";
+import sun_dial from "./sun_dial.png";
+import blue_circle from "./blue_circle.png";
+import cloudy from "./cloudy.png";
+import drizzle from "./drizzle.png";
+import snowflake from "./snowflake.png";
+
 const clouds = [cloud0, cloud1, cloud2, cloud3, cloud4, cloud5, cloud6, cloud7];
 
 const nightclouds = [
@@ -74,9 +88,8 @@ import tail from "./tail.png";
 
 // index.js
 
-import terrain0 from "./terrain.png";
-
-const terrain = [terrain0];
+import terrain from "./terrain.png";
+import terrainSnow from "./terrain_snow.png";
 
 import gymgenius from "./projects/gymgenius.png";
 import inouno from "./projects/inouno.png";
@@ -86,7 +99,7 @@ const projects = [
   {
     title: "Radio Station",
     description:
-      "App that lets you explore radio stations around the world using an interactive map. It pulls data from the radio-browser.info API.",
+      "App that lets you explore radio stations around the world using an interactive map",
     thumbnail: radiostation,
     url: "https://gilmarques.github.io/radio-station/",
     code: "https://github.com/GilMarques/radio-station",
@@ -99,7 +112,7 @@ const projects = [
     code: "https://github.com/GilMarques/ino-uno-vite",
   },
   {
-    title: "Gym Genius",
+    title: "GG",
     description: "A Workout Log (Under Development)",
     thumbnail: gymgenius,
     url: "https://github.com/GilMarques/gym-genius-rn",
@@ -114,8 +127,6 @@ const projects = [
   },
 ];
 
-import starry_sky from "./starry_sky.gif";
-
 import button0 from "./button/0.png";
 import button1 from "./button/1.png";
 
@@ -124,6 +135,19 @@ import cloud from "./cloud.png";
 const button = [button0, button1];
 
 export {
+  terrain,
+  terrainSnow,
+  cloudy,
+  drizzle,
+  snowflake,
+  blue_circle,
+  sun_dial,
+  mail_icon,
+  github_icon,
+  sun_icon,
+  moon_icon,
+  linkedin_icon,
+  heart,
   button,
   cloud,
   clouds,
@@ -131,7 +155,5 @@ export {
   nightclouds,
   projects,
   rainclouds,
-  starry_sky,
   tail,
-  terrain,
 };

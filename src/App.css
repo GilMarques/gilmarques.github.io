@@ -16,6 +16,11 @@
   );
 }
 
+.pixelated {
+  image-rendering: crisp-edges; /* Older syntax that still works well */
+  image-rendering: pixelated; /* Modern standard syntax for pixel art */
+}
+
 body {
   font-family: myFont;
 
@@ -246,7 +251,8 @@ body.splat-toggle .splat {
   left: 0;
   bottom: 0;
   right: 0;
-  background-image: radial-gradient(4px 4px at 100px 50px, #fff, transparent),
+  background-image:
+    radial-gradient(4px 4px at 100px 50px, #fff, transparent),
     radial-gradient(6px 6px at 200px 150px, #fff, transparent),
     radial-gradient(3px 3px at 300px 250px, #fff 50%, transparent),
     radial-gradient(4px 4px at 400px 350px, #fff 50%, transparent),
@@ -325,4 +331,14 @@ body.splat-toggle .splat {
   top: 0px;
   border-left: 4px black solid;
   border-right: 4px black solid;
+}
+
+@keyframes scale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }

@@ -1,114 +1,78 @@
 /* eslint-disable react/prop-types */
-import { button, terrain } from "../assets/index.js";
-
-import { useState } from "react";
-import { DaytimeType, WeatherType } from "../App";
-
 import {
-  CloudRain,
-  CloudSnow,
-  Cloudy,
-  Github,
-  Linkedin,
-  Mail,
-  Moon,
-  Sun,
-  Sunrise,
-  Sunset,
-} from "lucide-react";
+  button,
+  github_icon,
+  heart,
+  linkedin_icon,
+  mail_icon,
+  terrain,
+  terrainSnow,
+} from "../assets/index.js";
 
-const Button = ({
-  onClick,
-  children,
-  pressed,
-}: {
-  onClick: () => void;
-  children: React.ReactNode;
-  pressed: boolean;
-}) => {
-  return (
-    <button onClick={onClick}>
-      <div
-        className={`absolute min-w-[50px] flex justify-center items-center ${
-          pressed ? " h-[50px]" : " h-[45px]"
-        }  `}
-      >
-        {children}
-      </div>
-      <img
-        src={pressed ? button[0] : button[1]}
-        style={{
-          minHeight: 50,
-          minWidth: 50,
-          maxHeight: 50,
-          maxWidth: 50,
-        }}
-      />
-    </button>
-  );
-};
+import { useEffect, useState } from "react";
+
+import { WeatherType } from "../hooks/useWeather.js";
+import SunDial from "./SunDial.js";
 
 const Footer = ({
   isDay,
+  weather,
   setWeather,
-  setDaytime,
+  daySliderValue,
+  setDaySliderValue,
 }: {
   isDay: boolean;
+  weather: WeatherType;
   setWeather: (weather: WeatherType) => void;
-  setDaytime: (daytime: DaytimeType) => void;
+  daySliderValue: number;
+  setDaySliderValue: (value: number) => void;
 }) => {
-  const [pressedDay, setPressedDay] = useState<DaytimeType | null>(null);
-  const [pressedWeather, setPressedWeather] = useState<WeatherType | null>(
-    null
-  );
-
-  const handleDayPress = (daytime: DaytimeType) => {
-    if (pressedDay === daytime) {
-      setDaytime("day");
-      return setPressedDay(null);
+  useEffect(() => {
+    for (const src of [terrain, terrainSnow]) {
+      const img = new Image();
+      img.src = src;
     }
-    setDaytime(daytime);
-    setPressedDay(daytime);
-  };
-
-  const handleWeatherPress = (weather: WeatherType) => {
-    if (pressedWeather === weather) {
-      setWeather("clear");
-      return setPressedWeather(null);
-    }
-    setWeather(weather);
-    setPressedWeather(weather);
-  };
+  }, []);
 
   return (
     <>
       <div
         className="relative bottom-0 -mt-0 min-h-[600px] w-[200%] min-w-[3620px]"
         style={{
-          backgroundImage: `url(${terrain[0]})`,
-          right: 0,
-          backgroundRepeat: "repeat-x",
-          animation: `moveTerrain ${10}s linear infinite`,
+          backgroundImage:
+            weather == WeatherType.Snow
+              ? `url(${terrainSnow})`
+              : `url(${terrain})`,
+
           mixBlendMode: "multiply",
         }}
       ></div>
 
       <div
         id="contact"
-        className={`absolute bottom-[40px] min-w-full font-custom ${
+        className={`absolute bottom-[16px] min-w-full font-custom ${
           isDay ? "text-black" : "text-white"
         }`}
       >
         <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center">
+            <SunDial
+              weather={weather}
+              value={daySliderValue}
+              onChange={setDaySliderValue}
+              setWeather={setWeather}
+            />
+          </div>
+
           <div className="relative text-center ">
-            <p className="text-3xl">Contact Me</p>
+            <p className="text-3xl mb-2">Contact Me</p>
 
             <div className="flex flex-wrap justify-center align-center gap-4">
               <a
                 className="w-[200px] eightbit-button p-2 text-black flex items-center"
                 href="mailto:gilmmm4@gmail.com"
               >
-                <Mail />
+                <img src={mail_icon} alt="Email" className="h-10 pixelated" />
                 <span className="flex-grow text-center">Email</span>
               </a>
 
@@ -116,7 +80,11 @@ const Footer = ({
                 className="w-[200px] eightbit-button p-2 text-black flex items-center"
                 href="https://github.com/GilMarques"
               >
-                <Github />
+                <img
+                  src={github_icon}
+                  alt="Github"
+                  className="w-10 h-10 pixelated"
+                />
                 <span className="flex-grow text-center">Github</span>
               </a>
 
@@ -124,75 +92,26 @@ const Footer = ({
                 className="w-[200px] eightbit-button p-2 text-black flex items-center"
                 href="https://www.linkedin.com/in/gil-marques-ab86a524b/"
               >
-                <Linkedin />
+                <img
+                  src={linkedin_icon}
+                  alt="LinkedIn"
+                  className="w-10 h-10 pixelated"
+                />
                 <span className="flex-grow text-center">LinkedIn</span>
               </a>
             </div>
           </div>
-          <div className="flex flex-wrap justify-center">
-            <div>
-              <Button
-                onClick={() => handleDayPress("sunset")}
-                pressed={pressedDay === "sunset"}
-              >
-                <Sunset />
-              </Button>
-
-              <Button
-                onClick={() => handleDayPress("day")}
-                pressed={pressedDay === "day"}
-              >
-                <Sun />
-              </Button>
-            </div>
-            <div>
-              <Button
-                onClick={() => handleDayPress("sunrise")}
-                pressed={pressedDay === "sunrise"}
-              >
-                <Sunrise />
-              </Button>
-              <Button
-                onClick={() => handleDayPress("night")}
-                pressed={pressedDay === "night"}
-              >
-                <Moon />
-              </Button>
-            </div>
+          <div className="font-custom text-xl">
+            <span>Made with</span>
+            <img
+              src={heart}
+              alt="heart"
+              className="inline-block h-3 w-3 mx-2"
+            />
+            <span>
+              by <strong>Gil Marques</strong>
+            </span>
           </div>
-
-          <div className="flex flex-wrap justify-center">
-            <div>
-              <Button
-                onClick={() => handleWeatherPress("clouds")}
-                pressed={pressedWeather === "clouds"}
-              >
-                <Cloudy />
-              </Button>
-              <Button
-                onClick={() => handleWeatherPress("rain")}
-                pressed={pressedWeather === "rain"}
-              >
-                <CloudRain />
-              </Button>
-            </div>
-            <div>
-              <Button
-                onClick={() => handleWeatherPress("snow")}
-                pressed={pressedWeather === "snow"}
-              >
-                <CloudSnow />
-              </Button>
-            </div>
-          </div>
-        </div>
-        <hr
-          className={`m-auto w-2/3 rounded-sm border-2  ${
-            isDay ? "border-black" : "border-white"
-          }`}
-        />
-        <div className="font-custom text-center text-xl">
-          2025&ensp; &bull;&ensp; Gil&ensp;Marques
         </div>
       </div>
     </>

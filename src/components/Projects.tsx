@@ -14,12 +14,7 @@ const Project = ({
   code: string;
 }) => {
   return (
-    <div
-      className="relative hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl"
-      style={{
-        transition: "all 0.3s",
-      }}
-    >
+    <div className="relative hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl">
       <a className="pixel-corners w-[300px] p-2" href={url}>
         <div
           className="pixel-corners w-[300px] cursor-pointer flex-col bg-stone-300 p-2 shadow-2xl"
@@ -33,17 +28,17 @@ const Project = ({
               draggable="false"
             />
           </div>
-          <div className="w-[250px] rounded-sm bg-stone-400 p-4 text-black font-custom ">
+          <div className="w-[250px] rounded-sm p-4 text-black font-custom ">
             <div className="text-3xl">{title}</div>
             <div className="text-xl">{description}</div>
+            <button
+              onClick={() => window.open(code, "_blank")}
+              className="float-end font-custom text-sm bottom-5 bg-stone-400 hover:bg-stone-500 rounded-full px-2 py-1 text-center text-black"
+            >
+              &#x3c;&#x3e; Source
+            </button>
           </div>
         </div>
-      </a>
-      <a
-        href={code}
-        className="absolute font-custom text-sm bottom-5 bg-stone-300 right-5 p-1 hover:bg-stone-200"
-      >
-        &#x3c;&#x3e; Source
       </a>
     </div>
   );
@@ -73,9 +68,7 @@ const Projects = ({ isDay }: { isDay: boolean }) => {
         </div>
         <div className="font-custom mt-8 text-center text-3xl text-black">
           <a
-            className={`eightbit-button ${
-              isDay ? "text-black border-black" : "text-white border-white"
-            } `}
+            className={`eightbit-button text-black border-black`}
             href="https://github.com/GilMarques"
           >
             More on my GitHub page
