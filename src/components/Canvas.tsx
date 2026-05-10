@@ -1,10 +1,10 @@
 import { Stage } from "@pixi/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { SimpleRope, Sprite, useApp, useTick } from "@pixi/react";
 import { Point } from "pixi.js";
-import { cloud, tail } from "../assets/index";
+import { nimbus, tail } from "../assets/sprites/nimbus";
 
 const ROPE_SEGMENT = 60;
 const REPEL_STRENGTH = 4200;
@@ -137,7 +137,7 @@ const MovingCloud = ({ mouseNormRef }: { mouseNormRef: MouseNormRef }) => {
         ref={cloudRef}
         x={x0}
         y={y0}
-        image={cloud}
+        image={nimbus}
         interactive={true}
         cursor="pointer"
         pointertap={onCloudPointerTap}

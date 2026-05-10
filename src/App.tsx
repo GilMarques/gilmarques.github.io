@@ -5,7 +5,6 @@ import Footer from "./components/Footer";
 import Weather from "./components/Weather";
 
 import Projects from "./components/Projects";
-import SunDial from "./components/SunDial";
 import useSkyAtmosphere from "./hooks/useSkyAtmosphere";
 import useWeather, { WeatherType } from "./hooks/useWeather";
 

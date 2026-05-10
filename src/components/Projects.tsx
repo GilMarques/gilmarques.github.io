@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
-import { projects } from "../assets/index.js";
+
+import { projects } from "../assets/projects";
+
 const Project = ({
   title,
   description,

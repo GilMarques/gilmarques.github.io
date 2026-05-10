@@ -1,15 +1,16 @@
 //https://codepen.io/arickle/pen/XKjMZY
 import { useMemo, useRef } from "react";
 import { DaytimeType } from "../App.js";
+
 import {
   clouds,
   grayclouds,
   nightclouds,
   rainclouds,
-} from "../assets/index.js";
+} from "../assets/clouds/index.js";
+import { WeatherType } from "../hooks/useWeather.js";
 import type { CloudLayerConfig } from "../utils/cloudDensity.js";
 import { CloudDensityLevel } from "../utils/cloudDensity.js";
-import { WeatherType } from "../hooks/useWeather.js";
 
 const Rain = ({ intensity }: { intensity: "light" | "heavy" }) => {
   /** Scan full width (0–100%); light rain keeps ~half the drops. */
@@ -172,8 +173,7 @@ const Weather = ({
   const showRain =
     weather === WeatherType.Drizzle || weather === WeatherType.Rain;
 
-  const rainIntensity =
-    weather === WeatherType.Drizzle ? "light" : "heavy";
+  const rainIntensity = weather === WeatherType.Drizzle ? "light" : "heavy";
 
   return (
     <>

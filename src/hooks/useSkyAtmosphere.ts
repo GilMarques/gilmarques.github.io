@@ -37,8 +37,7 @@ function useSkyAtmosphere({
   const skyGrey = useMemo(() => skyGreyStrength(cloudLevel), [cloudLevel]);
 
   const skyGradient = useMemo(
-    () =>
-      skyGradientFromSliderPercent(daySliderPercent, skyGrey, cloudLevel),
+    () => skyGradientFromSliderPercent(daySliderPercent, skyGrey, cloudLevel),
     [daySliderPercent, skyGrey, cloudLevel]
   );
 

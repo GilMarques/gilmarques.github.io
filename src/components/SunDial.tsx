@@ -1,16 +1,19 @@
 import React, { useMemo, useState } from "react";
+
+import { Cloud, CloudRain, Droplet, Snowflake, Sun } from "lucide-react";
+
 import {
   blue_circle,
   button,
+  buttonPressed,
   cloudy,
   drizzle,
-  moon_icon,
+  moon,
   snowflake,
+  sun,
   sun_dial,
-  sun_icon,
-} from "../assets";
+} from "../assets/sprites/sun_dial";
 import { WeatherType } from "../hooks/useWeather";
-import { Cloud, CloudRain, Droplet, Snowflake, Sun, X } from "lucide-react";
 
 type DaySliderProps = {
   weather: WeatherType;
@@ -62,7 +65,7 @@ const Button = ({
         {children}
       </div>
       <img
-        src={held ? button[0] : button[1]}
+        src={held ? buttonPressed : button}
         style={{
           minHeight: 50,
           minWidth: 50,
@@ -170,7 +173,7 @@ const SunDial = ({
 
         <div className="relative left-[25%] w-[50%] h-full pointer-events-none z-10">
           <img
-            src={sun_icon}
+            src={sun}
             alt="sun"
             className="absolute w-8 h-8"
             style={{
@@ -182,7 +185,7 @@ const SunDial = ({
           />
 
           <img
-            src={moon_icon}
+            src={moon}
             alt="moon"
             className="absolute w-8 h-8"
             style={{

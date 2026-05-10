@@ -1,16 +1,8 @@
-/* eslint-disable react/prop-types */
-import {
-  button,
-  github_icon,
-  heart,
-  linkedin_icon,
-  mail_icon,
-  terrain,
-  terrainSnow,
-} from "../assets/index.js";
+import { useEffect } from "react";
 
-import { useEffect, useState } from "react";
-
+import { github, linkedin, mail } from "../assets/icons/index.js";
+import { heart } from "../assets/sprites/index.js";
+import { terrain, terrainSnow } from "../assets/sprites/terrain/index.js";
 import { WeatherType } from "../hooks/useWeather.js";
 import SunDial from "./SunDial.js";
 
@@ -37,13 +29,13 @@ const Footer = ({
   return (
     <>
       <div
-        className="relative bottom-0 -mt-0 min-h-[600px] w-[200%] min-w-[3620px]"
+        className="relative bottom-0 -mt-0 min-h-[300px] w-[200%] min-w-[3620px]"
         style={{
           backgroundImage:
             weather == WeatherType.Snow
               ? `url(${terrainSnow})`
               : `url(${terrain})`,
-
+          backgroundRepeat: "repeat-x",
           mixBlendMode: "multiply",
         }}
       ></div>
@@ -72,7 +64,7 @@ const Footer = ({
                 className="w-[200px] eightbit-button p-2 text-black flex items-center"
                 href="mailto:gilmmm4@gmail.com"
               >
-                <img src={mail_icon} alt="Email" className="h-10 pixelated" />
+                <img src={mail} alt="Email" className="h-10 pixelated" />
                 <span className="flex-grow text-center">Email</span>
               </a>
 
@@ -81,7 +73,7 @@ const Footer = ({
                 href="https://github.com/GilMarques"
               >
                 <img
-                  src={github_icon}
+                  src={github}
                   alt="Github"
                   className="w-10 h-10 pixelated"
                 />
@@ -93,7 +85,7 @@ const Footer = ({
                 href="https://www.linkedin.com/in/gil-marques-ab86a524b/"
               >
                 <img
-                  src={linkedin_icon}
+                  src={linkedin}
                   alt="LinkedIn"
                   className="w-10 h-10 pixelated"
                 />
