@@ -5,6 +5,7 @@ const REFLECTION_CORE_COLOR = "#fff6b8";
 const CANVAS_WIDTH = 90;
 const CANVAS_HEIGHT = 180;
 const HORIZON_Y = 60;
+const SOURCE_TOP_LIMIT_Y = HORIZON_Y - 70;
 const SOURCE_MIN_Y = HORIZON_Y - 40;
 const SOURCE_MAX_Y = HORIZON_Y + 2;
 
@@ -15,7 +16,7 @@ const REFLECTION = {
   rows: 32,
   extraRows: 30,
   rowStep: 2,
-  minHalfWidth: 2,
+  minHalfWidth: 4,
   maxHalfWidth: 40,
   extraHalfWidth: 32,
   spreadCurve: 0.5,
@@ -23,6 +24,16 @@ const REFLECTION = {
   fade: 0.7,
   density: 0.78,
   sparkle: 0.22,
+  pushDownMax: 16,
+  pushDownCurve: 1.1,
+} as const;
+
+const MOTION = {
+  speed: 1,
+  driftX: 2.4,
+  widthPulse: 0.2,
+  densityPulse: 0.18,
+  brightnessPulse: 0.12,
 } as const;
 
 const Ocean = ({ isDay }: { isDay: boolean }) => {
@@ -87,13 +98,35 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
       return v - Math.floor(v);
     };
 
+    const layeredNoise = (row: number, timeMs: number) => {
+      const t = timeMs * 0.001 * MOTION.speed;
+      const n1 = Math.sin(row * 0.28 + t * 1.3);
+      const n2 = Math.sin(row * 0.11 - t * 0.8);
+      const n3 = Math.sin(row * 0.47 + t * 0.45);
+      // normalize to [-1, 1]
+      return (n1 + n2 * 0.65 + n3 * 0.35) / 2;
+    };
+
     const getHeightSpread = (sourceY: number) => {
       const span = SOURCE_MAX_Y - SOURCE_MIN_Y;
       const clampedY = Math.min(SOURCE_MAX_Y, Math.max(SOURCE_MIN_Y, sourceY));
       return span <= 0 ? 0 : (clampedY - SOURCE_MIN_Y) / span;
     };
 
-    const drawReflection = (cx: number, spreadByHeight: number) => {
+    const getPushDownByHeight = (sourceY: number) => {
+      if (sourceY >= SOURCE_MIN_Y) return 0;
+      const span = SOURCE_MIN_Y - SOURCE_TOP_LIMIT_Y;
+      if (span <= 0) return 0;
+      const t = Math.min(1, Math.max(0, (SOURCE_MIN_Y - sourceY) / span));
+      return REFLECTION.pushDownMax * Math.pow(t, REFLECTION.pushDownCurve);
+    };
+
+    const drawReflection = (
+      cx: number,
+      spreadByHeight: number,
+      pushDownByHeight: number,
+      timeMs: number
+    ) => {
       const dynamicRows = Math.round(
         REFLECTION.rows + REFLECTION.extraRows * spreadByHeight
       );
@@ -106,8 +139,14 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
 
       for (let row = 0; row < dynamicRows; row += 1) {
         const t = row / Math.max(1, dynamicRows - 1);
+        const driftNoise = layeredNoise(row, timeMs);
+        const pulseNoise = layeredNoise(row + 37, timeMs * 0.75);
+        const centerX = cx + driftNoise * MOTION.driftX * (0.3 + 0.7 * t);
         const y =
-          HORIZON_Y + REFLECTION.startYOffset + row * REFLECTION.rowStep;
+          HORIZON_Y +
+          REFLECTION.startYOffset +
+          pushDownByHeight +
+          row * REFLECTION.rowStep;
         if (y >= canvas.height) break;
 
         const spreadT = Math.pow(t, REFLECTION.spreadCurve);
@@ -119,14 +158,23 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
           halfWidth * (1 - REFLECTION.taper * t)
         );
 
-        const brightness = Math.max(0.12, 1 - dynamicFade * t);
+        const animatedHalfWidth = Math.max(
+          1,
+          taperedHalfWidth * (1 + MOTION.widthPulse * pulseNoise * (0.2 + t))
+        );
+        const brightness = Math.max(
+          0.12,
+          (1 - dynamicFade * t) *
+            (1 + MOTION.brightnessPulse * pulseNoise * (0.4 + 0.6 * t))
+        );
+        const rowDensityScale = 1 + MOTION.densityPulse * driftNoise;
 
         for (
-          let x = -Math.ceil(taperedHalfWidth);
-          x <= Math.ceil(taperedHalfWidth);
+          let x = -Math.ceil(animatedHalfWidth);
+          x <= Math.ceil(animatedHalfWidth);
           x += 1
         ) {
-          const nx = Math.abs(x) / taperedHalfWidth;
+          const nx = Math.abs(x) / animatedHalfWidth;
           if (nx > 1) continue;
 
           const core = 1 - nx;
@@ -134,6 +182,7 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
           const distanceFade = Math.max(0, 1 - edgeDistance);
           const probability =
             REFLECTION.density *
+              rowDensityScale *
               core *
               brightness *
               (0.55 + 0.45 * distanceFade) +
@@ -147,12 +196,12 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
             brightness * distanceFade + sparkleMix
           );
           ctx.fillStyle = mixColor(oceanRgb, highlightRgb, colorMix);
-          ctx.fillRect(Math.round(cx + x), Math.round(y), 1, 1);
+          ctx.fillRect(Math.round(centerX + x), Math.round(y), 1, 1);
         }
       }
     };
 
-    const draw = () => {
+    const draw = (timeMs: number) => {
       ctx.fillStyle = oceanHex;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#ffffff";
@@ -166,7 +215,8 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
         REFLECTION_CORE_COLOR
       );
       const spreadByHeight = getHeightSpread(py);
-      drawReflection(px, spreadByHeight);
+      const pushDownByHeight = getPushDownByHeight(py);
+      drawReflection(px, spreadByHeight, pushDownByHeight, timeMs);
     };
 
     const pointerToCanvas = (e: PointerEvent) => {
@@ -182,14 +232,12 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
     const onPointerMove = (e: PointerEvent) => {
       const { x, y } = pointerToCanvas(e);
       px = x;
-      py = Math.min(SOURCE_MAX_Y, Math.max(SOURCE_MIN_Y, y));
-      draw();
+      py = Math.min(SOURCE_MAX_Y, Math.max(SOURCE_TOP_LIMIT_Y, y));
     };
 
     const onPointerLeave = () => {
       px = canvas.width * 0.5;
       py = HORIZON_Y - REFLECTION.sourceYOffset;
-      draw();
     };
 
     function resizeCanvas() {
@@ -205,12 +253,18 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
     }
 
     resizeCanvas();
-    draw();
+    let rafId = 0;
+    const frame = (timeMs: number) => {
+      draw(timeMs);
+      rafId = window.requestAnimationFrame(frame);
+    };
+    rafId = window.requestAnimationFrame(frame);
     window.addEventListener("resize", resizeCanvas);
     canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerleave", onPointerLeave);
 
     return () => {
+      window.cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resizeCanvas);
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerleave", onPointerLeave);
