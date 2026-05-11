@@ -4,6 +4,7 @@ import Canvas from "./components/Canvas";
 import Footer from "./components/Footer";
 import Weather from "./components/Weather";
 
+import Ocean from "./components/Ocean";
 import Projects from "./components/Projects";
 import useSkyAtmosphere from "./hooks/useSkyAtmosphere";
 import useWeather, { WeatherType } from "./hooks/useWeather";
@@ -102,6 +103,8 @@ function App() {
         <Canvas day={isDay} />
 
         <Projects isDay={isDay} />
+
+        <Ocean isDay={isDay} />
 
         <Footer
           weather={weather}
