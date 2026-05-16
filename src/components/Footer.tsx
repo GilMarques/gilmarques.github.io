@@ -1,9 +1,8 @@
-import { useEffect } from "react";
-
+import type { RefObject } from "react";
 import { github, linkedin, mail } from "../assets/icons/index.js";
 import { heart } from "../assets/sprites/index.js";
-import { terrain, terrainSnow } from "../assets/sprites/terrain/index.js";
 import { WeatherType } from "../hooks/useWeather.js";
+import Ocean from "./Ocean.js";
 import SunDial from "./SunDial.js";
 
 const Footer = ({
@@ -12,33 +11,29 @@ const Footer = ({
   setWeather,
   daySliderValue,
   setDaySliderValue,
+  sunRef,
+  moonRef,
 }: {
   isDay: boolean;
   weather: WeatherType;
   setWeather: (weather: WeatherType) => void;
   daySliderValue: number;
   setDaySliderValue: (value: number) => void;
+  sunRef: RefObject<HTMLDivElement | null>;
+  moonRef: RefObject<HTMLDivElement | null>;
 }) => {
-  useEffect(() => {
-    for (const src of [terrain, terrainSnow]) {
-      const img = new Image();
-      img.src = src;
-    }
-  }, []);
-
   return (
     <>
-      <div
-        className="relative bottom-0 -mt-0 min-h-[300px] w-[200%] min-w-[3620px]"
-        style={{
-          backgroundImage:
-            weather == WeatherType.Snow
-              ? `url(${terrainSnow})`
-              : `url(${terrain})`,
-          backgroundRepeat: "repeat-x",
-          mixBlendMode: "multiply",
-        }}
-      ></div>
+      <div className="relative">
+        <div className="bottom-0 -z-10">
+          <Ocean
+            isDay={isDay}
+            isSnow={weather === WeatherType.Snow}
+            sunRef={sunRef}
+            moonRef={moonRef}
+          />
+        </div>
+      </div>
 
       <div
         id="contact"

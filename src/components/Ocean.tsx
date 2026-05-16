@@ -1,24 +1,29 @@
+import type { RefObject } from "react";
 import { useLayoutEffect, useRef } from "react";
+import { terrain, terrainSnow } from "../assets/sprites/terrain";
+import { SUN_SIZE } from "./Sun";
 
 const OCEAN_COLOR = 0x3994e6;
-const REFLECTION_CORE_COLOR = "#fff6b8";
-const CANVAS_WIDTH = 90;
-const CANVAS_HEIGHT = 180;
-const HORIZON_Y = 60;
+const PIXEL_DENSITY = 0.2;
+const CANVAS_WIDTH = Math.round(350 * PIXEL_DENSITY);
+const CANVAS_HEIGHT = Math.round(960 * PIXEL_DENSITY);
+const MAX_CANVAS_CSS_HEIGHT = 600;
+const HORIZON_Y = 0;
+const REFLECTION_MIN_Y = 2;
+const POINTER_MAX_Y = CANVAS_HEIGHT - 1;
 const SOURCE_TOP_LIMIT_Y = HORIZON_Y - 70;
 const SOURCE_MIN_Y = HORIZON_Y - 40;
 const SOURCE_MAX_Y = HORIZON_Y + 2;
 
 const REFLECTION = {
-  sourceRadius: 7,
   sourceYOffset: 6,
   startYOffset: 3,
   rows: 32,
   extraRows: 30,
   rowStep: 2,
-  minHalfWidth: 4,
+  minHalfWidth: 12,
   maxHalfWidth: 40,
-  extraHalfWidth: 32,
+  extraHalfWidth: 20,
   spreadCurve: 0.5,
   taper: 0.28,
   fade: 0.7,
@@ -26,6 +31,9 @@ const REFLECTION = {
   sparkle: 0.22,
   pushDownMax: 16,
   pushDownCurve: 1.1,
+  belowHorizonRange: 24,
+  belowHorizonBrightnessFade: 0.75,
+  belowHorizonWidthNarrow: 0.18,
 } as const;
 
 const MOTION = {
@@ -36,7 +44,24 @@ const MOTION = {
   brightnessPulse: 0.12,
 } as const;
 
-const Ocean = ({ isDay }: { isDay: boolean }) => {
+/** Terrain tiles: one draw per 350px of canvas width (dest size / step from tuned drawImage). */
+const TERRAIN_TILE_STEP_X = 350;
+const TERRAIN_DEST_DX = 0;
+const TERRAIN_DEST_DY = 60;
+const TERRAIN_DEST_DW = 350;
+const TERRAIN_DEST_DH = 160;
+
+const Ocean = ({
+  isDay,
+  isSnow,
+  sunRef,
+  moonRef,
+}: {
+  isDay: boolean;
+  isSnow: boolean;
+  sunRef: RefObject<HTMLDivElement | null>;
+  moonRef: RefObject<HTMLDivElement | null>;
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useLayoutEffect(() => {
@@ -58,7 +83,13 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
       g: (OCEAN_COLOR >> 8) & 0xff,
       b: OCEAN_COLOR & 0xff,
     };
-    const highlightRgb = { r: 255, g: 246, b: 184 };
+    const highlightRgb = isDay
+      ? { r: 255, g: 246, b: 184 }
+      : { r: 255, g: 255, b: 255 };
+    const terrainDayImage = new Image();
+    terrainDayImage.src = terrain;
+    const terrainSnowImage = new Image();
+    terrainSnowImage.src = terrainSnow;
 
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
     const mixColor = (
@@ -69,29 +100,6 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
       `rgb(${Math.round(lerp(from.r, to.r, t))},${Math.round(
         lerp(from.g, to.g, t)
       )},${Math.round(lerp(from.b, to.b, t))})`;
-
-    function drawPixelDisk(
-      ctx: CanvasRenderingContext2D,
-      cx: number,
-      cy: number,
-      radius: number,
-      color: string
-    ) {
-      const x0 = Math.round(cx);
-      const y0 = Math.round(cy);
-      const r = Math.max(1, Math.round(radius));
-      const r2 = r * r;
-
-      ctx.fillStyle = color;
-
-      for (let y = -r; y <= r; y += 1) {
-        for (let x = -r; x <= r; x += 1) {
-          if (x * x + y * y <= r2) {
-            ctx.fillRect(x0 + x, y0 + y, 1, 1);
-          }
-        }
-      }
-    }
 
     const hash2d = (x: number, y: number) => {
       const v = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
@@ -117,7 +125,7 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
       if (sourceY >= SOURCE_MIN_Y) return 0;
       const span = SOURCE_MIN_Y - SOURCE_TOP_LIMIT_Y;
       if (span <= 0) return 0;
-      const t = Math.min(1, Math.max(0, (SOURCE_MIN_Y - sourceY) / span));
+      const t = Math.max(0, (SOURCE_MIN_Y - sourceY) / span);
       return REFLECTION.pushDownMax * Math.pow(t, REFLECTION.pushDownCurve);
     };
 
@@ -125,13 +133,16 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
       cx: number,
       spreadByHeight: number,
       pushDownByHeight: number,
+      belowHorizonFade: number,
+      belowHorizonWidthScale: number,
       timeMs: number
     ) => {
       const dynamicRows = Math.round(
         REFLECTION.rows + REFLECTION.extraRows * spreadByHeight
       );
       const maxWidth =
-        REFLECTION.maxHalfWidth + REFLECTION.extraHalfWidth * spreadByHeight;
+        (REFLECTION.maxHalfWidth + REFLECTION.extraHalfWidth * spreadByHeight) *
+        belowHorizonWidthScale;
       const dynamicFade = Math.max(
         0.35,
         REFLECTION.fade - 0.18 * spreadByHeight
@@ -142,11 +153,13 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
         const driftNoise = layeredNoise(row, timeMs);
         const pulseNoise = layeredNoise(row + 37, timeMs * 0.75);
         const centerX = cx + driftNoise * MOTION.driftX * (0.3 + 0.7 * t);
-        const y =
+        const y = Math.max(
+          REFLECTION_MIN_Y,
           HORIZON_Y +
-          REFLECTION.startYOffset +
-          pushDownByHeight +
-          row * REFLECTION.rowStep;
+            REFLECTION.startYOffset +
+            pushDownByHeight +
+            row * REFLECTION.rowStep
+        );
         if (y >= canvas.height) break;
 
         const spreadT = Math.pow(t, REFLECTION.spreadCurve);
@@ -165,7 +178,8 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
         const brightness = Math.max(
           0.12,
           (1 - dynamicFade * t) *
-            (1 + MOTION.brightnessPulse * pulseNoise * (0.4 + 0.6 * t))
+            (1 + MOTION.brightnessPulse * pulseNoise * (0.4 + 0.6 * t)) *
+            belowHorizonFade
         );
         const rowDensityScale = 1 + MOTION.densityPulse * driftNoise;
 
@@ -201,81 +215,137 @@ const Ocean = ({ isDay }: { isDay: boolean }) => {
       }
     };
 
+    const drawTerrain = () => {
+      const img = isSnow ? terrainSnowImage : terrainDayImage;
+      if (!img.complete || img.naturalWidth <= 0 || img.naturalHeight <= 0) {
+        return;
+      }
+
+      ctx.imageSmoothingEnabled = false;
+
+      const sx = 0;
+      const sy = 0;
+      const sw = img.naturalWidth;
+      const sh = img.naturalHeight;
+
+      const tileCount = Math.ceil(canvas.width / TERRAIN_TILE_STEP_X) + 1;
+
+      for (let i = 0; i < tileCount; i += 1) {
+        const dx = i * TERRAIN_TILE_STEP_X;
+        ctx.drawImage(
+          img,
+          sx,
+          sy,
+          sw,
+          sh,
+          dx + TERRAIN_DEST_DX,
+          TERRAIN_DEST_DY,
+          TERRAIN_DEST_DW,
+          TERRAIN_DEST_DH
+        );
+      }
+    };
+
     const draw = (timeMs: number) => {
       ctx.fillStyle = oceanHex;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, HORIZON_Y, canvas.width, 1);
+      ctx.fillStyle = "#f5f5f5";
+      ctx.fillRect(0, HORIZON_Y, canvas.width, 2);
 
-      drawPixelDisk(
-        ctx,
-        px,
-        py,
-        REFLECTION.sourceRadius,
-        REFLECTION_CORE_COLOR
-      );
       const spreadByHeight = getHeightSpread(py);
       const pushDownByHeight = getPushDownByHeight(py);
-      drawReflection(px, spreadByHeight, pushDownByHeight, timeMs);
+      const belowHorizonDistance = Math.max(0, py - HORIZON_Y);
+      const belowHorizonT = Math.min(
+        1,
+        belowHorizonDistance / REFLECTION.belowHorizonRange
+      );
+      const belowHorizonFade =
+        1 - belowHorizonT * REFLECTION.belowHorizonBrightnessFade;
+      const belowHorizonWidthScale =
+        1 - belowHorizonT * REFLECTION.belowHorizonWidthNarrow;
+      drawReflection(
+        px,
+        spreadByHeight,
+        pushDownByHeight,
+        belowHorizonFade,
+        belowHorizonWidthScale,
+        timeMs
+      );
+      drawTerrain();
     };
 
-    const pointerToCanvas = (e: PointerEvent) => {
+    const viewportToCanvas = (x: number, y: number) => {
       const r = canvas.getBoundingClientRect();
       const sx = canvas.width / r.width;
       const sy = canvas.height / r.height;
       return {
-        x: (e.clientX - r.left) * sx,
-        y: (e.clientY - r.top) * sy,
+        x: (x - r.left) * sx,
+        y: (y - r.top) * sy,
       };
     };
 
-    const onPointerMove = (e: PointerEvent) => {
-      const { x, y } = pointerToCanvas(e);
-      px = x;
-      py = Math.min(SOURCE_MAX_Y, Math.max(SOURCE_TOP_LIMIT_Y, y));
-    };
-
-    const onPointerLeave = () => {
-      px = canvas.width * 0.5;
-      py = HORIZON_Y - REFLECTION.sourceYOffset;
+    const getBodyCanvasPosition = () => {
+      const target = isDay ? sunRef.current : moonRef.current;
+      if (!target) return null;
+      const rect = target.getBoundingClientRect();
+      return viewportToCanvas(
+        rect.left + rect.width * 0.5,
+        rect.top + rect.height * 0.5 - SUN_SIZE
+      );
     };
 
     function resizeCanvas() {
-      let scale = Math.min(
-        window.innerWidth / canvas!.width,
-        window.innerHeight / canvas!.height
+      const cssWidth = Math.max(1, Math.floor(window.innerWidth));
+      const cssHeight = Math.max(
+        1,
+        Math.floor(Math.min(window.innerHeight, MAX_CANVAS_CSS_HEIGHT))
+      );
+      const uniformScale = cssHeight / CANVAS_HEIGHT;
+      const renderWidth = Math.max(
+        CANVAS_WIDTH,
+        Math.round(cssWidth / Math.max(0.001, uniformScale))
       );
 
-      scale = Math.floor(scale);
+      if (canvas!.width !== renderWidth || canvas!.height !== CANVAS_HEIGHT) {
+        canvas!.width = renderWidth;
+        canvas!.height = CANVAS_HEIGHT;
+        ctx.imageSmoothingEnabled = false;
+      }
 
-      canvas!.style.width = `${Math.round(scale * canvas!.width)}px`;
-      canvas!.style.height = `${Math.round(scale * canvas!.height)}px`;
+      canvas!.style.width = `${cssWidth}px`;
+      canvas!.style.height = `${cssHeight}px`;
     }
 
     resizeCanvas();
     let rafId = 0;
     const frame = (timeMs: number) => {
+      const mapped = getBodyCanvasPosition();
+      if (mapped) {
+        px = Math.min(canvas.width - 1, Math.max(0, mapped.x));
+        py = Math.min(POINTER_MAX_Y, mapped.y);
+      } else {
+        px = canvas.width * 0.5;
+        py = HORIZON_Y - REFLECTION.sourceYOffset;
+      }
+
       draw(timeMs);
       rafId = window.requestAnimationFrame(frame);
     };
     rafId = window.requestAnimationFrame(frame);
     window.addEventListener("resize", resizeCanvas);
-    canvas.addEventListener("pointermove", onPointerMove);
-    canvas.addEventListener("pointerleave", onPointerLeave);
 
     return () => {
       window.cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resizeCanvas);
-      canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerleave", onPointerLeave);
     };
-  }, []);
+  }, [isDay, isSnow, moonRef, sunRef]);
 
   return (
     <div
-      className="flex h-screen w-screen items-center justify-center overflow-hidden bg-black"
+      className="flex w-screen items-center justify-center overflow-hidden bg-black"
       style={{
-        filter: isDay ? "none" : "brightness(0.6)",
+        height: `min(100vh, ${MAX_CANVAS_CSS_HEIGHT}px)`,
+        mixBlendMode: "multiply",
       }}
     >
       <canvas

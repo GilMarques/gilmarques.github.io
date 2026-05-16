@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { Cloud, CloudRain, Droplet, Snowflake, Sun } from "lucide-react";
 
@@ -85,6 +85,8 @@ const SunDial = ({
   onChange,
   setWeather,
 }: DaySliderProps) => {
+  const rootRef = useRef<HTMLDivElement>(null);
+
   const percent = useMemo(() => {
     if (max === min) return 0;
     const rawPercent = ((value - min) / (max - min)) * 100;
@@ -110,8 +112,23 @@ const SunDial = ({
     onChange(parseFloat(e.target.value));
   };
 
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const direction = e.deltaY > 0 ? -1 : 1;
+      const nextValue = clamp(value + direction, min, max);
+      if (nextValue !== value) onChange(nextValue);
+    };
+
+    root.addEventListener("wheel", onWheel, { passive: false });
+    return () => root.removeEventListener("wheel", onWheel);
+  }, [max, min, onChange, value]);
+
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center" ref={rootRef}>
       <div className="group relative w-[200px] h-32">
         <input
           type="range"
@@ -181,6 +198,7 @@ const SunDial = ({
               bottom: `calc(2rem + (2.75rem * sin(${sunAngle}deg)))`,
               opacity: percent < 75 ? 1 : 0,
               transform: "translate(-50%, 50%)",
+              filter: "blur(0.5px)",
             }}
           />
 
@@ -193,6 +211,7 @@ const SunDial = ({
               bottom: `calc(2rem + (2.75rem * sin(${moonAngle}deg)))`,
               opacity: percent >= 75 ? 1 : 0,
               transform: "translate(-50%, 50%)",
+              filter: "blur(0.5px)",
             }}
           />
         </div>

@@ -1,22 +1,24 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import Canvas from "./components/Canvas";
 import Footer from "./components/Footer";
 import Weather from "./components/Weather";
 
-import Ocean from "./components/Ocean";
+import Moon from "./components/Moon";
 import Projects from "./components/Projects";
+import Sun, { SUN_SIZE } from "./components/Sun";
 import useSkyAtmosphere from "./hooks/useSkyAtmosphere";
 import useWeather, { WeatherType } from "./hooks/useWeather";
+import { dayLengthFromDate } from "./utils/dayLengthFromDayOfYear";
 
 export type DaytimeType = "day" | "sunrise" | "sunset" | "night" | "cloudy";
 
-/** Discrete phase for Weather / Canvas; gradient itself is smooth from the slider. */
-function daytimeFromSliderForEffects(percent: number): DaytimeType {
-  if (percent >= 75) return "night";
-  if (percent >= 50) return "sunset";
-  if (percent >= 25) return "day";
-  return "sunrise";
+/** Discrete phase for Weather / Canvas; tied to sun vs water horizon, not slider %. */
+function daytimeFromSunPosition(sunY: number, horizonY: number): DaytimeType {
+  if (sunY >= horizonY) return "night";
+  if (sunY + SUN_SIZE >= horizonY) return "sunset";
+  if (sunY <= horizonY * 0.35) return "sunrise";
+  return "day";
 }
 
 function App() {
@@ -28,19 +30,13 @@ function App() {
   const [weatherConditionId, setWeatherConditionId] = useState<
     number | undefined
   >();
-
-  const daytime = useMemo(
-    () => daytimeFromSliderForEffects(daySliderValue),
-    [daySliderValue]
+  const [viewportWidth, setViewportWidth] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth : 1280
   );
-  const isDay = useMemo(() => daySliderValue < 75, [daySliderValue]);
+  const sunRef = useRef<HTMLDivElement>(null);
+  const moonRef = useRef<HTMLDivElement>(null);
 
-  const { skyGradient, cloudLevel, cloudLayers } = useSkyAtmosphere({
-    daySliderPercent: daySliderValue,
-    weather,
-    cloudsAll,
-    weatherConditionId,
-  });
+  const seasonalDayLength = useMemo(() => dayLengthFromDate(new Date()), []);
 
   useWeather({
     setWeather,
@@ -54,6 +50,126 @@ function App() {
     setWeatherConditionId(undefined);
     setCloudsAll(undefined);
   }, []);
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const bodyTrajectory = useMemo(() => {
+    const normalized = Math.min(1, Math.max(0, daySliderValue / 100));
+    const leftMargin = 48;
+    const rightMargin = 48;
+    const travel = Math.max(0, viewportWidth - leftMargin - rightMargin);
+
+    const projectArc = (phase: number, peak = 124, baseline = 700) => {
+      const x = leftMargin + travel * phase;
+      const y = baseline - Math.sin(Math.PI * phase) * peak;
+      return { x: Math.round(x), y: Math.round(y) };
+    };
+
+    const pageHeight =
+      typeof document !== "undefined"
+        ? Math.max(
+            document.body.scrollHeight,
+            document.documentElement.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.offsetHeight,
+            document.body.clientHeight,
+            document.documentElement.clientHeight
+          )
+        : 1200;
+    const seasonalNormalized = seasonalDayLength.normalized; // 0 = shortest day, 1 = longest
+    const seasonalShift = (seasonalNormalized - 0.5) * 0.18; // +/- 0.09 around default
+    const sunNoonPhase = 0.375;
+    const sunSetPhase = Math.min(0.9, Math.max(0.58, 0.75 + seasonalShift));
+    const sunsetTargetY = Math.max(0, pageHeight - 600);
+    const sunTrackX = viewportWidth - 180;
+    const sunDelta = Math.min(
+      1,
+      Math.abs(normalized - sunNoonPhase) / (sunSetPhase - sunNoonPhase)
+    );
+    const sunY = sunsetTargetY * sunDelta;
+
+    // Moon trajectory follows day progression (not hour slider).
+    // Keep only a subtle slider nudge so it doesn't look frozen.
+    const moonCycleLength = 29.53;
+    const moonDayPhase = (seasonalDayLength.dayOfYear % moonCycleLength) / moonCycleLength;
+    const moonHourNudge = (normalized - 0.5) * 0.04;
+    const moonPhase = (moonDayPhase + moonHourNudge + 1) % 1;
+
+    return {
+      sun: {
+        x: Math.round(
+          Math.max(leftMargin, Math.min(sunTrackX, viewportWidth - 120))
+        ),
+        y: Math.round(sunY),
+        horizonY: Math.round(sunsetTargetY),
+      },
+      moon: projectArc(moonPhase, 110, 730),
+      seasonalDayLength,
+      sunNormalized: normalized,
+      sunNoonPhase,
+      sunSetPhase,
+      sunDelta,
+    };
+  }, [daySliderValue, seasonalDayLength, viewportWidth]);
+
+  const daytime = useMemo(
+    () =>
+      daytimeFromSunPosition(
+        bodyTrajectory.sun.y,
+        bodyTrajectory.sun.horizonY
+      ),
+    [bodyTrajectory]
+  );
+  /** Night when the sun is fully below the water line (top at or under horizon). */
+  const isDay = useMemo(
+    () => bodyTrajectory.sun.y < bodyTrajectory.sun.horizonY,
+    [bodyTrajectory]
+  );
+
+  const skyPercentFromSunPosition = useMemo(() => {
+    const { sun, sunNormalized, sunNoonPhase, sunSetPhase, sunDelta } =
+      bodyTrajectory;
+    const { y, horizonY } = sun;
+    const touchY = horizonY - SUN_SIZE;
+    const underY = horizonY;
+
+    if (y >= underY) {
+      const nightProgress = Math.min(1, (y - underY) / SUN_SIZE);
+      return Math.round(75 + nightProgress * 25);
+    }
+
+    if (y >= touchY) {
+      const sunsetProgress = (y - touchY) / SUN_SIZE;
+      return Math.round(50 + sunsetProgress * 25);
+    }
+
+    const clampedSunsetPhase = Math.min(
+      0.99,
+      Math.max(sunNoonPhase + 0.01, sunSetPhase)
+    );
+
+    if (sunNormalized >= clampedSunsetPhase) {
+      return 50;
+    }
+
+    if (sunNormalized <= sunNoonPhase) {
+      return Math.round(Math.min(37.5, Math.max(0, (1 - sunDelta) * 37.5)));
+    }
+
+    return Math.round(Math.min(50, Math.max(37.5, 50 - (1 - sunDelta) * 12.5)));
+  }, [bodyTrajectory]);
+
+  const { skyGradient, cloudLevel, cloudLayers } = useSkyAtmosphere({
+    daySliderPercent: skyPercentFromSunPosition,
+    weather,
+    cloudsAll,
+    weatherConditionId,
+  });
 
   return (
     <>
@@ -104,7 +220,19 @@ function App() {
 
         <Projects isDay={isDay} />
 
-        <Ocean isDay={isDay} />
+        <Sun
+          isDay={isDay}
+          x={bodyTrajectory.sun.x}
+          y={bodyTrajectory.sun.y}
+          horizonY={bodyTrajectory.sun.horizonY}
+          ref={sunRef}
+        />
+        <Moon
+          isDay={isDay}
+          x={bodyTrajectory.moon.x}
+          y={bodyTrajectory.moon.y}
+          ref={moonRef}
+        />
 
         <Footer
           weather={weather}
@@ -112,6 +240,8 @@ function App() {
           setWeather={setWeatherFromUser}
           daySliderValue={daySliderValue}
           setDaySliderValue={setDaySliderValue}
+          sunRef={sunRef}
+          moonRef={moonRef}
         />
       </div>
     </>
