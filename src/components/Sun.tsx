@@ -1,5 +1,3 @@
-import { forwardRef } from "react";
-
 export const SUN_SIZE = 112;
 
 type SunProps = {
@@ -7,40 +5,40 @@ type SunProps = {
   x: number;
   y: number;
   horizonY: number;
+  ref?: (el: HTMLDivElement) => void;
 };
 
-const Sun = forwardRef<HTMLDivElement, SunProps>(
-  ({ isDay, x, y, horizonY }, ref) => {
-    const visibleHeight = Math.max(
+function Sun(props: SunProps) {
+  const visibleHeight = () =>
+    Math.max(
       0,
-      Math.min(SUN_SIZE, horizonY - y - SUN_SIZE / 2 - 1)
+      Math.min(SUN_SIZE, props.horizonY - props.y - SUN_SIZE / 2 - 1),
     );
 
-    return (
-      <div className="absolute -z-10" style={{ left: `${x}px`, top: `${y}px` }}>
+  return (
+    <div class="absolute -z-10" style={{ left: `${props.x}px`, top: `${props.y}px` }}>
+      <div
+        class="overflow-hidden"
+        style={{
+          width: `${SUN_SIZE}px`,
+          height: `${SUN_SIZE}px`,
+          "max-height": `${visibleHeight()}px`,
+        }}
+      >
         <div
-          className="overflow-hidden"
+          ref={props.ref}
+          class="rounded-full bg-yellow-200"
           style={{
             width: `${SUN_SIZE}px`,
             height: `${SUN_SIZE}px`,
-            maxHeight: `${visibleHeight}px`,
+            filter: "blur(2px)",
+            opacity: props.isDay ? 1 : 0.45,
           }}
-        >
-          <div
-            ref={ref}
-            className="rounded-full bg-yellow-200"
-            style={{
-              width: `${SUN_SIZE}px`,
-              height: `${SUN_SIZE}px`,
-              filter: "blur(2px)",
-              opacity: isDay ? 1 : 0.45,
-            }}
-          />
-        </div>
+        />
       </div>
-    );
-  }
-);
+    </div>
+  );
+}
 
 Sun.displayName = "Sun";
 

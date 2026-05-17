@@ -1,17 +1,16 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-
-import { Cloud, CloudRain, Droplet, Snowflake, Sun } from "lucide-react";
-
+import { createMemo, createSignal, JSXElement, onMount } from "solid-js";
 import {
   blue_circle,
   button,
   buttonPressed,
   cloudy,
   drizzle,
+  droplet,
   moon,
   snowflake,
   sun,
   sun_dial,
+  sunny,
 } from "../assets/sprites/sun_dial";
 import { WeatherType } from "../hooks/useWeather";
 
@@ -32,18 +31,21 @@ const Button = ({
   children,
 }: {
   onClick: () => void;
-  children: React.ReactNode;
+  children: JSXElement;
 }) => {
-  const [held, setHeld] = useState(false);
+  const [held, setHeld] = createSignal(false);
+  const imageSource = createMemo(() => (held() ? buttonPressed : button));
 
-  const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
+  const handlePointerDown = (e: PointerEvent) => {
+    const target = e.currentTarget as HTMLButtonElement;
+    target.setPointerCapture(e.pointerId);
     setHeld(true);
   };
 
-  const handlePointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId);
+  const handlePointerUp = (e: PointerEvent) => {
+    const target = e.currentTarget as HTMLButtonElement;
+    if (target.hasPointerCapture(e.pointerId)) {
+      target.releasePointerCapture(e.pointerId);
     }
     setHeld(false);
   };
@@ -56,147 +58,136 @@ const Button = ({
       onPointerUp={handlePointerUp}
       onPointerCancel={() => setHeld(false)}
       onLostPointerCapture={() => setHeld(false)}
+      style={{
+        width: "64px",
+        height: "64px",
+      }}
+      class="relative"
     >
       <div
-        className={`absolute min-w-[50px] flex justify-center items-center text-black ${
-          held ? " h-[50px]" : " h-[45px]"
+        class={`absolute w-full h-full flex justify-center items-center text-black ${
+          held() ? "top-1" : ""
         }  `}
       >
         {children}
       </div>
-      <img
-        src={held ? buttonPressed : button}
-        style={{
-          minHeight: 50,
-          minWidth: 50,
-          maxHeight: 50,
-          maxWidth: 50,
-        }}
-      />
+      <img src={imageSource()} draggable={false} width={64} height={64} />
     </button>
   );
 };
 
-const SunDial = ({
-  weather,
-  min = 0,
-  max = 100,
-  value,
-  onChange,
-  setWeather,
-}: DaySliderProps) => {
-  const rootRef = useRef<HTMLDivElement>(null);
+const SunDial = (props: DaySliderProps) => {
+  let rootRef: HTMLDivElement | undefined;
 
-  const percent = useMemo(() => {
-    if (max === min) return 0;
-    const rawPercent = ((value - min) / (max - min)) * 100;
+  const min = () => props.min ?? 0;
+  const max = () => props.max ?? 100;
+
+  const percent = createMemo(() => {
+    if (max() === min()) return 0;
+    const rawPercent = ((props.value - min()) / (max() - min())) * 100;
     return clamp(rawPercent, 0, 100);
-  }, [value, max, min]);
+  });
 
-  const sunAngle = useMemo(() => {
-    if (percent >= 75) return 0;
-    const ratio = percent / 75;
+  const sunAngle = createMemo(() => {
+    if (percent() >= 75) return 0;
+    const ratio = percent() / 75;
     return 180 - ratio * 180;
-  }, [percent]);
+  });
 
-  const moonAngle = useMemo(() => {
-    if (percent < 75) return 180;
-    const ratio = (percent - 75) / 25;
+  const moonAngle = createMemo(() => {
+    if (percent() < 75) return 180;
+    const ratio = (percent() - 75) / 25;
     return 180 - ratio * 90;
-  }, [percent]);
+  });
 
-  /** Dial / range indicator: full slider maps linearly 0 → 180°, 100 → 0°. */
-  const rangeAngle = useMemo(() => 180 - (percent / 100) * 180, [percent]);
+  const rangeAngle = createMemo(() => 180 - (percent() / 100) * 180);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(parseFloat(e.target.value));
+  const handleChange = (e: Event & { currentTarget: HTMLInputElement }) => {
+    props.onChange(parseFloat(e.currentTarget.value));
   };
 
-  useEffect(() => {
-    const root = rootRef.current;
+  onMount(() => {
+    const root = rootRef;
     if (!root) return;
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const direction = e.deltaY > 0 ? -1 : 1;
-      const nextValue = clamp(value + direction, min, max);
-      if (nextValue !== value) onChange(nextValue);
+      const direction = e.deltaY > 0 ? -2 : 2;
+      const nextValue = clamp(props.value + direction, min(), max());
+      if (nextValue !== props.value) props.onChange(nextValue);
     };
 
     root.addEventListener("wheel", onWheel, { passive: false });
     return () => root.removeEventListener("wheel", onWheel);
-  }, [max, min, onChange, value]);
+  });
 
   return (
-    <div className="flex flex-col items-center" ref={rootRef}>
-      <div className="group relative w-[200px] h-32">
+    <div class="flex flex-col items-center" ref={rootRef}>
+      <div class="group relative w-50 h-32">
         <input
           type="range"
-          min={min}
-          max={max}
-          value={value}
+          min={min()}
+          max={max()}
+          value={props.value}
+          onInput={handleChange}
           onChange={handleChange}
-          className="absolute w-full h-full opacity-0 cursor-pointer z-20 touch-none"
+          class="absolute w-full h-full opacity-0 cursor-pointer z-20 touch-none"
           aria-label="Slider"
         />
 
         <img
           src={sun_dial}
           alt="sun dial"
-          className="absolute w-full h-full pointer-events-none z-10"
+          class="absolute w-full h-full pointer-events-none z-10"
         />
 
-        <div className="absolute  left-[50%] translate-x-[-53%]  bottom-6  pointer-events-none z-10 ">
-          {(weather === WeatherType.Drizzle ||
-            weather === WeatherType.Rain) && (
+        <div class="absolute  left-[50%] translate-x-[-53%]  bottom-6  pointer-events-none z-10 ">
+          {(props.weather === WeatherType.Drizzle ||
+            props.weather === WeatherType.Rain) && (
             <img
               src={drizzle}
-              className="w-8 h-8"
+              class="w-8 h-8"
               style={{ filter: `invert(1)` }}
             />
           )}
-          {weather === WeatherType.Clouds && (
-            <img
-              src={cloudy}
-              className="w-8 h-8"
-              style={{ filter: `invert(1)` }}
-            />
+          {props.weather === WeatherType.Clouds && (
+            <img src={cloudy} class="w-8 h-8" style={{ filter: `invert(1)` }} />
           )}
-          {weather === WeatherType.Snow && (
+          {props.weather === WeatherType.Snow && (
             <img
               src={snowflake}
-              className="w-8 h-8"
+              class="w-8 h-8"
               style={{ filter: `invert(1)` }}
             />
           )}
         </div>
 
-        <div className="absolute left-0 w-full h-full pointer-events-none z-10 ">
+        <div class="absolute left-0 w-full h-full pointer-events-none z-10 ">
           <div
-            className="absolute w-6 h-6"
+            class="absolute w-6 h-6"
             style={{
-              left: `calc(50% + (42% * cos(${rangeAngle}deg)))`,
-              bottom: `calc(2rem + (4rem * sin(${rangeAngle}deg)))`,
+              left: `calc(50% + (42% * cos(${rangeAngle()}deg)))`,
+              bottom: `calc(2rem + (4rem * sin(${rangeAngle()}deg)))`,
               transform: "translate(-50%, 50%)",
             }}
           >
             <img
               src={blue_circle}
               alt="blue circle"
-              className="w-full h-full group-hover:animate-[scale_1s_ease-in-out_infinite] "
+              class="w-full h-full group-hover:animate-[scale_1s_ease-in-out_infinite] "
             />
           </div>
         </div>
 
-        <div className="relative left-[25%] w-[50%] h-full pointer-events-none z-10">
+        <div class="relative left-[25%] w-[50%] h-full pointer-events-none z-10">
           <img
             src={sun}
             alt="sun"
-            className="absolute w-8 h-8"
+            class="absolute w-8 h-8"
             style={{
-              left: `calc(50% + (44% * cos(${sunAngle}deg)))`,
-              bottom: `calc(2rem + (2.75rem * sin(${sunAngle}deg)))`,
-              opacity: percent < 75 ? 1 : 0,
+              left: `calc(50% + (44% * cos(${sunAngle()}deg)))`,
+              bottom: `calc(2rem + (2.75rem * sin(${sunAngle()}deg)))`,
+              opacity: percent() < 75 ? 1 : 0,
               transform: "translate(-50%, 50%)",
               filter: "blur(0.5px)",
             }}
@@ -205,11 +196,11 @@ const SunDial = ({
           <img
             src={moon}
             alt="moon"
-            className="absolute w-8 h-8"
+            class="absolute w-8 h-8"
             style={{
-              left: `calc(50% + (44% * cos(${moonAngle}deg)))`,
-              bottom: `calc(2rem + (2.75rem * sin(${moonAngle}deg)))`,
-              opacity: percent >= 75 ? 1 : 0,
+              left: `calc(50% + (44% * cos(${moonAngle()}deg)))`,
+              bottom: `calc(2rem + (2.75rem * sin(${moonAngle()}deg)))`,
+              opacity: percent() >= 75 ? 1 : 0,
               transform: "translate(-50%, 50%)",
               filter: "blur(0.5px)",
             }}
@@ -217,22 +208,22 @@ const SunDial = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button onClick={() => setWeather(WeatherType.Clouds)}>
-          <Cloud />
+      <div class="flex items-center gap-2">
+        <Button onClick={() => props.setWeather(WeatherType.Clouds)}>
+          <img src={cloudy} alt="Make it cloudy" />
         </Button>
-        <Button onClick={() => setWeather(WeatherType.Drizzle)}>
-          <Droplet />
+        <Button onClick={() => props.setWeather(WeatherType.Drizzle)}>
+          <img src={drizzle} alt="Make it drizzle" />
         </Button>
-        <Button onClick={() => setWeather(WeatherType.Rain)}>
-          <CloudRain />
+        <Button onClick={() => props.setWeather(WeatherType.Rain)}>
+          <img src={droplet} alt="Make it rain" />
         </Button>
 
-        <Button onClick={() => setWeather(WeatherType.Snow)}>
-          <Snowflake />
+        <Button onClick={() => props.setWeather(WeatherType.Snow)}>
+          <img src={snowflake} alt="Make it snow" />
         </Button>
-        <Button onClick={() => setWeather(WeatherType.Clear)}>
-          <Sun />
+        <Button onClick={() => props.setWeather(WeatherType.Clear)}>
+          <img src={sunny} alt="Make it clear" />
         </Button>
       </div>
     </div>

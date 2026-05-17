@@ -1,5 +1,4 @@
-import type { RefObject } from "react";
-import { useLayoutEffect, useRef } from "react";
+import { onMount } from "solid-js";
 import { terrain, terrainSnow } from "../assets/sprites/terrain";
 import { SUN_SIZE } from "./Sun";
 
@@ -51,21 +50,18 @@ const TERRAIN_DEST_DY = 60;
 const TERRAIN_DEST_DW = 350;
 const TERRAIN_DEST_DH = 160;
 
-const Ocean = ({
-  isDay,
-  isSnow,
-  sunRef,
-  moonRef,
-}: {
+type OceanProps = {
   isDay: boolean;
   isSnow: boolean;
-  sunRef: RefObject<HTMLDivElement | null>;
-  moonRef: RefObject<HTMLDivElement | null>;
-}) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  sunRef: HTMLDivElement | undefined;
+  moonRef: HTMLDivElement | undefined;
+};
 
-  useLayoutEffect(() => {
-    const canvas = canvasRef.current;
+const Ocean = (props: OceanProps) => {
+  let canvasRef: HTMLCanvasElement | undefined;
+
+  onMount(() => {
+    const canvas = canvasRef;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -83,9 +79,8 @@ const Ocean = ({
       g: (OCEAN_COLOR >> 8) & 0xff,
       b: OCEAN_COLOR & 0xff,
     };
-    const highlightRgb = isDay
-      ? { r: 255, g: 246, b: 184 }
-      : { r: 255, g: 255, b: 255 };
+    const highlightRgb = () =>
+      props.isDay ? { r: 255, g: 246, b: 184 } : { r: 255, g: 255, b: 255 };
     const terrainDayImage = new Image();
     terrainDayImage.src = terrain;
     const terrainSnowImage = new Image();
@@ -95,10 +90,10 @@ const Ocean = ({
     const mixColor = (
       from: { r: number; g: number; b: number },
       to: { r: number; g: number; b: number },
-      t: number
+      t: number,
     ) =>
       `rgb(${Math.round(lerp(from.r, to.r, t))},${Math.round(
-        lerp(from.g, to.g, t)
+        lerp(from.g, to.g, t),
       )},${Math.round(lerp(from.b, to.b, t))})`;
 
     const hash2d = (x: number, y: number) => {
@@ -135,17 +130,17 @@ const Ocean = ({
       pushDownByHeight: number,
       belowHorizonFade: number,
       belowHorizonWidthScale: number,
-      timeMs: number
+      timeMs: number,
     ) => {
       const dynamicRows = Math.round(
-        REFLECTION.rows + REFLECTION.extraRows * spreadByHeight
+        REFLECTION.rows + REFLECTION.extraRows * spreadByHeight,
       );
       const maxWidth =
         (REFLECTION.maxHalfWidth + REFLECTION.extraHalfWidth * spreadByHeight) *
         belowHorizonWidthScale;
       const dynamicFade = Math.max(
         0.35,
-        REFLECTION.fade - 0.18 * spreadByHeight
+        REFLECTION.fade - 0.18 * spreadByHeight,
       );
 
       for (let row = 0; row < dynamicRows; row += 1) {
@@ -158,7 +153,7 @@ const Ocean = ({
           HORIZON_Y +
             REFLECTION.startYOffset +
             pushDownByHeight +
-            row * REFLECTION.rowStep
+            row * REFLECTION.rowStep,
         );
         if (y >= canvas.height) break;
 
@@ -168,18 +163,18 @@ const Ocean = ({
           (maxWidth - REFLECTION.minHalfWidth) * spreadT;
         const taperedHalfWidth = Math.max(
           1,
-          halfWidth * (1 - REFLECTION.taper * t)
+          halfWidth * (1 - REFLECTION.taper * t),
         );
 
         const animatedHalfWidth = Math.max(
           1,
-          taperedHalfWidth * (1 + MOTION.widthPulse * pulseNoise * (0.2 + t))
+          taperedHalfWidth * (1 + MOTION.widthPulse * pulseNoise * (0.2 + t)),
         );
         const brightness = Math.max(
           0.12,
           (1 - dynamicFade * t) *
             (1 + MOTION.brightnessPulse * pulseNoise * (0.4 + 0.6 * t)) *
-            belowHorizonFade
+            belowHorizonFade,
         );
         const rowDensityScale = 1 + MOTION.densityPulse * driftNoise;
 
@@ -207,16 +202,16 @@ const Ocean = ({
           const sparkleMix = hash2d(x + y, row * 17) > 0.75 ? 0.12 : 0;
           const colorMix = Math.max(
             0.05,
-            brightness * distanceFade + sparkleMix
+            brightness * distanceFade + sparkleMix,
           );
-          ctx.fillStyle = mixColor(oceanRgb, highlightRgb, colorMix);
+          ctx.fillStyle = mixColor(oceanRgb, highlightRgb(), colorMix);
           ctx.fillRect(Math.round(centerX + x), Math.round(y), 1, 1);
         }
       }
     };
 
     const drawTerrain = () => {
-      const img = isSnow ? terrainSnowImage : terrainDayImage;
+      const img = props.isSnow ? terrainSnowImage : terrainDayImage;
       if (!img.complete || img.naturalWidth <= 0 || img.naturalHeight <= 0) {
         return;
       }
@@ -241,7 +236,7 @@ const Ocean = ({
           dx + TERRAIN_DEST_DX,
           TERRAIN_DEST_DY,
           TERRAIN_DEST_DW,
-          TERRAIN_DEST_DH
+          TERRAIN_DEST_DH,
         );
       }
     };
@@ -257,7 +252,7 @@ const Ocean = ({
       const belowHorizonDistance = Math.max(0, py - HORIZON_Y);
       const belowHorizonT = Math.min(
         1,
-        belowHorizonDistance / REFLECTION.belowHorizonRange
+        belowHorizonDistance / REFLECTION.belowHorizonRange,
       );
       const belowHorizonFade =
         1 - belowHorizonT * REFLECTION.belowHorizonBrightnessFade;
@@ -269,7 +264,7 @@ const Ocean = ({
         pushDownByHeight,
         belowHorizonFade,
         belowHorizonWidthScale,
-        timeMs
+        timeMs,
       );
       drawTerrain();
     };
@@ -285,12 +280,12 @@ const Ocean = ({
     };
 
     const getBodyCanvasPosition = () => {
-      const target = isDay ? sunRef.current : moonRef.current;
+      const target = props.isDay ? props.sunRef : props.moonRef;
       if (!target) return null;
       const rect = target.getBoundingClientRect();
       return viewportToCanvas(
         rect.left + rect.width * 0.5,
-        rect.top + rect.height * 0.5 - SUN_SIZE
+        rect.top + rect.height * 0.5 - SUN_SIZE,
       );
     };
 
@@ -298,18 +293,18 @@ const Ocean = ({
       const cssWidth = Math.max(1, Math.floor(window.innerWidth));
       const cssHeight = Math.max(
         1,
-        Math.floor(Math.min(window.innerHeight, MAX_CANVAS_CSS_HEIGHT))
+        Math.floor(Math.min(window.innerHeight, MAX_CANVAS_CSS_HEIGHT)),
       );
       const uniformScale = cssHeight / CANVAS_HEIGHT;
       const renderWidth = Math.max(
         CANVAS_WIDTH,
-        Math.round(cssWidth / Math.max(0.001, uniformScale))
+        Math.round(cssWidth / Math.max(0.001, uniformScale)),
       );
 
       if (canvas!.width !== renderWidth || canvas!.height !== CANVAS_HEIGHT) {
         canvas!.width = renderWidth;
         canvas!.height = CANVAS_HEIGHT;
-        ctx.imageSmoothingEnabled = false;
+        ctx!.imageSmoothingEnabled = false;
       }
 
       canvas!.style.width = `${cssWidth}px`;
@@ -338,23 +333,22 @@ const Ocean = ({
       window.cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resizeCanvas);
     };
-  }, [isDay, isSnow, moonRef, sunRef]);
+  });
 
   return (
     <div
-      className="flex w-screen items-center justify-center overflow-hidden bg-black"
+      class="flex w-screen items-center justify-center overflow-hidden bg-black"
       style={{
         height: `min(100vh, ${MAX_CANVAS_CSS_HEIGHT}px)`,
-        mixBlendMode: "multiply",
       }}
     >
       <canvas
         ref={canvasRef}
         width={CANVAS_WIDTH}
         height={CANVAS_HEIGHT}
-        className="pointer-events-auto block"
+        class="pointer-events-auto block"
         style={{
-          imageRendering: "pixelated",
+          "image-rendering": "pixelated",
         }}
       />
     </div>

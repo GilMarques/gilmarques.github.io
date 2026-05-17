@@ -1,107 +1,93 @@
-import type { RefObject } from "react";
 import { github, linkedin, mail } from "../assets/icons/index.js";
 import { heart } from "../assets/sprites/index.js";
 import { WeatherType } from "../hooks/useWeather.js";
 import Ocean from "./Ocean.js";
 import SunDial from "./SunDial.js";
 
-const Footer = ({
-  isDay,
-  weather,
-  setWeather,
-  daySliderValue,
-  setDaySliderValue,
-  sunRef,
-  moonRef,
-}: {
+type FooterProps = {
   isDay: boolean;
   weather: WeatherType;
   setWeather: (weather: WeatherType) => void;
   daySliderValue: number;
   setDaySliderValue: (value: number) => void;
-  sunRef: RefObject<HTMLDivElement | null>;
-  moonRef: RefObject<HTMLDivElement | null>;
-}) => {
+  sunRef: HTMLDivElement | undefined;
+  moonRef: HTMLDivElement | undefined;
+};
+
+const Footer = (props: FooterProps) => {
   return (
-    <>
-      <div className="relative">
-        <div className="bottom-0 -z-10">
-          <Ocean
-            isDay={isDay}
-            isSnow={weather === WeatherType.Snow}
-            sunRef={sunRef}
-            moonRef={moonRef}
-          />
-        </div>
+    <footer>
+      <div
+        class="relative bottom-0 -z-10"
+        style={{ "mix-blend-mode": "multiply" }}
+      >
+        <Ocean
+          isDay={props.isDay}
+          isSnow={props.weather === WeatherType.Snow}
+          sunRef={props.sunRef}
+          moonRef={props.moonRef}
+        />
       </div>
 
       <div
         id="contact"
-        className={`absolute bottom-[16px] min-w-full font-custom ${
-          isDay ? "text-black" : "text-white"
+        class={`absolute bottom-4 min-w-full font-custom ${
+          props.isDay ? "text-black" : "text-white"
         }`}
       >
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex flex-col items-center">
+        <div class="flex flex-col items-center gap-4">
+          <div class="flex flex-col items-center">
             <SunDial
-              weather={weather}
-              value={daySliderValue}
-              onChange={setDaySliderValue}
-              setWeather={setWeather}
+              weather={props.weather}
+              value={props.daySliderValue}
+              onChange={props.setDaySliderValue}
+              setWeather={props.setWeather}
             />
           </div>
 
-          <div className="relative text-center ">
-            <p className="text-3xl mb-2">Contact Me</p>
+          <div class="relative text-center ">
+            <p class="text-3xl mb-2">Contact Me</p>
 
-            <div className="flex flex-wrap justify-center align-center gap-4">
+            <div class="flex flex-wrap justify-center align-center gap-4">
               <a
-                className="w-[200px] eightbit-button p-2 text-black flex items-center"
+                class="w-50 eightbit-button p-2 text-black flex items-center"
                 href="mailto:gilmmm4@gmail.com"
               >
-                <img src={mail} alt="Email" className="h-10 pixelated" />
-                <span className="flex-grow text-center">Email</span>
+                <img src={mail} alt="Email" class="h-10 pixelated" />
+                <span class="grow text-center">Email</span>
               </a>
 
               <a
-                className="w-[200px] eightbit-button p-2 text-black flex items-center"
+                class="w-50 eightbit-button p-2 text-black flex items-center"
                 href="https://github.com/GilMarques"
               >
-                <img
-                  src={github}
-                  alt="Github"
-                  className="w-10 h-10 pixelated"
-                />
-                <span className="flex-grow text-center">Github</span>
+                <img src={github} alt="Github" class="w-10 h-10 pixelated" />
+                <span class="grow text-center">Github</span>
               </a>
 
               <a
-                className="w-[200px] eightbit-button p-2 text-black flex items-center"
+                class="w-50 eightbit-button p-2 text-black flex items-center"
                 href="https://www.linkedin.com/in/gil-marques-ab86a524b/"
               >
                 <img
                   src={linkedin}
                   alt="LinkedIn"
-                  className="w-10 h-10 pixelated"
+                  class="w-10 h-10 pixelated"
                 />
-                <span className="flex-grow text-center">LinkedIn</span>
+                <span class="grow text-center">LinkedIn</span>
               </a>
             </div>
           </div>
-          <div className="font-custom text-xl">
+          <div class="font-custom text-xl">
             <span>Made with</span>
-            <img
-              src={heart}
-              alt="heart"
-              className="inline-block h-3 w-3 mx-2"
-            />
+            <img src={heart} alt="heart" class="inline-block h-3 w-3 mx-2" />
             <span>
               by <strong>Gil Marques</strong>
             </span>
           </div>
         </div>
       </div>
-    </>
+    </footer>
   );
 };
 

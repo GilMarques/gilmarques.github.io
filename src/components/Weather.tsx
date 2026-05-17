@@ -1,19 +1,19 @@
 //https://codepen.io/arickle/pen/XKjMZY
-import { useMemo, useRef } from "react";
-import { DaytimeType } from "../App.js";
 
+import { createMemo, For } from "solid-js";
+
+import { DaytimeType } from "../App.jsx";
 import {
   clouds,
   grayclouds,
   nightclouds,
   rainclouds,
-} from "../assets/clouds/index.js";
+} from "../assets/sprites/clouds/index.js";
 import { WeatherType } from "../hooks/useWeather.js";
 import type { CloudLayerConfig } from "../utils/cloudDensity.js";
 import { CloudDensityLevel } from "../utils/cloudDensity.js";
 
 const Rain = ({ intensity }: { intensity: "light" | "heavy" }) => {
-  /** Scan full width (0–100%); light rain keeps ~half the drops. */
   const keepProbability = intensity === "heavy" ? 1 : 0.5;
 
   var increment = 0;
@@ -29,34 +29,35 @@ const Rain = ({ intensity }: { intensity: "light" | "heavy" }) => {
   }
 
   return (
-    <div className="rain pointer-events-none fixed top-0 min-h-full min-w-full">
-      {drops.map((drop, i) => (
-        <div
-          key={`${i}-${drop.increment}`}
-          className="drop"
-          style={{
-            left: `${drop.increment}%`,
-            bottom: `${drop.randoFiver + 85}%`,
-            animationDelay: `-0.${drop.randoHundo}s`,
-            animationDuration: `0.5${drop.randoHundo}s`,
-          }}
-        >
+    <div class={"rain pointer-events-none fixed top-0 min-h-full min-w-full"}>
+      <For each={drops}>
+        {(drop) => (
           <div
-            className="stem"
+            class="drop"
             style={{
-              animationDelay: `-0.${drop.randoHundo}s`,
-              animationDuration: `0.5${drop.randoHundo}s`,
+              left: `${drop.increment}%`,
+              bottom: `${drop.randoFiver + 85}%`,
+              "animation-delay": `-0.${drop.randoHundo}s`,
+              "animation-duration": `0.5${drop.randoHundo}s`,
             }}
-          ></div>
-          <div
-            className="splat"
-            style={{
-              animationDelay: `-0.${drop.randoHundo}s`,
-              animationDuration: `0.5${drop.randoHundo}s`,
-            }}
-          ></div>
-        </div>
-      ))}
+          >
+            <div
+              class="stem"
+              style={{
+                "animation-delay": `-0.${drop.randoHundo}s`,
+                "animation-duration": `0.5${drop.randoHundo}s`,
+              }}
+            ></div>
+            <div
+              class="splat"
+              style={{
+                "animation-delay": `-0.${drop.randoHundo}s`,
+                "animation-duration": `0.5${drop.randoHundo}s`,
+              }}
+            ></div>
+          </div>
+        )}
+      </For>
     </div>
   );
 };
@@ -70,7 +71,7 @@ const sources = {
 
 function cloudSpriteKind(
   daytime: DaytimeType,
-  level: CloudDensityLevel
+  level: CloudDensityLevel,
 ): keyof typeof sources {
   switch (level) {
     case CloudDensityLevel.HeavyRain:
@@ -83,130 +84,122 @@ function cloudSpriteKind(
   }
 }
 
-const Cloud = ({
-  opacityPct = 100,
-  scale = 1,
-  animationDuration,
-  type,
-  delay,
-}: {
+type CloudProps = {
   opacityPct?: number;
   scale?: number;
   animationDuration: number;
   type: keyof typeof sources;
   delay: number;
-}) => {
-  const source = useMemo(() => sources[type], [type]);
-  const cloudShapeIndex = useRef(
-    Math.floor(Math.random() * Math.max(1, source.length))
-  );
+};
+
+const Cloud = (props: CloudProps) => {
+  const opacityPct = () => props.opacityPct ?? 100;
+  const scale = () => props.scale ?? 1;
+  const source = createMemo(() => sources[props.type]);
+  let cloudShapeIndex = Math.floor(Math.random() * Math.max(1, source.length));
 
   return (
     <div
-      className="relative"
+      class="relative"
       style={{
-        opacity: opacityPct / 100,
-        animation: `move ${animationDuration}s linear infinite`,
-        animationDelay: `-${delay}s`,
+        opacity: opacityPct() / 100,
+        animation: `move ${props.animationDuration}s linear infinite`,
+        "animation-delay": `-${props.delay}s`,
         right: "-20%",
+        "z-index": -10,
       }}
       onAnimationIteration={() => {
-        cloudShapeIndex.current = Math.floor(
-          Math.random() * Math.max(1, source.length)
+        cloudShapeIndex = Math.floor(
+          Math.random() * Math.max(1, source.length),
         );
       }}
     >
       <img
-        src={source[cloudShapeIndex.current]}
+        src={source()[cloudShapeIndex]}
         alt="Moving Cloud"
-        className="absolute right-0"
-        width={800 * scale}
-        height={300 * scale}
+        class="absolute right-0"
+        width={800 * scale()}
+        height={300 * scale()}
+        draggable={false}
       />
     </div>
   );
 };
 
-const Clouds = ({
-  daytime,
-  cloudLevel,
-  layers,
-}: {
+type CloudsProps = {
   daytime: DaytimeType;
   cloudLevel: CloudDensityLevel;
   layers: CloudLayerConfig[];
-}) => {
-  const type = useMemo(
-    () => cloudSpriteKind(daytime, cloudLevel),
-    [daytime, cloudLevel]
+};
+
+const Clouds = (props: CloudsProps) => {
+  const type = createMemo(() =>
+    cloudSpriteKind(props.daytime, props.cloudLevel),
   );
 
   return (
-    <>
-      {layers.map((layer, i) => (
+    <For each={props.layers}>
+      {(layer, i) => (
         <Cloud
-          key={`${cloudLevel}-${i}-${layer.delay}`}
           opacityPct={layer.opacityPct}
           scale={layer.scale}
-          type={type}
+          type={type()}
           animationDuration={layer.animationDuration}
           delay={layer.delay}
         />
-      ))}
-    </>
+      )}
+    </For>
   );
 };
 
-const Weather = ({
-  weather,
-  daytime,
-  spawnClouds = true,
-  cloudLevel,
-  cloudLayers,
-}: {
+type WeatherProps = {
   weather: WeatherType;
   daytime: DaytimeType;
   spawnClouds?: boolean;
   cloudLevel: CloudDensityLevel;
   cloudLayers: CloudLayerConfig[];
-}) => {
-  const showRain =
-    weather === WeatherType.Drizzle || weather === WeatherType.Rain;
+};
 
-  const rainIntensity = weather === WeatherType.Drizzle ? "light" : "heavy";
+const Weather = (props: WeatherProps) => {
+  const showRain = () =>
+    props.weather === WeatherType.Drizzle || props.weather === WeatherType.Rain;
+
+  const rainIntensity = () =>
+    props.weather === WeatherType.Drizzle ? "light" : "heavy";
 
   return (
     <>
-      {weather === WeatherType.Snow && (
-        <div className="snow_wrap pointer-events-none">
-          <div className="snow"></div>
+      {props.weather === WeatherType.Snow && (
+        <div class="snow_wrap pointer-events-none">
+          <div class="snow"></div>
         </div>
       )}
-      {showRain && <Rain intensity={rainIntensity} />}
+      {showRain() && <Rain intensity={rainIntensity()} />}
       <>
-        {/*<div
-          className="relative h-[300px]"
-          style={{
-            backgroundImage: daytime == "night" ? `url(${starry_sky})` : "none",
-          }}
+        <div
+          class="relative h-75"
+          // style={{
+          //   "background-image":
+          //     props.daytime == "night" ? `url(${terrain})` : "none",
+          // }}
         >
-          {daytime === "night" && (
+          {/*{props.daytime === "night" && (
             <div
-              className="relative h-full text-white"
+              class="relative h-full text-white"
               style={{
                 background:
                   "linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)",
               }}
             ></div>
-          )}
-        </div>*/}
+          )}*/}
+        </div>
       </>
 
-      {spawnClouds && (
+      {(props.spawnClouds ?? true) && (
         <Clouds
-          daytime={daytime}
-          cloudLevel={cloudLevel}
-          layers={cloudLayers}
+          daytime={props.daytime}
+          cloudLevel={props.cloudLevel}
+          layers={props.cloudLayers}
         />
       )}
     </>

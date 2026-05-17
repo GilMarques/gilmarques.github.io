@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { createEffect, onCleanup } from "solid-js";
 import { daySliderPercentFromOpenWeather } from "../utils/daySliderFromOpenWeather";
 
 export enum WeatherType {
@@ -38,7 +38,7 @@ const useWeather = ({
   setCloudsAll,
   setWeatherConditionId,
 }: UseWeatherParams) => {
-  useEffect(() => {
+  createEffect(() => {
     const apiKey = import.meta.env.VITE_API_URL;
     const controller = new AbortController();
 
@@ -46,7 +46,7 @@ const useWeather = ({
       try {
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?lat=${41.55}&lon=${-8.42}&appid=${apiKey}`,
-          { signal: controller.signal }
+          { signal: controller.signal },
         );
         const data = await response.json();
         const id = data?.weather?.[0]?.id;
@@ -91,11 +91,10 @@ const useWeather = ({
     };
 
     fetchWeather();
-
-    return () => {
+    onCleanup(() => {
       controller.abort();
-    };
-  }, [setWeather, setDaySliderValue, setCloudsAll, setWeatherConditionId]);
+    });
+  });
 };
 
 export default useWeather;

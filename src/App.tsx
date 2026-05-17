@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
-import Canvas from "./components/Canvas";
 import Footer from "./components/Footer";
 import Weather from "./components/Weather";
 
+import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
+
+import Canvas from "./components/Canvas";
 import Moon from "./components/Moon";
 import Projects from "./components/Projects";
 import Sun, { SUN_SIZE } from "./components/Sun";
@@ -13,7 +14,6 @@ import { dayLengthFromDate } from "./utils/dayLengthFromDayOfYear";
 
 export type DaytimeType = "day" | "sunrise" | "sunset" | "night" | "cloudy";
 
-/** Discrete phase for Weather / Canvas; tied to sun vs water horizon, not slider %. */
 function daytimeFromSunPosition(sunY: number, horizonY: number): DaytimeType {
   if (sunY >= horizonY) return "night";
   if (sunY + SUN_SIZE >= horizonY) return "sunset";
@@ -22,21 +22,22 @@ function daytimeFromSunPosition(sunY: number, horizonY: number): DaytimeType {
 }
 
 function App() {
-  const [spawnClouds, setSpawnClouds] = useState(true);
+  const [spawnClouds, setSpawnClouds] = createSignal(true);
 
-  const [weather, setWeather] = useState<WeatherType>(WeatherType.Snow);
-  const [daySliderValue, setDaySliderValue] = useState(50);
-  const [cloudsAll, setCloudsAll] = useState<number | undefined>();
-  const [weatherConditionId, setWeatherConditionId] = useState<
+  const [weather, setWeather] = createSignal<WeatherType>(WeatherType.Snow);
+  const [daySliderValue, setDaySliderValue] = createSignal(50);
+  const [cloudsAll, setCloudsAll] = createSignal<number | undefined>();
+  const [weatherConditionId, setWeatherConditionId] = createSignal<
     number | undefined
   >();
-  const [viewportWidth, setViewportWidth] = useState(() =>
-    typeof window !== "undefined" ? window.innerWidth : 1280
+  const [viewportWidth, setViewportWidth] = createSignal(
+    typeof window !== "undefined" ? window.innerWidth : 1280,
   );
-  const sunRef = useRef<HTMLDivElement>(null);
-  const moonRef = useRef<HTMLDivElement>(null);
 
-  const seasonalDayLength = useMemo(() => dayLengthFromDate(new Date()), []);
+  let sunRef: HTMLDivElement | undefined;
+  let moonRef: HTMLDivElement | undefined;
+
+  const seasonalDayLength = createMemo(() => dayLengthFromDate(new Date()));
 
   useWeather({
     setWeather,
@@ -45,24 +46,24 @@ function App() {
     setWeatherConditionId,
   });
 
-  const setWeatherFromUser = useCallback((next: WeatherType) => {
+  const setWeatherFromUser = (next: WeatherType) => {
     setWeather(next);
     setWeatherConditionId(undefined);
     setCloudsAll(undefined);
-  }, []);
+  };
 
-  useEffect(() => {
+  createEffect(() => {
     const onResize = () => setViewportWidth(window.innerWidth);
     onResize();
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+    onCleanup(() => window.removeEventListener("resize", onResize));
+  });
 
-  const bodyTrajectory = useMemo(() => {
-    const normalized = Math.min(1, Math.max(0, daySliderValue / 100));
+  const bodyTrajectory = createMemo(() => {
+    const normalized = Math.min(1, Math.max(0, daySliderValue() / 100));
     const leftMargin = 48;
     const rightMargin = 48;
-    const travel = Math.max(0, viewportWidth - leftMargin - rightMargin);
+    const travel = Math.max(0, viewportWidth() - leftMargin - rightMargin);
 
     const projectArc = (phase: number, peak = 124, baseline = 700) => {
       const x = leftMargin + travel * phase;
@@ -78,32 +79,33 @@ function App() {
             document.body.offsetHeight,
             document.documentElement.offsetHeight,
             document.body.clientHeight,
-            document.documentElement.clientHeight
+            document.documentElement.clientHeight,
           )
         : 1200;
-    const seasonalNormalized = seasonalDayLength.normalized; // 0 = shortest day, 1 = longest
+    const seasonalNormalized = seasonalDayLength().normalized; // 0 = shortest day, 1 = longest
     const seasonalShift = (seasonalNormalized - 0.5) * 0.18; // +/- 0.09 around default
     const sunNoonPhase = 0.375;
     const sunSetPhase = Math.min(0.9, Math.max(0.58, 0.75 + seasonalShift));
     const sunsetTargetY = Math.max(0, pageHeight - 600);
-    const sunTrackX = viewportWidth - 180;
+    const sunTrackX = viewportWidth() - 180;
     const sunDelta = Math.min(
       1,
-      Math.abs(normalized - sunNoonPhase) / (sunSetPhase - sunNoonPhase)
+      Math.abs(normalized - sunNoonPhase) / (sunSetPhase - sunNoonPhase),
     );
     const sunY = sunsetTargetY * sunDelta;
 
     // Moon trajectory follows day progression (not hour slider).
     // Keep only a subtle slider nudge so it doesn't look frozen.
     const moonCycleLength = 29.53;
-    const moonDayPhase = (seasonalDayLength.dayOfYear % moonCycleLength) / moonCycleLength;
+    const moonDayPhase =
+      (seasonalDayLength().dayOfYear % moonCycleLength) / moonCycleLength;
     const moonHourNudge = (normalized - 0.5) * 0.04;
     const moonPhase = (moonDayPhase + moonHourNudge + 1) % 1;
 
     return {
       sun: {
         x: Math.round(
-          Math.max(leftMargin, Math.min(sunTrackX, viewportWidth - 120))
+          Math.max(leftMargin, Math.min(sunTrackX, viewportWidth() - 120)),
         ),
         y: Math.round(sunY),
         horizonY: Math.round(sunsetTargetY),
@@ -115,25 +117,22 @@ function App() {
       sunSetPhase,
       sunDelta,
     };
-  }, [daySliderValue, seasonalDayLength, viewportWidth]);
+  });
 
-  const daytime = useMemo(
-    () =>
-      daytimeFromSunPosition(
-        bodyTrajectory.sun.y,
-        bodyTrajectory.sun.horizonY
-      ),
-    [bodyTrajectory]
-  );
-  /** Night when the sun is fully below the water line (top at or under horizon). */
-  const isDay = useMemo(
-    () => bodyTrajectory.sun.y < bodyTrajectory.sun.horizonY,
-    [bodyTrajectory]
+  const daytime = createMemo(() =>
+    daytimeFromSunPosition(
+      bodyTrajectory().sun.y,
+      bodyTrajectory().sun.horizonY,
+    ),
   );
 
-  const skyPercentFromSunPosition = useMemo(() => {
+  const isDay = createMemo(
+    () => bodyTrajectory().sun.y < bodyTrajectory().sun.horizonY,
+  );
+
+  const skyPercentFromSunPosition = createMemo(() => {
     const { sun, sunNormalized, sunNoonPhase, sunSetPhase, sunDelta } =
-      bodyTrajectory;
+      bodyTrajectory();
     const { y, horizonY } = sun;
     const touchY = horizonY - SUN_SIZE;
     const underY = horizonY;
@@ -150,7 +149,7 @@ function App() {
 
     const clampedSunsetPhase = Math.min(
       0.99,
-      Math.max(sunNoonPhase + 0.01, sunSetPhase)
+      Math.max(sunNoonPhase + 0.01, sunSetPhase),
     );
 
     if (sunNormalized >= clampedSunsetPhase) {
@@ -162,7 +161,7 @@ function App() {
     }
 
     return Math.round(Math.min(50, Math.max(37.5, 50 - (1 - sunDelta) * 12.5)));
-  }, [bodyTrajectory]);
+  });
 
   const { skyGradient, cloudLevel, cloudLayers } = useSkyAtmosphere({
     daySliderPercent: skyPercentFromSunPosition,
@@ -173,72 +172,69 @@ function App() {
 
   return (
     <>
-      <div className="navbar z-20 flex justify-end text-nowrap border-b-4 border-r-4 border-black bg-stone-300 px-8 py-4">
-        <div className="flex gap-8 font-custom text-xl">
-          <a href="#about" className="hover:underline">
+      <div class="navbar z-20 flex justify-end text-nowrap border-b-4 border-r-4 border-black bg-stone-300 px-8 py-4">
+        <div class="flex gap-8 font-custom text-xl">
+          <a href="#about" class="hover:underline">
             About
           </a>
-          <a href="#projects" className="hover:underline">
+          <a href="#projects" class="hover:underline">
             Projects
           </a>
-          <a href="#contact" className="hover:underline">
+          <a href="#contact" class="hover:underline">
             Contact
           </a>
         </div>
       </div>
       <div
-        className="front-row relative z-10 min-w-full"
-        style={{ background: skyGradient }}
+        class="front-row relative z-10 min-w-full"
+        style={{ background: skyGradient() }}
       >
         <Weather
-          weather={weather}
-          daytime={daytime}
-          spawnClouds={spawnClouds}
-          cloudLevel={cloudLevel}
-          cloudLayers={cloudLayers}
+          weather={weather()}
+          daytime={daytime()}
+          spawnClouds={spawnClouds()}
+          cloudLevel={cloudLevel()}
+          cloudLayers={cloudLayers()}
         />
 
-        <>
-          <div
-            className={`absolute px-8  ${isDay ? "text-black" : "text-white"}`}
-          >
-            <div className="text-md font-custom mt-16 text-4xl font-black underline">
-              About
-            </div>
-            <div
-              className={`text-md  font-custom text-3xl scroll-mt-16  ${
-                isDay ? "text-black" : "text-white"
-              }`}
-              id="about"
-            >
-              Hi, my name is <b>Gil</b> <br /> I'm a Software Developer from
-              Portugal
-            </div>
+        <div class={`px-8  ${isDay() ? "text-black" : "text-white"}`}>
+          <div class="text-md font-custom mt-16 text-4xl font-black underline">
+            About
           </div>
-        </>
+          <div
+            class={`text-md  font-custom text-3xl scroll-mt-16  ${
+              isDay() ? "text-black" : "text-white"
+            }`}
+            id="about"
+          >
+            Hi, my name is <b>Gil</b> <br /> I'm a Software Developer from
+            Portugal
+          </div>
+        </div>
+
         <Canvas day={isDay} />
 
-        <Projects isDay={isDay} />
+        <Projects isDay={isDay()} />
 
         <Sun
-          isDay={isDay}
-          x={bodyTrajectory.sun.x}
-          y={bodyTrajectory.sun.y}
-          horizonY={bodyTrajectory.sun.horizonY}
-          ref={sunRef}
+          isDay={isDay()}
+          x={bodyTrajectory().sun.x}
+          y={bodyTrajectory().sun.y}
+          horizonY={bodyTrajectory().sun.horizonY}
+          ref={(el) => (sunRef = el)}
         />
         <Moon
-          isDay={isDay}
-          x={bodyTrajectory.moon.x}
-          y={bodyTrajectory.moon.y}
-          ref={moonRef}
+          isDay={isDay()}
+          x={bodyTrajectory().moon.x}
+          y={bodyTrajectory().moon.y}
+          ref={(el) => (moonRef = el)}
         />
 
         <Footer
-          weather={weather}
-          isDay={isDay}
+          weather={weather()}
+          isDay={isDay()}
           setWeather={setWeatherFromUser}
-          daySliderValue={daySliderValue}
+          daySliderValue={daySliderValue()}
           setDaySliderValue={setDaySliderValue}
           sunRef={sunRef}
           moonRef={moonRef}

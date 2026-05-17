@@ -1,344 +1,335 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @font-face {
-  font-family: myFont;
-  src: url("/fonts/Connection3.otf") format("opentype");
+    font-family: myFont;
+    src: url("/fonts/Connection3.otf") format("opentype");
 }
 
 .sky-gradient {
-  background: linear-gradient(
-    to bottom,
-    hsl(0, 0%, 0%) 0%,
-    #b7eaff 50%,
-    #94dfff 100%
-  );
+    background: linear-gradient(
+        to bottom,
+        hsl(0, 0%, 0%) 0%,
+        #b7eaff 50%,
+        #94dfff 100%
+    );
 }
 
 .pixelated {
-  image-rendering: crisp-edges; /* Older syntax that still works well */
-  image-rendering: pixelated; /* Modern standard syntax for pixel art */
+    image-rendering: crisp-edges; /* Older syntax that still works well */
+    image-rendering: pixelated; /* Modern standard syntax for pixel art */
 }
 
 body {
-  font-family: myFont;
-
-  word-spacing: 7px;
+    font-family: myFont;
+    word-spacing: 7px;
 }
 
 html {
-  overflow-x: hidden;
-  scroll-behavior: smooth;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
 }
 
 .pixel-corners {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    /** Luke Bonaccorsi's Pixelated Rounded Corners **/
 
-  /** Luke Bonaccorsi's Pixelated Rounded Corners **/
-
-  clip-path: polygon(
-    0px 20px,
-    4px 20px,
-    4px 12px,
-    8px 12px,
-    8px 8px,
-    12px 8px,
-    12px 4px,
-    16px 4px,
-    20px 4px,
-    20px 0px,
-    calc(100% - 20px) 0px,
-    calc(100% - 20px) 4px,
-    calc(100% - 12px) 4px,
-    calc(100% - 12px) 8px,
-    calc(100% - 8px) 8px,
-    calc(100% - 8px) 12px,
-    calc(100% - 4px) 12px,
-    calc(100% - 4px) 16px,
-    calc(100% - 4px) 20px,
-    100% 20px,
-    100% calc(100% - 20px),
-    calc(100% - 4px) calc(100% - 20px),
-    calc(100% - 4px) calc(100% - 12px),
-    calc(100% - 8px) calc(100% - 12px),
-    calc(100% - 8px) calc(100% - 8px),
-    calc(100% - 12px) calc(100% - 8px),
-    calc(100% - 12px) calc(100% - 4px),
-    calc(100% - 16px) calc(100% - 4px),
-    calc(100% - 20px) calc(100% - 4px),
-    calc(100% - 20px) 100%,
-    20px 100%,
-    20px calc(100% - 4px),
-    12px calc(100% - 4px),
-    12px calc(100% - 8px),
-    8px calc(100% - 8px),
-    8px calc(100% - 12px),
-    4px calc(100% - 12px),
-    4px calc(100% - 16px),
-    4px calc(100% - 20px),
-    0px calc(100% - 20px)
-  );
+    clip-path: polygon(
+        0px 20px,
+        4px 20px,
+        4px 12px,
+        8px 12px,
+        8px 8px,
+        12px 8px,
+        12px 4px,
+        16px 4px,
+        20px 4px,
+        20px 0px,
+        calc(100% - 20px) 0px,
+        calc(100% - 20px) 4px,
+        calc(100% - 12px) 4px,
+        calc(100% - 12px) 8px,
+        calc(100% - 8px) 8px,
+        calc(100% - 8px) 12px,
+        calc(100% - 4px) 12px,
+        calc(100% - 4px) 16px,
+        calc(100% - 4px) 20px,
+        100% 20px,
+        100% calc(100% - 20px),
+        calc(100% - 4px) calc(100% - 20px),
+        calc(100% - 4px) calc(100% - 12px),
+        calc(100% - 8px) calc(100% - 12px),
+        calc(100% - 8px) calc(100% - 8px),
+        calc(100% - 12px) calc(100% - 8px),
+        calc(100% - 12px) calc(100% - 4px),
+        calc(100% - 16px) calc(100% - 4px),
+        calc(100% - 20px) calc(100% - 4px),
+        calc(100% - 20px) 100%,
+        20px 100%,
+        20px calc(100% - 4px),
+        12px calc(100% - 4px),
+        12px calc(100% - 8px),
+        8px calc(100% - 8px),
+        8px calc(100% - 12px),
+        4px calc(100% - 12px),
+        4px calc(100% - 16px),
+        4px calc(100% - 20px),
+        0px calc(100% - 20px)
+    );
 }
 
 .navbar {
-  position: sticky;
-  top: 0;
+    position: sticky;
+    top: 0;
 }
 
 fade {
-  bottom: 0px;
+    bottom: 0px;
 
-  display: block;
+    display: block;
 
-  background-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0),
-    rgb(0, 0, 0, 1) 100%
-  );
+    background-image: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0),
+        rgb(0, 0, 0, 1) 100%
+    );
 }
 
 .rain {
-  z-index: 2;
+    z-index: 2;
 }
 
 .rain.back-row {
-  display: none;
-  z-index: 1;
-  bottom: 60px;
-  opacity: 0.5;
+    display: none;
+    z-index: 1;
+    bottom: 60px;
+    opacity: 0.5;
 }
 
 body.back-row-toggle .rain.back-row {
-  display: block;
+    display: block;
 }
 
 .drop {
-  position: absolute;
-  bottom: 100%;
-  width: 15px;
-  height: 120px;
-  pointer-events: none;
-  animation: drop 0.5s linear infinite;
+    position: absolute;
+    bottom: 100%;
+    width: 15px;
+    height: 120px;
+    pointer-events: none;
+    animation: drop 0.5s linear infinite;
 }
 
 @keyframes drop {
-  0% {
-    transform: translateY(0vh);
-  }
-  75% {
-    transform: translateY(100vh);
-  }
-  100% {
-    transform: translateY(100vh);
-  }
+    0% {
+        transform: translateY(0vh);
+    }
+    75% {
+        transform: translateY(100vh);
+    }
+    100% {
+        transform: translateY(100vh);
+    }
 }
 
 .stem {
-  width: 5px;
-  height: 60%;
-  margin-left: 7px;
-  background: linear-gradient(
-    to bottom,
-    rgba(56, 44, 186, 0),
-    rgba(56, 44, 186, 0.25)
-  );
-  animation: stem 0.5s linear infinite;
+    width: 5px;
+    height: 60%;
+    margin-left: 7px;
+    background: linear-gradient(
+        to bottom,
+        rgba(56, 44, 186, 0),
+        rgba(56, 44, 186, 0.25)
+    );
+    animation: stem 0.5s linear infinite;
 }
 
 @keyframes stem {
-  0% {
-    opacity: 1;
-  }
-  65% {
-    opacity: 1;
-  }
-  75% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 0;
-  }
+    0% {
+        opacity: 1;
+    }
+    65% {
+        opacity: 1;
+    }
+    75% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 .splat {
-  width: 15px;
-  height: 10px;
-  border-top: 2px dotted rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  opacity: 1;
-  transform: scale(0);
-  animation: splat 0.5s linear infinite;
-  display: none;
+    width: 15px;
+    height: 10px;
+    border-top: 2px dotted rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    opacity: 1;
+    transform: scale(0);
+    animation: splat 0.5s linear infinite;
+    display: none;
 }
 
 body.splat-toggle .splat {
-  display: block;
+    display: block;
 }
 
 @keyframes splat {
-  0% {
-    opacity: 1;
-    transform: scale(0);
-  }
-  80% {
-    opacity: 1;
-    transform: scale(0);
-  }
-  90% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.5);
-  }
+    0% {
+        opacity: 1;
+        transform: scale(0);
+    }
+    80% {
+        opacity: 1;
+        transform: scale(0);
+    }
+    90% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
 }
 
 @keyframes move {
-  0% {
-    right: -800px;
-  }
-  100% {
-    right: 100%;
-  }
+    0% {
+        right: -800px;
+    }
+    100% {
+        right: 100%;
+    }
 }
 
 @keyframes moveTerrain {
-  0% {
-    right: 0px;
-  }
-  100% {
-    right: 1819px;
-  }
+    0% {
+        right: 0px;
+    }
+    100% {
+        right: 1819px;
+    }
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg) translate(0%, -300%);
-  }
-  to {
-    transform: rotate(360deg) translate(0%, -300%);
-  }
+    from {
+        transform: rotate(0deg) translate(0%, -300%);
+    }
+    to {
+        transform: rotate(360deg) translate(0%, -300%);
+    }
 }
 
 @keyframes spin2 {
-  from {
-    transform: rotate(360deg);
-  }
-  to {
-    transform: rotate(0deg);
-  }
+    from {
+        transform: rotate(360deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
 }
 
 .snow_wrap {
-  height: 100vh;
-  width: 100%;
+    height: 100vh;
+    width: 100%;
 
-  overflow: hidden;
-  position: fixed;
-  z-index: 10;
+    overflow: hidden;
+    position: fixed;
+    z-index: 10;
 }
 
 .snow,
 .snow:before,
 .snow:after {
-  position: absolute;
-  top: -650px;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background-image:
-    radial-gradient(4px 4px at 100px 50px, #fff, transparent),
-    radial-gradient(6px 6px at 200px 150px, #fff, transparent),
-    radial-gradient(3px 3px at 300px 250px, #fff 50%, transparent),
-    radial-gradient(4px 4px at 400px 350px, #fff 50%, transparent),
-    radial-gradient(6px 6px at 500px 100px, #fff 50%, transparent),
-    radial-gradient(3px 3px at 50px 200px, #fff 50%, transparent),
-    radial-gradient(4px 4px at 150px 300px, #fff 50%, transparent),
-    radial-gradient(6px 6px at 250px 400px, #fff 50%, transparent),
-    radial-gradient(3px 3px at 350px 500px, #fff 50%, transparent);
-  background-size: 650px 650px;
-  animation: snow 3s linear infinite;
-  content: "";
+    position: absolute;
+    top: -650px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image:
+        radial-gradient(4px 4px at 100px 50px, #fff, transparent),
+        radial-gradient(6px 6px at 200px 150px, #fff, transparent),
+        radial-gradient(3px 3px at 300px 250px, #fff 50%, transparent),
+        radial-gradient(4px 4px at 400px 350px, #fff 50%, transparent),
+        radial-gradient(6px 6px at 500px 100px, #fff 50%, transparent),
+        radial-gradient(3px 3px at 50px 200px, #fff 50%, transparent),
+        radial-gradient(4px 4px at 150px 300px, #fff 50%, transparent),
+        radial-gradient(6px 6px at 250px 400px, #fff 50%, transparent),
+        radial-gradient(3px 3px at 350px 500px, #fff 50%, transparent);
+    background-size: 650px 650px;
+    animation: snow 3s linear infinite;
+    content: "";
 }
 
 .snow:after {
-  margin-left: -250px;
-  opacity: 0.5;
-  filter: blur(2px);
-  animation-duration: 6s;
-  animation-direction: reverse;
+    margin-left: -250px;
+    opacity: 0.5;
+    filter: blur(2px);
+    animation-duration: 6s;
+    animation-direction: reverse;
 }
 
 .snow:before {
-  margin-left: -350px;
-  opacity: 0.7;
-  filter: blur(1px);
-  animation-duration: 9s;
-  animation-direction: reverse;
+    margin-left: -350px;
+    opacity: 0.7;
+    filter: blur(1px);
+    animation-duration: 9s;
+    animation-direction: reverse;
 }
 
 @keyframes snow {
-  to {
-    transform: translateY(650px);
-  }
+    to {
+        transform: translateY(650px);
+    }
 }
 
 .eightbit-button {
-  background: #d6d3d1;
-  display: inline-block;
-  position: relative;
-  text-align: center;
-  font-size: 30px;
-  padding: 20px;
-
-  text-decoration: none;
-  color: white;
-  box-shadow: inset -4px -4px 0px 0px #a8a29e;
+    background: #d6d3d1;
+    position: relative;
+    text-align: center;
+    font-size: 32px;
+    padding: 16px;
+    text-decoration: none;
+    box-shadow: inset -4px -4px 0px 0px #a8a29e;
 }
 
 .eightbit-button:hover {
-  background: #e7e5e4;
+    background: #e7e5e4;
 }
 
 .eightbit-button:active {
-  box-shadow: inset 4px 4px 0px 0px #a8a29e;
+    box-shadow: inset 4px 4px 0px 0px #a8a29e;
 }
 
 .eightbit-button:before {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  box-sizing: content-box;
-  top: -4px;
-  left: 0px;
-  border-top: 4px black solid;
-  border-bottom: 4px black solid;
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-sizing: content-box;
+    top: -4px;
+    left: 0px;
+    border-top: 4px black solid;
+    border-bottom: 4px black solid;
 }
 
 .eightbit-button:after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  box-sizing: content-box;
-  left: -4px;
-  top: 0px;
-  border-left: 4px black solid;
-  border-right: 4px black solid;
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-sizing: content-box;
+    left: -4px;
+    top: 0px;
+    border-left: 4px black solid;
+    border-right: 4px black solid;
 }
 
 @keyframes scale {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
 }
