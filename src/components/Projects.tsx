@@ -70,8 +70,9 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
     case ProjectType.React:
       return (
         <div
-          class="w-6 h-6 flex items-center justify-center rounded-full bg-blue-200 shadow-blue-400"
+          class={`w-6 h-6 flex items-center justify-center rounded-full bg-blue-200 shadow-blue-400 `}
           style={{ "box-shadow": "-2px 2px 0 #60a5fa" }}
+          data-tooltip="React"
         >
           <img src={react} alt="React" class="w-4 h-4" />
         </div>
@@ -79,8 +80,9 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
     case ProjectType.Angular:
       return (
         <div
-          class="w-6 h-6 flex items-center justify-center rounded-full bg-pink-300    "
-          style={{ "box-shadow": "-2px 2px 0 #f472b2" }}
+          class={`w-6 h-6 flex items-center justify-center rounded-full bg-pink-300 `}
+          style={{ "box-shadow": "-2px 2px 0 #f472b6" }}
+          data-tooltip="Angular"
         >
           <img src={angular} alt="Angular" class="w-4 h-4" />
         </div>
@@ -88,8 +90,9 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
     case ProjectType.Python:
       return (
         <div
-          class="w-6 h-6 flex items-center justify-center rounded-full bg-yellow-200   "
+          class={`w-6 h-6 flex items-center justify-center rounded-full bg-yellow-200 `}
           style={{ "box-shadow": "-2px 2px 0 #fde047" }}
+          data-tooltip="Python"
         >
           <img src={python} alt="Python" class="w-4 h-4" />
         </div>
@@ -97,12 +100,12 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
     case ProjectType.TypeScript:
       return (
         <div
-          class="w-6 h-6 flex items-center justify-center rounded-full"
+          class={`w-6 h-6 flex items-center justify-center rounded-full `}
           style={{
             "background-color": "#3178C6",
-
             "box-shadow": "-2px 2px 0 #1d4ed8",
           }}
+          data-tooltip="TypeScript"
         >
           <img src={typescript} alt="Typescript" class="w-4 h-4" />
         </div>
@@ -110,11 +113,12 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
     case ProjectType.SolidJS:
       return (
         <div
-          class="w-6 h-6 flex items-center justify-center rounded-full"
+          class={`w-6 h-6 flex items-center justify-center rounded-full`}
           style={{
-            "background-color": "#5C95D4 ",
+            "background-color": "#5C95D4",
             "box-shadow": "-2px 2px 0 #3178C6",
           }}
+          data-tooltip="SolidJS"
         >
           <img src={solidjs} alt="SolidJS" class="w-4 h-4" />
         </div>

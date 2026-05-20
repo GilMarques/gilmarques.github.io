@@ -130,6 +130,11 @@ function App() {
     () => bodyTrajectory().sun.y < bodyTrajectory().sun.horizonY,
   );
 
+  createEffect(() => {
+    document.body.classList.toggle("is-day", isDay());
+    document.body.classList.toggle("is-night", !isDay());
+  });
+
   const skyPercentFromSunPosition = createMemo(() => {
     const { sun, sunNormalized, sunNoonPhase, sunSetPhase, sunDelta } =
       bodyTrajectory();

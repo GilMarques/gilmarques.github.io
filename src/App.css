@@ -333,3 +333,37 @@ body.splat-toggle .splat {
         transform: scale(1.1);
     }
 }
+
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]::after {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    content: attr(data-tooltip);
+    left: 0;
+    top: calc(100% + 1px);
+    border: 2px solid black;
+    background-color: #000;
+    z-index: 10;
+    transform: translateX(-50%) translateX(12px);
+    padding: 0 2px;
+    font-size: 0.75rem;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+body.is-day [data-tooltip]::after {
+    background-color: #000;
+    color: #fff;
+}
+
+body.is-night [data-tooltip]::after {
+    background-color: #fff;
+    color: #000;
+}
