@@ -1,240 +1,281 @@
-import {
-  Application,
-  Assets,
-  ColorMatrixFilter,
-  Container,
-  MeshRope,
-  Point,
-  RopeGeometry,
-  Sprite,
-  type Ticker,
-} from "pixi.js";
-
+import Konva from "konva";
 import { createEffect, onCleanup, onMount } from "solid-js";
-import { nimbus, tail } from "../assets/sprites/nimbus";
+import { nimbus } from "../assets/sprites";
 
-const ROPE_SEGMENT = 60;
-const REPEL_STRENGTH = 4200;
-const REPEL_SOFT = 90;
-const MAX_REPEL_OFFSET = 140;
-const SMOOTH = 0.12;
-const INTERACTION_RADIUS = 260;
-const BOUNCE_KICK = -38;
-const BOUNCE_SPRING = 0.52;
-const BOUNCE_DRAG = 0.34;
+const CLOUD_CENTER_Y = 300;
+const SPRING_STIFFNESS = 0.15;
+const TAIL_POINTS_COUNT = 60;
 
-class CloudRopeSystem {
-  private app!: Application;
-  private container!: Container;
-  private cloudSprite!: Sprite;
-  private rope!: MeshRope;
-  private ropeGeometry!: RopeGeometry;
-  private points!: Point[];
+class CloudScene {
+  private stage!: Konva.Stage;
+  private layer!: Konva.Layer;
+  private anim!: Konva.Animation;
+  private cloudSprite!: Konva.Image;
+  private tailLine!: Konva.Line;
+  private tailPoints: { x: number; y: number }[] = [];
+  private cloudHistory: { x: number; y: number }[] = [];
+  private disposed = false;
+  private wavePhase = 0;
 
-  private time = 0;
-  private bounceY = 0;
-  private bounceVel = 0;
-  private dispX = 0;
-  private dispY = 0;
-  private mousePos: { x: number; y: number } | null = null;
-
-  private host!: HTMLDivElement;
-  private resizeObserver!: ResizeObserver;
-  private onPointerMove!: (e: PointerEvent) => void;
-  private onPointerLeave!: () => void;
-
-  static async create(
-    container: HTMLDivElement,
-    day: () => boolean,
-  ): Promise<CloudRopeSystem> {
-    const system = new CloudRopeSystem();
-    await system.init(container, day);
-    return system;
-  }
-
-  private async init(container: HTMLDivElement, day: () => boolean) {
-    this.host = container;
-
-    this.app = new Application();
-    await this.app.init({
-      antialias: true,
-      backgroundAlpha: 0,
-      resizeTo: container,
-    });
-
-    container.appendChild(this.app.canvas);
-    this.container = new Container();
-    this.app.stage.addChild(this.container);
-
-    this.points = Array.from(
-      { length: 10 },
-      (_, i) => new Point(-i * ROPE_SEGMENT, 0),
+  private getRopeSegment(): number {
+    const maxDim = Math.max(
+      this.stage?.width() ?? 800,
+      this.stage?.height() ?? 600,
     );
-
-    const ropeTexture = await Assets.load(tail);
-    this.rope = new MeshRope({ texture: ropeTexture, points: this.points });
-    this.rope.autoUpdate = false;
-    this.ropeGeometry = this.rope.geometry as RopeGeometry;
-    this.rope.scale.set(1, -1);
-    this.container.addChild(this.rope);
-
-    const cloudTexture = await Assets.load(nimbus);
-    this.cloudSprite = new Sprite(cloudTexture);
-    this.cloudSprite.eventMode = "static";
-    this.cloudSprite.cursor = "pointer";
-    this.cloudSprite.on("pointertap", () => {
-      this.bounceVel += BOUNCE_KICK;
-    });
-    this.container.addChild(this.cloudSprite);
-
-    const centerX = this.app.screen.width / 2;
-    const centerY = 300;
-    this.cloudSprite.position.set(centerX, centerY);
-    this.rope.position.set(centerX + 110, centerY + 46);
-
-    this.app.ticker.add(this.tick);
-
-    this.resizeObserver = new ResizeObserver(() => {
-      const newCenterX = this.app.screen.width / 2;
-      const newCenterY = 300;
-      this.cloudSprite.position.set(
-        newCenterX + this.dispX,
-        newCenterY + this.dispY,
-      );
-      this.rope.position.set(
-        newCenterX + 110 + this.dispX,
-        newCenterY + 46 + this.dispY,
-      );
-    });
-    this.resizeObserver.observe(container);
-
-    this.onPointerMove = (e: PointerEvent) => {
-      const rect = container.getBoundingClientRect();
-      this.mousePos = {
-        x: ((e.clientX - rect.left) / rect.width) * this.app.screen.width,
-        y: ((e.clientY - rect.top) / rect.height) * this.app.screen.height,
-      };
-    };
-    this.onPointerLeave = () => {
-      this.mousePos = null;
-    };
-
-    container.addEventListener("pointermove", this.onPointerMove);
-    container.addEventListener("pointerleave", this.onPointerLeave);
-
-    createEffect(() => {
-      if (day()) {
-        this.container.filters = [];
-      } else {
-        const colorMatrix = new ColorMatrixFilter();
-        colorMatrix.brightness(0.6, false);
-        this.container.filters = [colorMatrix];
-      }
-    });
+    return Math.max(maxDim * 0.15, 100);
   }
 
-  private tick = (ticker: Ticker) => {
-    const delta = Math.min(0.033, ticker.deltaMS / 1000);
-    this.update(delta > 0 ? delta : 0.016);
-  };
+  private isDragging = false;
+  private lastDragTime = 0;
+  private lastDragX = 0;
+  private lastDragY = 0;
+  private cloudX = 0;
+  private cloudY = CLOUD_CENTER_Y;
+  private velocityX = 0;
+  private velocityY = 0;
+  private currentScale = 1;
+  private targetScale = 1;
+
+  constructor(private containerRef: HTMLDivElement) {}
+
+  async init() {
+    const rect = this.containerRef.getBoundingClientRect();
+    this.stage = new Konva.Stage({
+      container: this.containerRef,
+      width: rect.width || 800,
+      height: rect.height || 600,
+    });
+
+    this.layer = new Konva.Layer();
+    this.stage.add(this.layer);
+
+    await this.createTail();
+    await this.createCloud();
+
+    this.cloudX = this.stage.width() / 2;
+    this.cloudY = CLOUD_CENTER_Y;
+    this.layoutCentered();
+
+    this.anim = new Konva.Animation((frame) => {
+      this.wavePhase = frame.time * 0.004;
+
+      if (!this.cloudSprite || !this.tailLine) return;
+
+      const bob = Math.sin(-this.wavePhase);
+
+      if (!this.isDragging) {
+        const centerX = this.stage.width() / 2;
+        const centerY = CLOUD_CENTER_Y;
+
+        // Velocity friction
+        this.velocityX *= 0.97;
+        this.velocityY *= 0.97;
+
+        // Spring physics on Y to return to center
+        const springK_y = 0.02;
+        const damping_y = 1;
+
+        this.velocityY += (centerY - this.cloudY + bob) * springK_y;
+        this.velocityY *= damping_y;
+        this.cloudY += this.velocityY;
+
+        // Linear return to center on X
+        const xReturnSpeed = 0.1;
+        if (this.cloudX > centerX + 10) {
+          this.velocityX -= xReturnSpeed;
+        } else if (this.cloudX < centerX - 10) {
+          this.velocityX += xReturnSpeed;
+        }
+        this.cloudX += this.velocityX;
+      } else {
+        // Track velocity during drag
+        const now = performance.now();
+        const dt = Math.max(16, now - this.lastDragTime);
+        const rawVelX = this.cloudSprite.x() - this.lastDragX;
+        const rawVelY = this.cloudSprite.y() - this.lastDragY;
+
+        // Blend with existing velocity for smoother transitions
+        this.velocityX = this.velocityX * 0.3 + (rawVelX / dt) * 0.7;
+        this.velocityY = this.velocityY * 0.3 + (rawVelY / dt) * 0.7;
+
+        this.lastDragTime = now;
+        this.lastDragX = this.cloudSprite.x();
+        this.lastDragY = this.cloudSprite.y();
+
+        this.cloudX = this.cloudSprite.x();
+        this.cloudY = this.cloudSprite.y();
+      }
+
+      this.cloudSprite.x(this.cloudX);
+      this.cloudSprite.y(this.cloudY);
+
+      const scaleSpeed = 0.08;
+      if (this.currentScale < this.targetScale) {
+        this.currentScale = Math.min(
+          this.targetScale,
+          this.currentScale + scaleSpeed,
+        );
+      } else {
+        this.currentScale = Math.max(
+          this.targetScale,
+          this.currentScale - scaleSpeed,
+        );
+      }
+      this.cloudSprite.scale({ x: this.currentScale, y: this.currentScale });
+
+      // Save current position to history
+      this.cloudHistory.unshift({ x: this.cloudX, y: this.cloudY });
+      if (this.cloudHistory.length > TAIL_POINTS_COUNT) {
+        this.cloudHistory.pop();
+      }
+
+      // Apply history positions to tail points (point 0 = current, point 59 = oldest)
+      for (let i = 0; i < this.tailPoints.length; i++) {
+        this.tailPoints[i].x =
+          this.cloudHistory[i].x - i * 0.2 * this.getRopeSegment();
+        this.tailPoints[i].y = this.cloudHistory[i].y;
+      }
+
+      this.tailLine.points(this.tailPoints.flatMap((p) => [p.x, p.y]));
+      this.tailLine.position({ x: 0, y: 0 });
+    }, this.layer);
+
+    this.anim.start();
+
+    const resizeObserver = new ResizeObserver(() => this.handleResize());
+    resizeObserver.observe(this.containerRef);
+  }
+
+  private handleResize() {
+    const rect = this.containerRef.getBoundingClientRect();
+    this.stage.width(rect.width);
+    this.stage.height(rect.height);
+    this.layoutCentered();
+  }
+
+  private async createTail() {
+    this.tailPoints = Array.from({ length: TAIL_POINTS_COUNT }, () => ({
+      x: 0,
+      y: CLOUD_CENTER_Y,
+    }));
+    this.cloudHistory = Array.from({ length: TAIL_POINTS_COUNT }, () => ({
+      x: 0,
+      y: CLOUD_CENTER_Y,
+    }));
+
+    this.tailLine = new Konva.Line({
+      points: this.tailPoints.flatMap((p) => [p.x, p.y]),
+      stroke: "#d8b301",
+      strokeWidth: 30,
+      lineCap: "round",
+      lineJoin: "round",
+      tension: 0.5,
+    });
+
+    this.layer.add(this.tailLine);
+  }
+
+  private async createCloud() {
+    const cloudImg = new Image();
+    cloudImg.src = nimbus;
+    await new Promise((resolve) => (cloudImg.onload = resolve));
+
+    const halfWidth = cloudImg.width / 2;
+    const halfHeight = cloudImg.height / 2;
+
+    this.cloudSprite = new Konva.Image({
+      image: cloudImg,
+      x: 0,
+      y: CLOUD_CENTER_Y,
+      offsetX: halfWidth,
+      offsetY: halfHeight,
+      draggable: true,
+    });
+
+    // Constrain drag within canvas bounds
+    this.cloudSprite.dragBoundFunc((pos) => {
+      const minX = halfWidth;
+      const maxX = this.stage.width() - halfWidth;
+      const minY = halfHeight;
+      const maxY = this.stage.height() - halfHeight;
+
+      return {
+        x: Math.max(minX, Math.min(maxX, pos.x)),
+        y: Math.max(minY, Math.min(maxY, pos.y)),
+      };
+    });
+
+    this.cloudSprite.on("mousedown", () => {
+      this.targetScale = 1.2;
+    });
+
+    this.cloudSprite.on("mouseup", () => {
+      this.targetScale = 1;
+    });
+
+    this.cloudSprite.on("dragstart", () => {
+      this.isDragging = true;
+      this.lastDragTime = performance.now();
+      this.lastDragX = this.cloudSprite.x();
+      this.lastDragY = this.cloudSprite.y();
+      // Dampen velocity at drag start
+      this.velocityX *= 0.5;
+      this.velocityY *= 0.5;
+    });
+
+    this.cloudSprite.on("dragend", () => {
+      this.isDragging = false;
+      this.targetScale = 1;
+    });
+
+    this.layer.add(this.cloudSprite);
+  }
+
+  private layoutCentered() {
+    if (!this.stage || !this.cloudSprite) return;
+    if (!this.isDragging) {
+      this.cloudSprite.x(this.stage.width() / 2);
+    }
+  }
+
+  setDayMode(isDay: boolean) {
+    if (!this.cloudSprite) return;
+    if (isDay) {
+      this.cloudSprite.filters([]);
+    } else {
+      this.cloudSprite.filters([Konva.Filters.Brighten]);
+      this.cloudSprite.brightness(-0.4);
+    }
+    this.cloudSprite.cache();
+  }
 
   destroy() {
-    if (this.app?.renderer) {
-      this.app.ticker.remove(this.tick);
-      this.app.destroy(true, { children: true });
-    }
-    this.resizeObserver?.disconnect();
-    this.host?.removeEventListener("pointermove", this.onPointerMove);
-    this.host?.removeEventListener("pointerleave", this.onPointerLeave);
-  }
-
-  private update(deltaTime: number) {
-    this.time += 0.1 * deltaTime;
-    const iter = this.time;
-    const bob = 2 * Math.sin(-iter);
-
-    if (this.mousePos) {
-      const cloudX = this.cloudSprite.position.x;
-      const cloudY = this.cloudSprite.position.y;
-      const distToCloud = Math.hypot(
-        this.mousePos.x - cloudX,
-        this.mousePos.y - cloudY,
-      );
-
-      if (distToCloud <= INTERACTION_RADIUS) {
-        let dx = cloudX - this.mousePos.x;
-        let dy = cloudY - this.mousePos.y;
-        let dist = Math.hypot(dx, dy);
-
-        if (dist < 0.001) {
-          dx = 1;
-          dy = 0;
-          dist = 1;
-        }
-
-        const edge = Math.max(0, 1 - distToCloud / INTERACTION_RADIUS);
-        const inv = (REPEL_STRENGTH / (dist + REPEL_SOFT)) * edge * edge;
-        const tx = (dx / dist) * Math.min(inv, MAX_REPEL_OFFSET);
-        const ty = (dy / dist) * Math.min(inv, MAX_REPEL_OFFSET);
-
-        this.dispX += (tx - this.dispX) * SMOOTH * deltaTime;
-        this.dispY += (ty - this.dispY) * SMOOTH * deltaTime;
-      } else {
-        this.dispX *= 0.94;
-        this.dispY *= 0.94;
-      }
-    } else {
-      this.dispX *= 0.94;
-      this.dispY *= 0.94;
-    }
-
-    this.bounceVel +=
-      (-this.bounceY * BOUNCE_SPRING - this.bounceVel * BOUNCE_DRAG) *
-      deltaTime;
-    this.bounceY += this.bounceVel * deltaTime;
-
-    const centerX = this.app.screen.width / 2;
-    const centerY = 300;
-
-    this.cloudSprite.position.x = centerX + this.dispX;
-    this.cloudSprite.position.y = centerY + bob + this.dispY + this.bounceY;
-
-    this.rope.position.x = centerX + 110 + this.dispX;
-    this.rope.position.y = centerY + 46 + bob + this.dispY + this.bounceY;
-
-    for (let i = 0; i < this.points.length; i++) {
-      this.points[i].y = Math.sin(-iter + (i * Math.PI) / 2) * (0.3 * i);
-      this.points[i].x = -i * ROPE_SEGMENT;
-    }
-
-    this.ropeGeometry.update();
+    this.disposed = true;
+    this.anim.stop();
+    this.stage.destroy();
   }
 }
 
 const Canvas = (props: { day: () => boolean }) => {
   let containerRef: HTMLDivElement | undefined;
+  let scene: CloudScene | undefined;
 
-  onMount(() => {
+  onMount(async () => {
     if (!containerRef) return;
 
-    let disposed = false;
-    let cloudSystem: CloudRopeSystem | undefined;
+    scene = new CloudScene(containerRef);
+    await scene.init();
 
-    void CloudRopeSystem.create(containerRef, props.day).then((system) => {
-      if (disposed) {
-        system.destroy();
-        return;
-      }
-      cloudSystem = system;
+    createEffect(() => {
+      scene?.setDayMode(props.day());
     });
 
     onCleanup(() => {
-      disposed = true;
-      cloudSystem?.destroy();
+      scene?.destroy();
     });
   });
 
-  return <div class="pointer-events-auto w-full h-full" ref={containerRef} />;
+  return <div class="w-full h-full" ref={containerRef} />;
 };
 
 export default Canvas;

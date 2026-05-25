@@ -11,7 +11,7 @@ function Moon(props: MoonProps) {
   return (
     <div
       ref={props.ref}
-      class="absolute h-32 w-32 rounded-full -z-50"
+      class="absolute h-32 w-32 rounded-full z-0"
       style={{
         left: `${props.x}px`,
         top: `${props.y}px`,
