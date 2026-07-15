@@ -4,8 +4,8 @@ import Weather from "./components/Weather";
 
 import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
 
+import { github, linkedin, mail } from "./assets/icons";
 import Canvas from "./components/Canvas";
-import Moon from "./components/Moon";
 import Projects from "./components/Projects";
 import Sun, { SUN_SIZE } from "./components/Sun";
 import useSkyAtmosphere from "./hooks/useSkyAtmosphere";
@@ -176,51 +176,11 @@ function App() {
   });
 
   return (
-    <>
-      <div class="navbar z-20 flex justify-end text-nowrap border-b-4 border-r-4 border-black bg-stone-300 px-8 py-4">
-        <div class="flex gap-8 font-custom text-xl">
-          <a href="#about" class="hover:underline">
-            About
-          </a>
-          <a href="#projects" class="hover:underline">
-            Projects
-          </a>
-          <a href="#contact" class="hover:underline">
-            Contact
-          </a>
-        </div>
-      </div>
+    <div class="h-screen w-screen flex flex-col overflow-hidden">
       <div
-        class="front-row relative z-10 min-w-full"
+        class="relative z-10 grid grid-cols-[1fr_2fr] grid-rows-[1fr_auto] flex-1 min-h-0 overflow-hidden"
         style={{ background: skyGradient() }}
       >
-        <Weather
-          weather={weather()}
-          daytime={daytime()}
-          spawnClouds={spawnClouds()}
-          cloudLevel={cloudLevel()}
-          cloudLayers={cloudLayers()}
-        />
-
-        <div class={`px-8  ${isDay() ? "text-black" : "text-white"}`}>
-          <div class="text-md font-custom mt-16 text-4xl font-black underline">
-            About
-          </div>
-          <div
-            class={`text-md  font-custom text-3xl scroll-mt-16  ${
-              isDay() ? "text-black" : "text-white"
-            }`}
-            id="about"
-          >
-            Hi, my name is <b>Gil</b> <br /> I'm a Software Developer from
-            Portugal
-          </div>
-        </div>
-
-        <Canvas day={isDay} />
-
-        <Projects isDay={isDay()} />
-
         <Sun
           isDay={isDay()}
           x={bodyTrajectory().sun.x}
@@ -228,24 +188,87 @@ function App() {
           horizonY={bodyTrajectory().sun.horizonY}
           ref={(el) => (sunRef = el)}
         />
-        <Moon
-          isDay={isDay()}
-          x={bodyTrajectory().moon.x}
-          y={bodyTrajectory().moon.y}
-          ref={(el) => (moonRef = el)}
-        />
+        <div class="absolute inset-0 pointer-events-none overflow-hidden">
+          <Weather
+            weather={weather()}
+            daytime={daytime()}
+            spawnClouds={spawnClouds()}
+            cloudLevel={cloudLevel()}
+            cloudLayers={cloudLayers()}
+          />
+        </div>
 
-        <Footer
-          weather={weather()}
-          isDay={isDay()}
-          setWeather={setWeatherFromUser}
-          daySliderValue={daySliderValue()}
-          setDaySliderValue={setDaySliderValue}
-          sunRef={sunRef}
-          moonRef={moonRef}
-        />
+        <div id="about" class="relative flex flex-col min-h-0 overflow-hidden">
+          <div class="p-6">
+            <h2
+              class={`font-custom text-3xl font-black underline ${
+                isDay() ? "text-black" : "text-white"
+              }`}
+            >
+              About
+            </h2>
+
+            <div class="flex flex-col gap-4 mt-4">
+              <a
+                class="w-[200px] eightbit-button text-black flex items-center"
+                href="mailto:gilmmm4@gmail.com"
+                draggable="false"
+              >
+                <img src={mail} alt="Email" class="h-6 pixelated" />
+                <span class="grow text-2xl text-center">Email</span>
+              </a>
+
+              <a
+                class="w-[200px] eightbit-button text-black flex items-center"
+                href="https://github.com/GilMarques"
+                draggable="false"
+              >
+                <img src={github} alt="Github" class="w-6 h-6 pixelated" />
+                <span class="grow text-2xl text-center">Github</span>
+              </a>
+
+              <a
+                class="w-[200px] eightbit-button text-black flex items-center"
+                href="https://www.linkedin.com/in/gil-marques-ab86a524b/"
+                draggable="false"
+              >
+                <img src={linkedin} alt="LinkedIn" class="w-6 h-6 pixelated" />
+                <span class="grow text-2xl text-center">LinkedIn</span>
+              </a>
+            </div>
+
+            <p
+              class={`font-custom text-2xl ${
+                isDay() ? "text-black" : "text-white"
+              }`}
+            >
+              Hi, my name is <b>Gil</b> <br /> I'm a software developer from
+              Portugal
+            </p>
+          </div>
+
+          <div class="flex-1 min-h-0 mt-4">
+            <Canvas day={isDay} />
+          </div>
+        </div>
+
+        <div id="projects" class="relative overflow-y-auto p-6">
+          <Projects isDay={isDay()} />
+        </div>
+
+        <div id="contact" class="col-span-2 row-start-2 relative min-h-0">
+          <Footer
+            weather={weather()}
+            isDay={isDay()}
+            setWeather={setWeatherFromUser}
+            daySliderValue={daySliderValue()}
+            setDaySliderValue={setDaySliderValue}
+            sunRef={sunRef}
+            moonRef={moonRef}
+          />
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 

@@ -1,11 +1,8 @@
-import { createMemo, createSignal, JSXElement, onMount } from "solid-js";
+import { createMemo, onMount } from "solid-js";
 import {
   blue_circle,
-  button,
-  buttonPressed,
   cloudy,
   drizzle,
-  droplet,
   moon,
   snowflake,
   sun,
@@ -23,58 +20,15 @@ type DaySliderProps = {
   setWeather: (weather: WeatherType) => void;
 };
 
+const weatherList = [
+  { type: WeatherType.Clear, icon: sunny },
+  { type: WeatherType.Clouds, icon: cloudy },
+  { type: WeatherType.Drizzle, icon: drizzle },
+  { type: WeatherType.Snow, icon: snowflake },
+];
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
-
-const Button = ({
-  onClick,
-  children,
-}: {
-  onClick: () => void;
-  children: JSXElement;
-}) => {
-  const [held, setHeld] = createSignal(false);
-  const imageSource = createMemo(() => (held() ? buttonPressed : button));
-
-  const handlePointerDown = (e: PointerEvent) => {
-    const target = e.currentTarget as HTMLButtonElement;
-    target.setPointerCapture(e.pointerId);
-    setHeld(true);
-  };
-
-  const handlePointerUp = (e: PointerEvent) => {
-    const target = e.currentTarget as HTMLButtonElement;
-    if (target.hasPointerCapture(e.pointerId)) {
-      target.releasePointerCapture(e.pointerId);
-    }
-    setHeld(false);
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={() => setHeld(false)}
-      onLostPointerCapture={() => setHeld(false)}
-      style={{
-        width: "64px",
-        height: "64px",
-      }}
-      class="relative"
-    >
-      <div
-        class={`absolute w-full h-full flex justify-center items-center text-black ${
-          held() ? "top-1" : ""
-        }  `}
-      >
-        {children}
-      </div>
-      <img src={imageSource()} draggable={false} width={64} height={64} />
-    </button>
-  );
-};
 
 const SunDial = (props: DaySliderProps) => {
   let rootRef: HTMLDivElement | undefined;
@@ -120,6 +74,11 @@ const SunDial = (props: DaySliderProps) => {
     root.addEventListener("wheel", onWheel, { passive: false });
     return () => root.removeEventListener("wheel", onWheel);
   });
+
+  const handleClick = (e: Event) => {
+    const nextWeather = e.currentTarget as HTMLButtonElement;
+    props.setWeather(nextWeather.dataset.weather as WeatherType);
+  };
 
   return (
     <div class="flex flex-col items-center" ref={rootRef}>
@@ -206,25 +165,6 @@ const SunDial = (props: DaySliderProps) => {
             }}
           />
         </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <Button onClick={() => props.setWeather(WeatherType.Clouds)}>
-          <img src={cloudy} alt="Make it cloudy" />
-        </Button>
-        <Button onClick={() => props.setWeather(WeatherType.Drizzle)}>
-          <img src={drizzle} alt="Make it drizzle" />
-        </Button>
-        <Button onClick={() => props.setWeather(WeatherType.Rain)}>
-          <img src={droplet} alt="Make it rain" />
-        </Button>
-
-        <Button onClick={() => props.setWeather(WeatherType.Snow)}>
-          <img src={snowflake} alt="Make it snow" />
-        </Button>
-        <Button onClick={() => props.setWeather(WeatherType.Clear)}>
-          <img src={sunny} alt="Make it clear" />
-        </Button>
       </div>
     </div>
   );

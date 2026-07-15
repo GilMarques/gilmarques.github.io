@@ -17,14 +17,18 @@
     image-rendering: pixelated; /* Modern standard syntax for pixel art */
 }
 
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
 body {
     font-family: myFont;
     word-spacing: 7px;
-}
-
-html {
-    overflow-x: hidden;
-    scroll-behavior: smooth;
+    letter-spacing: 2px;
 }
 
 .pixel-corners {
@@ -81,18 +85,6 @@ html {
 .navbar {
     position: sticky;
     top: 0;
-}
-
-fade {
-    bottom: 0px;
-
-    display: block;
-
-    background-image: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0),
-        rgb(0, 0, 0, 1) 100%
-    );
 }
 
 .rain {
@@ -286,7 +278,7 @@ body.splat-toggle .splat {
     background: #d6d3d1;
     position: relative;
     text-align: center;
-    font-size: 32px;
+
     padding: 16px;
     text-decoration: none;
     box-shadow: inset -4px -4px 0px 0px #a8a29e;

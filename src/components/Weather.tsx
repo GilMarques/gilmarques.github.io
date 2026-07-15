@@ -177,7 +177,7 @@ const Weather = (props: WeatherProps) => {
       {showRain() && <Rain intensity={rainIntensity()} />}
       <>
         <div
-          class="relative h-75"
+          class="relative h-1/3"
           // style={{
           //   "background-image":
           //     props.daytime == "night" ? `url(${terrain})` : "none",
