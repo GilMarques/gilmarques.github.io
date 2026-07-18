@@ -35,7 +35,7 @@ const projects: Project[] = [
   },
   {
     title: "Ino Uno",
-    description: "A clone of the popular game UNO (server is down)",
+    description: "A clone of the popular game UNO",
     thumbnail: inouno,
     url: "https://gilmarques.github.io/ino-uno-vite/",
     code: "https://github.com/GilMarques/ino-uno-vite",

@@ -2,7 +2,7 @@ import "./App.css";
 import Footer from "./components/Footer";
 import Weather from "./components/Weather";
 
-import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 
 import { github, linkedin, mail } from "./assets/icons";
 import Canvas from "./components/Canvas";
@@ -33,6 +33,9 @@ function App() {
   const [viewportWidth, setViewportWidth] = createSignal(
     typeof window !== "undefined" ? window.innerWidth : 1280,
   );
+  const [viewportHeight, setViewportHeight] = createSignal(
+    typeof window !== "undefined" ? window.innerHeight : 800,
+  );
 
   let sunRef: HTMLDivElement | undefined;
   let moonRef: HTMLDivElement | undefined;
@@ -53,7 +56,10 @@ function App() {
   };
 
   createEffect(() => {
-    const onResize = () => setViewportWidth(window.innerWidth);
+    const onResize = () => {
+      setViewportWidth(window.innerWidth);
+      setViewportHeight(window.innerHeight);
+    };
     onResize();
     window.addEventListener("resize", onResize);
     onCleanup(() => window.removeEventListener("resize", onResize));
@@ -65,28 +71,27 @@ function App() {
     const rightMargin = 48;
     const travel = Math.max(0, viewportWidth() - leftMargin - rightMargin);
 
-    const projectArc = (phase: number, peak = 124, baseline = 700) => {
+    // Footer band at the bottom of the 100vh viewport. The ocean canvas
+    // (Ocean.tsx) is capped at MAX_CANVAS_CSS_HEIGHT = 200, and the contact
+    // div is absolutely positioned, so the grid's bottom row is ~200px tall.
+    // The horizon (where the sun sets) sits at the top of that band.
+    const FOOTER_HEIGHT = 200;
+    const vh = viewportHeight();
+    const horizonY = Math.max(0, vh - FOOTER_HEIGHT);
+    // Peak height the body reaches above the horizon at noon.
+    const arcPeak = Math.max(0, horizonY * 0.7);
+
+    const projectArc = (phase: number, peak = arcPeak, baseline = horizonY) => {
       const x = leftMargin + travel * phase;
       const y = baseline - Math.sin(Math.PI * phase) * peak;
       return { x: Math.round(x), y: Math.round(y) };
     };
 
-    const pageHeight =
-      typeof document !== "undefined"
-        ? Math.max(
-            document.body.scrollHeight,
-            document.documentElement.scrollHeight,
-            document.body.offsetHeight,
-            document.documentElement.offsetHeight,
-            document.body.clientHeight,
-            document.documentElement.clientHeight,
-          )
-        : 1200;
     const seasonalNormalized = seasonalDayLength().normalized; // 0 = shortest day, 1 = longest
     const seasonalShift = (seasonalNormalized - 0.5) * 0.18; // +/- 0.09 around default
     const sunNoonPhase = 0.375;
     const sunSetPhase = Math.min(0.9, Math.max(0.58, 0.75 + seasonalShift));
-    const sunsetTargetY = Math.max(0, pageHeight - 600);
+    const sunsetTargetY = horizonY;
     const sunTrackX = viewportWidth() - 180;
     const sunDelta = Math.min(
       1,
@@ -110,7 +115,7 @@ function App() {
         y: Math.round(sunY),
         horizonY: Math.round(sunsetTargetY),
       },
-      moon: projectArc(moonPhase, 110, 730),
+      moon: projectArc(moonPhase),
       seasonalDayLength,
       sunNormalized: normalized,
       sunNoonPhase,
@@ -129,6 +134,8 @@ function App() {
   const isDay = createMemo(
     () => bodyTrajectory().sun.y < bodyTrajectory().sun.horizonY,
   );
+
+  const isLarge = createMemo(() => viewportWidth() >= 1024);
 
   createEffect(() => {
     document.body.classList.toggle("is-day", isDay());
@@ -178,9 +185,14 @@ function App() {
   return (
     <div class="h-screen w-screen flex flex-col overflow-hidden">
       <div
-        class="relative z-10 grid grid-cols-[1fr_2fr] grid-rows-[1fr_auto] flex-1 min-h-0 overflow-hidden"
+        class="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_2fr] grid-rows-[auto_1fr_auto] lg:grid-rows-[1fr_auto] flex-1 min-h-0 overflow-hidden"
         style={{ background: skyGradient() }}
       >
+        <Show when={!isLarge()}>
+          <div class="absolute inset-0 -z-10">
+            <Canvas day={isDay} />
+          </div>
+        </Show>
         <Sun
           isDay={isDay()}
           x={bodyTrajectory().sun.x}
@@ -198,7 +210,7 @@ function App() {
           />
         </div>
 
-        <div id="about" class="relative flex flex-col min-h-0 overflow-hidden">
+        <div id="about" class="relative z-10 flex flex-col min-h-0 overflow-hidden">
           <div class="p-6">
             <h2
               class={`font-custom text-3xl font-black underline ${
@@ -247,16 +259,18 @@ function App() {
             </p>
           </div>
 
-          <div class="flex-1 min-h-0 mt-4">
-            <Canvas day={isDay} />
-          </div>
+          <Show when={isLarge()}>
+            <div class="flex-1 min-h-0 mt-4">
+              <Canvas day={isDay} />
+            </div>
+          </Show>
         </div>
 
-        <div id="projects" class="relative overflow-y-auto p-6">
+        <div id="projects" class="relative z-10 overflow-y-auto p-6">
           <Projects isDay={isDay()} />
         </div>
 
-        <div id="contact" class="col-span-2 row-start-2 relative min-h-0">
+        <div id="contact" class="col-span-1 row-start-3 lg:col-span-2 lg:row-start-2 relative min-h-0">
           <Footer
             weather={weather()}
             isDay={isDay()}
