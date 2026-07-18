@@ -25,7 +25,7 @@ const projects: Project[] = [
   {
     title: "Radio Station",
     description:
-      "Explore radio stations around the world using an interactive map",
+      "Browse radio stations from around the world through an interactive map. Pick a country, drop a pin, and tune in — stream metadata and live audio in a single click. Stations are pulled from a public radio directory REST API and rendered on the front-end with Angular and PrimeNG. The map handles panning, zooming, and clustering the station markers by region. A built-in player keeps the stream alive while you explore, and a side panel shows the currently playing track and genre.",
     thumbnail: radiostation,
     url: "https://gilmarques.github.io/radio-station/",
     code: "https://github.com/GilMarques/radio-station",
@@ -35,7 +35,8 @@ const projects: Project[] = [
   },
   {
     title: "Ino Uno",
-    description: "A clone of the popular game UNO",
+    description:
+      "A 3D reimagining of the classic UNO card game, built as a learning project for real-time web multiplayer. The board, cards, and animations are rendered in Three.js on top of a React front-end that drives the game state. A Python FastAPI backend with WebSocket connections handles multiplayer turns, validation, and game-room management. Play solo against a simple bot, or open a room and invite a friend for a match. Card physics, turn highlighting, and the UNO call are all hand-implemented.",
     thumbnail: inouno,
     url: "https://gilmarques.github.io/ino-uno-vite/",
     code: "https://github.com/GilMarques/ino-uno-vite",
@@ -45,7 +46,8 @@ const projects: Project[] = [
   },
   {
     title: "GG",
-    description: "A Workout Log (Under Development)",
+    description:
+      "A mobile workout tracker for logging sets, reps, and progress over time — aimed at people who want a simple log without the bloat of full fitness apps. The first version was written in React Native, but the current rewrite is in Angular + Ionic for a smoother cross-platform feel and faster iteration. Create routines, track working weight over time, and mark personal records as you hit them. Still in active development — exercise history, PR detection, and a stats screen are next on the list.",
     thumbnail: gg,
     url: "https://github.com/GilMarques/gym-genius-rn",
     code: "https://github.com/GilMarques/gym-genius-rn",
@@ -55,10 +57,11 @@ const projects: Project[] = [
   },
   {
     title: "Personal Portfolio",
-    description: "Retro Style Portfolio",
+    description:
+      "The very site you're scrolling through. A retro-inspired portfolio built with SolidJS for reactivity, Konva for the canvas work, and Tailwind for the layout — with the pixel-art UI (buttons, panels, animations) hand-rolled in CSS. The animated day/night sky, the draggable cloud with spring-physics tail, the rain and snow weather effects, and the responsive layout are all custom-built. It even pulls live weather data from the OpenWeather API, so the sky reflects the actual time of day and current conditions in your location.",
     thumbnail: portfolio,
     url: "https://gilmarques.github.io/",
-    code: "https://github.com/GilMarques/portfolio",
+    code: "https://github.com/GilMarques/gilmarques.github.io",
     types: [ProjectType.SolidJS],
     background: "#fff",
     oss: true,
@@ -130,63 +133,67 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
 
 const ProjectCard = ({ project }: { project: Project }) => {
   return (
-    <div class="flex justify-center gap-4">
-      <div class="relative hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl">
-        <a class="pixel-corners p-2" href={project.url}>
-          <div
-            class={`pixel-corners aspect-3/4   cursor-pointer flex flex-col justify-between gap-2 px-2 py-6 `}
-            style={{ background: project.background }}
-          >
-            <div>
-              <img
-                src={project.thumbnail}
-                alt={`${project.title}`}
-                class="h-37.5 w-55 bg-cover object-cover"
-                style={{
-                  border: "8px solid #000000",
-                  "border-radius": "8px 8px 32px 8px",
-                }}
-                draggable="false"
-              />
-            </div>
-            <div class=" w-55 flex justify-between items-center justify-self-end">
-              {project.oss && (
-                <a
-                  href={project.code}
-                  class=" font-custom text-sm bottom-5 bg-stone-400  rounded-full px-2 py-1 text-center text-black"
-                  style={{ "box-shadow": "-2px 2px 0 #78716c" }}
-                >
-                  &#x3c;&#x3e; Source
-                </a>
-              )}
-
-              {!project.oss && (
-                <a
-                  href={project.code}
-                  class=" font-custom text-sm bottom-5 bg-stone-400  rounded-full px-2 py-1 text-center text-black"
-                  style={{ "box-shadow": "-2px 2px 0 #78716c" }}
-                >
-                  &#x3e; Page
-                </a>
-              )}
-
-              <div class="flex gap-1 justify-end items-center">
-                <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
-                <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
-                <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
+    <div class="relative grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6 lg:gap-10 py-10 lg:py-16 lg:min-h-[60vh] w-full max-w-5xl">
+      <div class="lg:sticky lg:top-16 lg:self-start flex justify-center lg:block">
+        <div class="relative hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl transition-transform w-fit">
+          <a class="pixel-corners p-2 block" href={project.url}>
+            <div
+              class={`pixel-corners aspect-3/4 cursor-pointer flex flex-col justify-between gap-2 px-2 py-6 w-55`}
+              style={{ background: project.background }}
+            >
+              <div>
+                <img
+                  src={project.thumbnail}
+                  alt={project.title}
+                  class="h-37.5 w-55 bg-cover object-cover"
+                  style={{
+                    border: "8px solid #000000",
+                    "border-radius": "8px 8px 32px 8px",
+                  }}
+                  draggable="false"
+                />
               </div>
-              <div class="flex gap-2">
-                <For each={project.types}>
-                  {(type) => <ProjectIcon type={type} />}
-                </For>
+              <div class="w-55 flex justify-between items-center justify-self-end">
+                {project.oss && (
+                  <a
+                    href={project.code}
+                    class="font-custom text-sm bottom-5 bg-stone-400 rounded-full px-2 py-1 text-center text-black"
+                    style={{ "box-shadow": "-2px 2px 0 #78716c" }}
+                  >
+                    &#x3c;&#x3e; Source
+                  </a>
+                )}
+
+                {!project.oss && (
+                  <a
+                    href={project.code}
+                    class="font-custom text-sm bottom-5 bg-stone-400 rounded-full px-2 py-1 text-center text-black"
+                    style={{ "box-shadow": "-2px 2px 0 #78716c" }}
+                  >
+                    &#x3e; Page
+                  </a>
+                )}
+
+                <div class="flex gap-1 justify-end items-center">
+                  <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
+                  <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
+                  <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
+                </div>
+                <div class="flex gap-2">
+                  <For each={project.types}>
+                    {(type) => <ProjectIcon type={type} />}
+                  </For>
+                </div>
               </div>
             </div>
-          </div>
-        </a>
+          </a>
+        </div>
       </div>
-      <div class="w-55 rounded-sm text-black font-custom mt-2">
-        <h1 class="text-3xl">{project.title}</h1>
-        <p class="text-xl">{project.description}</p>
+      <div class="font-custom px-2 lg:px-0">
+        <h1 class="text-3xl lg:text-5xl font-black">{project.title}</h1>
+        <p class="text-base lg:text-xl mt-4 lg:mt-6 leading-relaxed">
+          {project.description}
+        </p>
       </div>
     </div>
   );
@@ -194,11 +201,9 @@ const ProjectCard = ({ project }: { project: Project }) => {
 
 const Projects = (props: { isDay: boolean }) => {
   return (
-    <div class="px-8">
-      <div
-        class={`font-custom text-3xl ${props.isDay ? "text-black" : "text-white"}`}
-      >
-        <div class="flex flex-col items-center justify-center gap-8">
+    <div class="px-4 lg:px-8">
+      <div class={`font-custom ${props.isDay ? "text-black" : "text-white"}`}>
+        <div class="flex flex-col items-center gap-12 lg:gap-8">
           <For each={projects}>
             {(project) => <ProjectCard project={project} />}
           </For>

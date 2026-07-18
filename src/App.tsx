@@ -211,7 +211,7 @@ function App() {
         </div>
 
         <div id="about" class="relative z-10 flex flex-col min-h-0 overflow-hidden">
-          <div class="p-6">
+          <div class="p-4 lg:p-6">
             <h2
               class={`font-custom text-3xl font-black underline ${
                 isDay() ? "text-black" : "text-white"
@@ -220,9 +220,19 @@ function App() {
               About
             </h2>
 
-            <div class="flex flex-col gap-4 mt-4">
+            <p
+              class={`font-custom text-2xl ${
+                isDay() ? "text-black" : "text-white"
+              }`}
+            >
+              Hi, I'm <b>Gil</b>, a Full Stack Developer from Portugal.
+              <br />I build web apps with 3D, complex UIs, and engineering
+              tooling.
+            </p>
+
+            <div class="flex flex-col gap-3 lg:gap-4 mt-4">
               <a
-                class="w-[200px] eightbit-button text-black flex items-center"
+                class="w-full lg:w-[200px] eightbit-button text-black flex items-center"
                 href="mailto:gilmmm4@gmail.com"
                 draggable="false"
               >
@@ -231,7 +241,7 @@ function App() {
               </a>
 
               <a
-                class="w-[200px] eightbit-button text-black flex items-center"
+                class="w-full lg:w-[200px] eightbit-button text-black flex items-center"
                 href="https://github.com/GilMarques"
                 draggable="false"
               >
@@ -240,7 +250,7 @@ function App() {
               </a>
 
               <a
-                class="w-[200px] eightbit-button text-black flex items-center"
+                class="w-full lg:w-[200px] eightbit-button text-black flex items-center"
                 href="https://www.linkedin.com/in/gil-marques-ab86a524b/"
                 draggable="false"
               >
@@ -248,15 +258,6 @@ function App() {
                 <span class="grow text-2xl text-center">LinkedIn</span>
               </a>
             </div>
-
-            <p
-              class={`font-custom text-2xl ${
-                isDay() ? "text-black" : "text-white"
-              }`}
-            >
-              Hi, my name is <b>Gil</b> <br /> I'm a software developer from
-              Portugal
-            </p>
           </div>
 
           <Show when={isLarge()}>
@@ -266,7 +267,7 @@ function App() {
           </Show>
         </div>
 
-        <div id="projects" class="relative z-10 overflow-y-auto p-6">
+        <div id="projects" class="relative z-10 overflow-y-auto p-6 [mask-image:linear-gradient(to_bottom,transparent,black_8%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_8%)]">
           <Projects isDay={isDay()} />
         </div>
 
