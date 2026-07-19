@@ -89,15 +89,22 @@ function App() {
 
     const seasonalNormalized = seasonalDayLength().normalized; // 0 = shortest day, 1 = longest
     const seasonalShift = (seasonalNormalized - 0.5) * 0.18; // +/- 0.09 around default
-    const sunNoonPhase = 0.375;
-    const sunSetPhase = Math.min(0.9, Math.max(0.58, 0.75 + seasonalShift));
+    // Linear sun trajectory. The slider drives a single descent:
+    //   0   -> 0.25: sun is above the viewport (offscreen up)
+    //   0.25-> 0.5 : sun descends from the top of the viewport to the
+    //                middle (peak of the arc, "noon")
+    //   0.5 -> 0.75: sun keeps descending to the horizon
+    //   0.75-> 1   : sun is below the horizon (offscreen down)
+    // Noon (peak) is at 0.5; the horizon is crossed at 0.75.
+    const sunNoonPhase = 0.5;
+    const sunSetPhase = 0.75 + seasonalShift * 0; // kept for downstream consumers
     const sunsetTargetY = horizonY;
     const sunTrackX = viewportWidth() - 180;
     const sunDelta = Math.min(
       1,
       Math.abs(normalized - sunNoonPhase) / (sunSetPhase - sunNoonPhase),
     );
-    const sunY = sunsetTargetY * sunDelta;
+    const sunY = (2 * normalized - 0.5) * horizonY;
 
     // Moon trajectory follows day progression (not hour slider).
     // Keep only a subtle slider nudge so it doesn't look frozen.

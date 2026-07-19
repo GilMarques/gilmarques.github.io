@@ -30,9 +30,13 @@ const REFLECTION = {
   sparkle: 0.22,
   pushDownMax: 5,
   pushDownCurve: 1.1,
-  belowHorizonRange: 24,
-  belowHorizonBrightnessFade: 0.75,
-  belowHorizonWidthNarrow: 0.18,
+  // Edge-fade effect: as peakFactor -> 0 (sun at horizon or covered),
+  // the reflection dissolves into the water via sparser, more scattered,
+  // dimmer, more water-coloured dots.
+  edgeScatter: 0.7,
+  edgeThreshold: 0.25,
+  edgeColorFade: 0.75,
+  edgeNoiseOffset: 1.4,
 } as const;
 
 const MOTION = {
@@ -110,44 +114,69 @@ const Ocean = (props: OceanProps) => {
       return (n1 + n2 * 0.65 + n3 * 0.35) / 2;
     };
 
-    const getHeightSpread = (sourceY: number) => {
-      const span = SOURCE_MAX_Y - SOURCE_MIN_Y;
-      const clampedY = Math.min(SOURCE_MAX_Y, Math.max(SOURCE_MIN_Y, sourceY));
-      return span <= 0 ? 0 : (clampedY - SOURCE_MIN_Y) / span;
+    /**
+     * Peak factor: 0 when the sun is at either edge of its visible
+     * trajectory (top of viewport or horizon), 1 at the midpoint of the
+     * visible range (sunY = canvasTop / 2), and 0 again once the sun
+     * leaves the visible range. With the linear sun trajectory the
+     * visible range is sunTopInViewport in [0, canvasTop], so the bell
+     * is centred at canvasTop / 2 and clamped to [-1, 1] outside.
+     */
+    const getPeakFactor = (sunTopInViewport: number) => {
+      if (!canvas) return 0;
+      const canvasTop = canvas.getBoundingClientRect().top;
+      if (canvasTop <= 0) return 0;
+      const halfRange = canvasTop / 2;
+      const x = Math.max(
+        -1,
+        Math.min(1, (sunTopInViewport - halfRange) / halfRange),
+      );
+      return Math.max(0, Math.cos((x * Math.PI) / 2));
     };
 
     const getPushDownByHeight = (sourceY: number) => {
       if (sourceY >= SOURCE_MIN_Y) return 0;
       const span = SOURCE_MIN_Y - SOURCE_TOP_LIMIT_Y;
       if (span <= 0) return 0;
-      const t = Math.max(0, (SOURCE_MIN_Y - sourceY) / span);
+      const t = Math.min(1, Math.max(0, (SOURCE_MIN_Y - sourceY) / span));
       return REFLECTION.pushDownMax * Math.pow(t, REFLECTION.pushDownCurve);
     };
 
     const drawReflection = (
       cx: number,
-      spreadByHeight: number,
+      peakFactor: number,
       pushDownByHeight: number,
-      belowHorizonFade: number,
-      belowHorizonWidthScale: number,
       timeMs: number,
     ) => {
+      // 0 at horizon -> 1 at peak. Smoother physical sense, and lets the
+      // edge-fade knobs below scale naturally with the reflection.
       const dynamicRows = Math.round(
-        REFLECTION.rows + REFLECTION.extraRows * spreadByHeight,
+        REFLECTION.rows + REFLECTION.extraRows * peakFactor,
       );
       const maxWidth =
-        (REFLECTION.maxHalfWidth + REFLECTION.extraHalfWidth * spreadByHeight) *
-        belowHorizonWidthScale;
+        REFLECTION.maxHalfWidth + REFLECTION.extraHalfWidth * peakFactor;
       const dynamicFade = Math.max(
         0.35,
-        REFLECTION.fade - 0.18 * spreadByHeight,
+        REFLECTION.fade - 0.18 * peakFactor,
       );
+
+      // Edge-fade tuning: at low peakFactor the reflection dissolves into
+      // the water via sparser, more scattered, dimmer, more water-coloured
+      // dots. At peakFactor=1 these knobs are no-ops.
+      const edgeT = 1 - peakFactor;
+      const sparkleBoost = 1 + edgeT * REFLECTION.edgeScatter;
+      const probabilityThreshold = 0.35 + edgeT * REFLECTION.edgeThreshold;
+      const colorFade = Math.max(0.05, 1 - edgeT * REFLECTION.edgeColorFade);
+      const noiseOffsetX = edgeT * REFLECTION.edgeNoiseOffset;
 
       for (let row = 0; row < dynamicRows; row += 1) {
         const t = row / Math.max(1, dynamicRows - 1);
         const driftNoise = layeredNoise(row, timeMs);
         const pulseNoise = layeredNoise(row + 37, timeMs * 0.75);
-        const centerX = cx + driftNoise * MOTION.driftX * (0.3 + 0.7 * t);
+        const centerX =
+          cx +
+          driftNoise * MOTION.driftX * (0.3 + 0.7 * t) +
+          (hash2d(row, Math.floor(timeMs * 0.001)) - 0.5) * noiseOffsetX;
         const y = Math.max(
           REFLECTION_MIN_Y,
           HORIZON_Y +
@@ -171,10 +200,10 @@ const Ocean = (props: OceanProps) => {
           taperedHalfWidth * (1 + MOTION.widthPulse * pulseNoise * (0.2 + t)),
         );
         const brightness = Math.max(
-          0.12,
+          0.05,
           (1 - dynamicFade * t) *
             (1 + MOTION.brightnessPulse * pulseNoise * (0.4 + 0.6 * t)) *
-            belowHorizonFade,
+            peakFactor,
         );
         const rowDensityScale = 1 + MOTION.densityPulse * driftNoise;
 
@@ -190,19 +219,20 @@ const Ocean = (props: OceanProps) => {
           const edgeDistance = Math.min(1, Math.sqrt(nx * nx + t * t));
           const distanceFade = Math.max(0, 1 - edgeDistance);
           const probability =
-            REFLECTION.density *
+            (REFLECTION.density *
               rowDensityScale *
               core *
               brightness *
               (0.55 + 0.45 * distanceFade) +
-            hash2d(x + row * 3, y) * REFLECTION.sparkle;
+              hash2d(x + row * 3, y) * REFLECTION.sparkle) *
+            sparkleBoost;
 
-          if (probability < 0.35) continue;
+          if (probability < probabilityThreshold) continue;
 
           const sparkleMix = hash2d(x + y, row * 17) > 0.75 ? 0.12 : 0;
           const colorMix = Math.max(
             0.05,
-            brightness * distanceFade + sparkleMix,
+            brightness * distanceFade * colorFade + sparkleMix,
           );
           ctx.fillStyle = mixColor(oceanRgb, highlightRgb(), colorMix);
           ctx.fillRect(Math.round(centerX + x), Math.round(y), 1, 1);
@@ -246,25 +276,11 @@ const Ocean = (props: OceanProps) => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (hasReflection) {
-        const spreadByHeight = getHeightSpread(py);
-        const pushDownByHeight = getPushDownByHeight(py);
-        const belowHorizonDistance = Math.max(0, py - HORIZON_Y);
-        const belowHorizonT = Math.min(
-          1,
-          belowHorizonDistance / REFLECTION.belowHorizonRange,
-        );
-        const belowHorizonFade =
-          1 - belowHorizonT * REFLECTION.belowHorizonBrightnessFade;
-        const belowHorizonWidthScale =
-          1 - belowHorizonT * REFLECTION.belowHorizonWidthNarrow;
-        drawReflection(
-          px,
-          spreadByHeight,
-          pushDownByHeight,
-          belowHorizonFade,
-          belowHorizonWidthScale,
-          timeMs,
-        );
+        const peakFactor = getPeakFactor(sunTopInViewport);
+        if (peakFactor > 0.01) {
+          const pushDownByHeight = getPushDownByHeight(py);
+          drawReflection(px, peakFactor, pushDownByHeight, timeMs);
+        }
       }
       drawTerrain();
     };
@@ -279,14 +295,17 @@ const Ocean = (props: OceanProps) => {
       };
     };
 
-    const getBodyCanvasPosition = () => {
+    const getBodyInfo = () => {
       const target = props.isDay ? props.sunRef : props.moonRef;
       if (!target) return null;
       const rect = target.getBoundingClientRect();
-      return viewportToCanvas(
-        rect.left + rect.width * 0.5,
-        rect.top + rect.height * 0.5 - SUN_SIZE,
-      );
+      return {
+        canvasPos: viewportToCanvas(
+          rect.left + rect.width * 0.5,
+          rect.top + rect.height * 0.5 - SUN_SIZE,
+        ),
+        sunTopInViewport: rect.top,
+      };
     };
 
     function resizeCanvas() {
@@ -314,12 +333,14 @@ const Ocean = (props: OceanProps) => {
     resizeCanvas();
     let rafId = 0;
     let hasReflection = false;
+    let sunTopInViewport = 0;
     const frame = (timeMs: number) => {
-      const mapped = getBodyCanvasPosition();
-      hasReflection = mapped !== null;
-      if (mapped) {
-        px = Math.min(canvas.width - 1, Math.max(0, mapped.x));
-        py = Math.min(POINTER_MAX_Y, mapped.y);
+      const info = getBodyInfo();
+      hasReflection = info !== null;
+      if (info) {
+        px = Math.min(canvas.width - 1, Math.max(0, info.canvasPos.x));
+        py = Math.min(POINTER_MAX_Y, info.canvasPos.y);
+        sunTopInViewport = info.sunTopInViewport;
       }
 
       draw(timeMs);

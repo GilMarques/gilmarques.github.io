@@ -186,7 +186,7 @@ const SunDial = (props: DaySliderProps) => {
         {/* Track - simple 8-bit rectangle */}
         <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 border-4 border-black bg-[#a8a29e]">
           <div
-            class="absolute inset-0 bg-teal-400 pointer-events-none"
+            class="absolute inset-0 bg-yellow-300 pointer-events-none"
             style={{ "clip-path": `inset(0 ${100 - percent()}% 0 0)` }}
           />
         </div>
