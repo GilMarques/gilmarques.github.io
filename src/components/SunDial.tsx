@@ -1,6 +1,6 @@
 import { createMemo } from "solid-js";
 import {
-  blue_circle,
+  indicator,
   cloudy,
   drizzle,
   moon,
@@ -90,8 +90,8 @@ const SunDial = (props: DaySliderProps) => {
             }}
           >
             <img
-              src={blue_circle}
-              alt="blue circle"
+              src={indicator}
+              alt="indicator"
               class="w-full h-full"
             />
           </div>

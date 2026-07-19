@@ -16,7 +16,7 @@ const SOURCE_MAX_Y = HORIZON_Y + 2;
 
 const REFLECTION = {
   sourceYOffset: 6,
-  startYOffset: 3,
+  startYOffset: 0,
   rows: 32,
   extraRows: 30,
   rowStep: 2,
@@ -28,7 +28,7 @@ const REFLECTION = {
   fade: 0.7,
   density: 0.78,
   sparkle: 0.22,
-  pushDownMax: 16,
+  pushDownMax: 5,
   pushDownCurve: 1.1,
   belowHorizonRange: 24,
   belowHorizonBrightnessFade: 0.75,

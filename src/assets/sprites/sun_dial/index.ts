@@ -1,4 +1,4 @@
-import blue_circle from "./blue_circle.png";
+import indicator from "./indicator.png";
 
 import cloudRain from "./cloud-rain.png";
 import cloudSun from "./cloud-sun.png";
@@ -12,7 +12,7 @@ import sun_dial from "./sun_dial.png";
 import sunny from "./sunny.png";
 
 export {
-  blue_circle,
+  indicator,
   cloudRain,
   cloudSun,
   cloudy,
