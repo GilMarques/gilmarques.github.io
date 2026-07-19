@@ -1,4 +1,4 @@
-import { createMemo, onMount } from "solid-js";
+import { createMemo } from "solid-js";
 import {
   blue_circle,
   cloudy,
@@ -7,7 +7,6 @@ import {
   snowflake,
   sun,
   sun_dial,
-  sunny,
 } from "../assets/sprites/sun_dial";
 import { WeatherType } from "../hooks/useWeather";
 
@@ -20,19 +19,10 @@ type DaySliderProps = {
   setWeather: (weather: WeatherType) => void;
 };
 
-const weatherList = [
-  { type: WeatherType.Clear, icon: sunny },
-  { type: WeatherType.Clouds, icon: cloudy },
-  { type: WeatherType.Drizzle, icon: drizzle },
-  { type: WeatherType.Snow, icon: snowflake },
-];
-
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
 const SunDial = (props: DaySliderProps) => {
-  let rootRef: HTMLDivElement | undefined;
-
   const min = () => props.min ?? 0;
   const max = () => props.max ?? 100;
 
@@ -60,40 +50,9 @@ const SunDial = (props: DaySliderProps) => {
     props.onChange(parseFloat(e.currentTarget.value));
   };
 
-  onMount(() => {
-    const root = rootRef;
-    if (!root) return;
-
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const direction = e.deltaY > 0 ? -2 : 2;
-      const nextValue = clamp(props.value + direction, min(), max());
-      if (nextValue !== props.value) props.onChange(nextValue);
-    };
-
-    root.addEventListener("wheel", onWheel, { passive: false });
-    return () => root.removeEventListener("wheel", onWheel);
-  });
-
-  const handleClick = (e: Event) => {
-    const nextWeather = e.currentTarget as HTMLButtonElement;
-    props.setWeather(nextWeather.dataset.weather as WeatherType);
-  };
-
   return (
-    <div class="flex flex-col items-center" ref={rootRef}>
-      <div class="group relative w-50 h-32">
-        <input
-          type="range"
-          min={min()}
-          max={max()}
-          value={props.value}
-          onInput={handleChange}
-          onChange={handleChange}
-          class="absolute w-full h-full opacity-0 cursor-pointer z-20 touch-none"
-          aria-label="Slider"
-        />
-
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative w-50 h-32">
         <img
           src={sun_dial}
           alt="sun dial"
@@ -106,17 +65,17 @@ const SunDial = (props: DaySliderProps) => {
             <img
               src={drizzle}
               class="w-8 h-8"
-              style={{ filter: `invert(1)` }}
+              style={{ filter: "invert(1)" }}
             />
           )}
           {props.weather === WeatherType.Clouds && (
-            <img src={cloudy} class="w-8 h-8" style={{ filter: `invert(1)` }} />
+            <img src={cloudy} class="w-8 h-8" style={{ filter: "invert(1)" }} />
           )}
           {props.weather === WeatherType.Snow && (
             <img
               src={snowflake}
               class="w-8 h-8"
-              style={{ filter: `invert(1)` }}
+              style={{ filter: "invert(1)" }}
             />
           )}
         </div>
@@ -133,7 +92,7 @@ const SunDial = (props: DaySliderProps) => {
             <img
               src={blue_circle}
               alt="blue circle"
-              class="w-full h-full group-hover:animate-[scale_1s_ease-in-out_infinite] "
+              class="w-full h-full"
             />
           </div>
         </div>
@@ -166,6 +125,17 @@ const SunDial = (props: DaySliderProps) => {
           />
         </div>
       </div>
+
+      <input
+        type="range"
+        min={min()}
+        max={max()}
+        value={props.value}
+        onInput={handleChange}
+        onChange={handleChange}
+        class="w-50 accent-teal-400 cursor-pointer"
+        aria-label="Day cycle slider"
+      />
     </div>
   );
 };
