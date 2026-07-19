@@ -244,8 +244,6 @@ const Ocean = (props: OceanProps) => {
     const draw = (timeMs: number) => {
       ctx.fillStyle = oceanHex;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#f5f5f5";
-      ctx.fillRect(0, HORIZON_Y, canvas.width, 2);
 
       const spreadByHeight = getHeightSpread(py);
       const pushDownByHeight = getPushDownByHeight(py);

@@ -12,7 +12,7 @@ function Sun(props: SunProps) {
   const visibleHeight = () =>
     Math.max(
       0,
-      Math.min(SUN_SIZE, props.horizonY - props.y - SUN_SIZE / 2 - 1),
+      Math.min(SUN_SIZE, props.horizonY - props.y),
     );
 
   return (

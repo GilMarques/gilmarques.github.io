@@ -2,7 +2,7 @@ import "./App.css";
 import Footer from "./components/Footer";
 import Weather from "./components/Weather";
 
-import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
 
 import { github, linkedin, mail } from "./assets/icons";
 import Canvas from "./components/Canvas";
@@ -135,8 +135,6 @@ function App() {
     () => bodyTrajectory().sun.y < bodyTrajectory().sun.horizonY,
   );
 
-  const isLarge = createMemo(() => viewportWidth() >= 1024);
-
   createEffect(() => {
     document.body.classList.toggle("is-day", isDay());
     document.body.classList.toggle("is-night", !isDay());
@@ -185,14 +183,12 @@ function App() {
   return (
     <div class="h-screen w-screen flex flex-col overflow-hidden">
       <div
-        class="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_2fr] grid-rows-[auto_1fr_auto] lg:grid-rows-[1fr_auto] flex-1 min-h-0 overflow-hidden"
+        class="relative z-10 flex flex-col flex-1 min-h-0"
         style={{ background: skyGradient() }}
       >
-        <Show when={!isLarge()}>
-          <div class="absolute inset-0 -z-10">
-            <Canvas day={isDay} />
-          </div>
-        </Show>
+        <div class="absolute inset-0 -z-10">
+          <Canvas day={isDay} />
+        </div>
         <Sun
           isDay={isDay()}
           x={bodyTrajectory().sun.x}
@@ -210,8 +206,40 @@ function App() {
           />
         </div>
 
-        <div id="about" class="relative z-10 flex flex-col min-h-0 overflow-hidden">
-          <div class="p-4 lg:p-6">
+        <nav class="absolute top-0 left-0 right-0 z-20 p-3">
+          <div class="eightbit-button flex items-center gap-1 hover:!bg-[#d6d3d1]">
+            <a
+              href="mailto:gilmmm4@gmail.com"
+              draggable="false"
+              class="flex items-center gap-2 px-3 py-2 transition-colors  hover:bg-white text-black"
+            >
+              <img src={mail} alt="Email" class="h-5 pixelated" />
+              <span class="font-custom text-lg">Email</span>
+            </a>
+            <a
+              href="https://github.com/GilMarques"
+              draggable="false"
+              class="flex items-center gap-2 px-3 py-2 transition-colors  hover:bg-white text-black"
+            >
+              <img src={github} alt="Github" class="h-5 pixelated" />
+              <span class="font-custom text-lg">Github</span>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/gil-marques-ab86a524b/"
+              draggable="false"
+              class="flex items-center gap-2 px-3 py-2 transition-colors  hover:bg-white text-black"
+            >
+              <img src={linkedin} alt="LinkedIn" class="h-5 pixelated" />
+              <span class="font-custom text-lg">LinkedIn</span>
+            </a>
+          </div>
+        </nav>
+
+        <div
+          id="main-scroll"
+          class="flex-1 min-h-0 overflow-y-auto pt-24 relative z-10"
+        >
+          <div id="about" class="p-4 lg:p-6">
             <h2
               class={`font-custom text-3xl font-black underline ${
                 isDay() ? "text-black" : "text-white"
@@ -219,7 +247,6 @@ function App() {
             >
               About
             </h2>
-
             <p
               class={`font-custom text-2xl ${
                 isDay() ? "text-black" : "text-white"
@@ -229,49 +256,14 @@ function App() {
               <br />I build web apps with 3D, complex UIs, and engineering
               tooling.
             </p>
-
-            <div class="flex flex-col gap-3 lg:gap-4 mt-4">
-              <a
-                class="w-full lg:w-[200px] eightbit-button text-black flex items-center"
-                href="mailto:gilmmm4@gmail.com"
-                draggable="false"
-              >
-                <img src={mail} alt="Email" class="h-6 pixelated" />
-                <span class="grow text-2xl text-center">Email</span>
-              </a>
-
-              <a
-                class="w-full lg:w-[200px] eightbit-button text-black flex items-center"
-                href="https://github.com/GilMarques"
-                draggable="false"
-              >
-                <img src={github} alt="Github" class="w-6 h-6 pixelated" />
-                <span class="grow text-2xl text-center">Github</span>
-              </a>
-
-              <a
-                class="w-full lg:w-[200px] eightbit-button text-black flex items-center"
-                href="https://www.linkedin.com/in/gil-marques-ab86a524b/"
-                draggable="false"
-              >
-                <img src={linkedin} alt="LinkedIn" class="w-6 h-6 pixelated" />
-                <span class="grow text-2xl text-center">LinkedIn</span>
-              </a>
-            </div>
           </div>
 
-          <Show when={isLarge()}>
-            <div class="flex-1 min-h-0 mt-4">
-              <Canvas day={isDay} />
-            </div>
-          </Show>
+          <div id="projects" class="p-4 lg:p-6">
+            <Projects isDay={isDay()} />
+          </div>
         </div>
 
-        <div id="projects" class="relative z-10 overflow-y-auto p-6 [mask-image:linear-gradient(to_bottom,transparent,black_8%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_8%)]">
-          <Projects isDay={isDay()} />
-        </div>
-
-        <div id="contact" class="col-span-1 row-start-3 lg:col-span-2 lg:row-start-2 relative min-h-0">
+        <div id="contact" class="relative min-h-0 z-10">
           <Footer
             weather={weather()}
             isDay={isDay()}
