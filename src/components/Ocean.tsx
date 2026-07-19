@@ -3,7 +3,7 @@ import { terrain, terrainSnow } from "../assets/sprites/terrain";
 import { SUN_SIZE } from "./Sun";
 
 const OCEAN_COLOR = 0x3994e6;
-const PIXEL_DENSITY = 0.2;
+const PIXEL_DENSITY = 0.1;
 const CANVAS_WIDTH = Math.round(350 * PIXEL_DENSITY);
 const CANVAS_HEIGHT = Math.round(960 * PIXEL_DENSITY);
 const MAX_CANVAS_CSS_HEIGHT = 200;
@@ -46,7 +46,7 @@ const MOTION = {
 /** Terrain tiles: one draw per 350px of canvas width (dest size / step from tuned drawImage). */
 const TERRAIN_TILE_STEP_X = 350;
 const TERRAIN_DEST_DX = 0;
-const TERRAIN_DEST_DY = 60;
+const TERRAIN_DEST_DY = Math.round(300 * PIXEL_DENSITY);
 const TERRAIN_DEST_DW = 350;
 const TERRAIN_DEST_DH = 160;
 
