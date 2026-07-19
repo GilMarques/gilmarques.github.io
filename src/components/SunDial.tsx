@@ -46,8 +46,13 @@ const SunDial = (props: DaySliderProps) => {
 
   const rangeAngle = createMemo(() => 180 - (percent() / 100) * 180);
 
-  const handleChange = (e: Event & { currentTarget: HTMLInputElement }) => {
-    props.onChange(parseFloat(e.currentTarget.value));
+  const updateFromPointer = (e: PointerEvent) => {
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    if (rect.width === 0) return;
+    const x = clamp(e.clientX - rect.left, 0, rect.width);
+    const ratio = x / rect.width;
+    props.onChange(min() + ratio * (max() - min()));
   };
 
   return (
@@ -126,16 +131,75 @@ const SunDial = (props: DaySliderProps) => {
         </div>
       </div>
 
-      <input
-        type="range"
-        min={min()}
-        max={max()}
-        value={props.value}
-        onInput={handleChange}
-        onChange={handleChange}
-        class="w-50 accent-teal-400 cursor-pointer"
+      {/* 8-bit slider: rectangular track + eightbit button handle */}
+      <div
+        class="relative w-50 h-10 select-none cursor-pointer focus:outline-none"
+        style={{ "touch-action": "none" }}
+        role="slider"
         aria-label="Day cycle slider"
-      />
+        aria-valuemin={min()}
+        aria-valuemax={max()}
+        aria-valuenow={props.value}
+        tabIndex={0}
+        onPointerDown={(e) => {
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+          updateFromPointer(e);
+        }}
+        onPointerMove={(e) => {
+          if (e.buttons & 1) updateFromPointer(e);
+        }}
+        onPointerUp={(e) => {
+          try {
+            (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+          } catch {}
+        }}
+        onPointerCancel={(e) => {
+          try {
+            (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+          } catch {}
+        }}
+        onKeyDown={(e) => {
+          const range = max() - min();
+          const step = range / 100;
+          const big = range / 10;
+          if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+            e.preventDefault();
+            props.onChange(clamp(props.value - step, min(), max()));
+          } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+            e.preventDefault();
+            props.onChange(clamp(props.value + step, min(), max()));
+          } else if (e.key === "PageDown") {
+            e.preventDefault();
+            props.onChange(clamp(props.value - big, min(), max()));
+          } else if (e.key === "PageUp") {
+            e.preventDefault();
+            props.onChange(clamp(props.value + big, min(), max()));
+          } else if (e.key === "Home") {
+            e.preventDefault();
+            props.onChange(min());
+          } else if (e.key === "End") {
+            e.preventDefault();
+            props.onChange(max());
+          }
+        }}
+      >
+        {/* Track - simple 8-bit rectangle */}
+        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 border-4 border-black bg-[#a8a29e]">
+          <div
+            class="absolute inset-0 bg-teal-400 pointer-events-none"
+            style={{ "clip-path": `inset(0 ${100 - percent()}% 0 0)` }}
+          />
+        </div>
+
+        {/* Handle - rectangular eightbit button */}
+        <div
+          class="eightbit-button absolute top-1/2 w-4 h-8 !p-0"
+          style={{
+            left: `calc(${percent()}% - 0.5rem)`,
+            transform: "translateY(-50%)",
+          }}
+        />
+      </div>
     </div>
   );
 };

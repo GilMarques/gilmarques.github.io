@@ -42,9 +42,9 @@ const Footer = (props: FooterProps) => {
             setWeather={props.setWeather}
           />
 
-          <div class="font-custom">
+          <div class="font-custom text-xs">
             <span>Made with</span>
-            <img src={heart} alt="heart" class="inline-block h-3 w-3 mx-2" />
+            <img src={heart} alt="heart" class="inline-block h-2.5 w-2.5 mx-1.5" />
             <span>
               by <strong>Gil Marques</strong>
             </span>
