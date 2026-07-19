@@ -245,25 +245,27 @@ const Ocean = (props: OceanProps) => {
       ctx.fillStyle = oceanHex;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const spreadByHeight = getHeightSpread(py);
-      const pushDownByHeight = getPushDownByHeight(py);
-      const belowHorizonDistance = Math.max(0, py - HORIZON_Y);
-      const belowHorizonT = Math.min(
-        1,
-        belowHorizonDistance / REFLECTION.belowHorizonRange,
-      );
-      const belowHorizonFade =
-        1 - belowHorizonT * REFLECTION.belowHorizonBrightnessFade;
-      const belowHorizonWidthScale =
-        1 - belowHorizonT * REFLECTION.belowHorizonWidthNarrow;
-      drawReflection(
-        px,
-        spreadByHeight,
-        pushDownByHeight,
-        belowHorizonFade,
-        belowHorizonWidthScale,
-        timeMs,
-      );
+      if (hasReflection) {
+        const spreadByHeight = getHeightSpread(py);
+        const pushDownByHeight = getPushDownByHeight(py);
+        const belowHorizonDistance = Math.max(0, py - HORIZON_Y);
+        const belowHorizonT = Math.min(
+          1,
+          belowHorizonDistance / REFLECTION.belowHorizonRange,
+        );
+        const belowHorizonFade =
+          1 - belowHorizonT * REFLECTION.belowHorizonBrightnessFade;
+        const belowHorizonWidthScale =
+          1 - belowHorizonT * REFLECTION.belowHorizonWidthNarrow;
+        drawReflection(
+          px,
+          spreadByHeight,
+          pushDownByHeight,
+          belowHorizonFade,
+          belowHorizonWidthScale,
+          timeMs,
+        );
+      }
       drawTerrain();
     };
 
@@ -311,14 +313,13 @@ const Ocean = (props: OceanProps) => {
 
     resizeCanvas();
     let rafId = 0;
+    let hasReflection = false;
     const frame = (timeMs: number) => {
       const mapped = getBodyCanvasPosition();
+      hasReflection = mapped !== null;
       if (mapped) {
         px = Math.min(canvas.width - 1, Math.max(0, mapped.x));
         py = Math.min(POINTER_MAX_Y, mapped.y);
-      } else {
-        px = canvas.width * 0.5;
-        py = HORIZON_Y - REFLECTION.sourceYOffset;
       }
 
       draw(timeMs);
