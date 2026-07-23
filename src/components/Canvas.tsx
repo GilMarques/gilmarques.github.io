@@ -239,14 +239,19 @@ class CloudScene {
   }
 
   setDayMode(isDay: boolean) {
-    if (!this.cloudSprite) return;
+    if (!this.cloudSprite || !this.tailLine) return;
     if (isDay) {
       this.cloudSprite.filters([]);
+      this.tailLine.filters([]);
     } else {
       this.cloudSprite.filters([Konva.Filters.Brighten]);
       this.cloudSprite.brightness(-0.4);
+      this.tailLine.filters([Konva.Filters.Brighten]);
+      this.tailLine.brightness(-0.4);
     }
     this.cloudSprite.cache();
+    this.tailLine.cache();
+    this.tailLine.getLayer()?.batchDraw();
   }
 
   destroy() {
