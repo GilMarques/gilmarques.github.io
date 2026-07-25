@@ -22,7 +22,11 @@ const REFLECTION = {
   rowStep: 2,
   minHalfWidth: 32,
   maxHalfWidth: 80,
-  extraHalfWidth: 20,
+  // Width grows as the sun descends. At midday (peakFactor=1) the
+  // reflection is at its narrowest (just maxHalfWidth), and it spreads
+  // out as the sun approaches the horizon. The length still peaks at
+  // midday (driven by `extraRows * peakFactor` below).
+  extraHalfWidth: 50,
   spreadCurve: 0.5,
   taper: 0.28,
   fade: 0.7,
@@ -30,13 +34,15 @@ const REFLECTION = {
   sparkle: 0.22,
   pushDownMax: 5,
   pushDownCurve: 1.1,
-  // Edge-fade effect: as peakFactor -> 0 (sun at horizon or covered),
-  // the reflection dissolves into the water via sparser, more scattered,
-  // dimmer, more water-coloured dots.
-  edgeScatter: 0.7,
-  edgeThreshold: 0.25,
-  edgeColorFade: 0.75,
-  edgeNoiseOffset: 1.4,
+  // Edge-fade effect: as visibility -> 0 (sunset or sunrise), the
+  // reflection dissolves into the water via sparser, more scattered,
+  // dimmer, more water-coloured dots. Cranked up here so the 75→80%
+  // fadeout actually reads as "dispersing into the water" instead of
+  // just a slow dim.
+  edgeScatter: 1.4,
+  edgeThreshold: 0.55,
+  edgeColorFade: 0.95,
+  edgeNoiseOffset: 2.4,
 } as const;
 
 const MOTION = {
@@ -134,6 +140,45 @@ const Ocean = (props: OceanProps) => {
       return Math.max(0, Math.cos((x * Math.PI) / 2));
     };
 
+    /**
+     * Visibility factor — drives the reflection's overall brightness /
+     * presence. Asymmetric on purpose so the timing reads as the user
+     * wants:
+     *   - Morning (sun above midpoint of viewport): same bell curve as
+     *     peakFactor, so 20% → 50% behaves exactly as before.
+     *   - Afternoon (sun between midpoint and horizon): pinned at 1, so
+     *     the reflection stays at full presence while it widens.
+     *   - Sunset (sun between horizon and horizon + 0.1·horizonY, i.e.
+     *     roughly the 75% → 80% slice of the day): smooth fade from 1
+     *     down to 0.
+     * Width still uses peakFactor (so it keeps widening through the
+     * afternoon) — only the brightness/edge-fade knobs switch over.
+     */
+    const getVisibilityFactor = (sunTopInViewport: number) => {
+      if (!canvas) return 0;
+      const horizonY = canvas.getBoundingClientRect().top;
+      if (horizonY <= 0) return 0;
+      const noonY = horizonY * 0.5;
+      if (sunTopInViewport < noonY) {
+        // Morning: bell curve from 0 (top of viewport) to 1 (noon).
+        const x = Math.max(-1, (sunTopInViewport - noonY) / noonY);
+        return Math.max(0, Math.cos((x * Math.PI) / 2));
+      }
+      if (sunTopInViewport < horizonY) {
+        // Afternoon: sun between midpoint and horizon — stay full on.
+        return 1;
+      }
+      // Sunset: smooth fade from 1 (at horizon) to 0 (10% of horizonY below).
+      const sunYBelowHorizon = sunTopInViewport - horizonY;
+      const fadeRange = 0.1 * horizonY;
+      const fadeT = Math.max(0, Math.min(1, sunYBelowHorizon / fadeRange));
+      // Power curve (sqrt) so the reflection drops fast right after the
+      // sun touches the horizon — the dim+scatter is what reads as a
+      // fadeout, not a slow linear dim over the whole 75%→80% window.
+      const fadeCurve = Math.sqrt(fadeT);
+      return Math.max(0, 1 - fadeCurve);
+    };
+
     const getPushDownByHeight = (sourceY: number) => {
       if (sourceY >= SOURCE_MIN_Y) return 0;
       const span = SOURCE_MIN_Y - SOURCE_TOP_LIMIT_Y;
@@ -145,25 +190,31 @@ const Ocean = (props: OceanProps) => {
     const drawReflection = (
       cx: number,
       peakFactor: number,
+      visibility: number,
       pushDownByHeight: number,
       timeMs: number,
     ) => {
-      // 0 at horizon -> 1 at peak. Smoother physical sense, and lets the
-      // edge-fade knobs below scale naturally with the reflection.
+      // Length still peaks at midday (uses the symmetric peakFactor).
       const dynamicRows = Math.round(
         REFLECTION.rows + REFLECTION.extraRows * peakFactor,
       );
+      // Width still widens as the sun descends (uses peakFactor), so the
+      // 50% → 75% widening still happens.
       const maxWidth =
-        REFLECTION.maxHalfWidth + REFLECTION.extraHalfWidth * peakFactor;
+        REFLECTION.maxHalfWidth +
+        REFLECTION.extraHalfWidth * (1 - peakFactor);
+      // Fade-per-row is now driven by visibility: stays small during the
+      // bright afternoon (visibility=1) and only ramps up during the
+      // sunset fade (visibility→0).
       const dynamicFade = Math.max(
         0.35,
-        REFLECTION.fade - 0.18 * peakFactor,
+        REFLECTION.fade - 0.18 * visibility,
       );
 
-      // Edge-fade tuning: at low peakFactor the reflection dissolves into
-      // the water via sparser, more scattered, dimmer, more water-coloured
-      // dots. At peakFactor=1 these knobs are no-ops.
-      const edgeT = 1 - peakFactor;
+      // Edge-fade knobs follow visibility, so the "dissolving into water"
+      // look only kicks in at the actual edges of the day (sunrise and
+      // sunset), not in the middle of the afternoon.
+      const edgeT = 1 - visibility;
       const sparkleBoost = 1 + edgeT * REFLECTION.edgeScatter;
       const probabilityThreshold = 0.35 + edgeT * REFLECTION.edgeThreshold;
       const colorFade = Math.max(0.05, 1 - edgeT * REFLECTION.edgeColorFade);
@@ -200,10 +251,10 @@ const Ocean = (props: OceanProps) => {
           taperedHalfWidth * (1 + MOTION.widthPulse * pulseNoise * (0.2 + t)),
         );
         const brightness = Math.max(
-          0.05,
+          0,
           (1 - dynamicFade * t) *
             (1 + MOTION.brightnessPulse * pulseNoise * (0.4 + 0.6 * t)) *
-            peakFactor,
+            visibility,
         );
         const rowDensityScale = 1 + MOTION.densityPulse * driftNoise;
 
@@ -277,9 +328,10 @@ const Ocean = (props: OceanProps) => {
 
       if (hasReflection) {
         const peakFactor = getPeakFactor(sunTopInViewport);
-        if (peakFactor > 0.01) {
+        const visibility = getVisibilityFactor(sunTopInViewport);
+        if (visibility > 0.01) {
           const pushDownByHeight = getPushDownByHeight(py);
-          drawReflection(px, peakFactor, pushDownByHeight, timeMs);
+          drawReflection(px, peakFactor, visibility, pushDownByHeight, timeMs);
         }
       }
       drawTerrain();
@@ -296,7 +348,14 @@ const Ocean = (props: OceanProps) => {
     };
 
     const getBodyInfo = () => {
-      const target = props.isDay ? props.sunRef : props.moonRef;
+      // Always prefer the sun ref so the reflection can keep reading its
+      // Y position past the horizon and the visibility fade (75%→80%)
+      // can actually play out. The previous `isDay ? sunRef : moonRef`
+      // branch flipped to moonRef the instant the sun went below the
+      // horizon, but moonRef is never populated — so the loop went
+      // null, sunTopInViewport froze, and the reflection was hard-cut
+      // instead of faded. Moon ref still wins if the sun ref is gone.
+      const target = props.sunRef || props.moonRef;
       if (!target) return null;
       const rect = target.getBoundingClientRect();
       return {

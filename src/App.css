@@ -316,6 +316,31 @@ body.splat-toggle .splat {
     border-right: 4px black solid;
 }
 
+/* 16-bit button: SNES/PS1-style soft bevel. No press-in on click — just a
+   snappy brightness drop so it feels solid without animating the whole chrome. */
+.sixteenbit-button {
+    background: #d6d3d1;
+    position: relative;
+    color: black;
+    text-decoration: none;
+    border: 4px solid black;
+    box-shadow:
+        inset 0 3px 0 0 rgba(255, 255, 255, 0.7),
+        inset 0 -3px 0 0 rgba(0, 0, 0, 0.18);
+    transition: filter 0.12s ease, box-shadow 0.12s ease;
+}
+
+.sixteenbit-button:hover {
+    filter: brightness(1.05);
+}
+
+.sixteenbit-button:active {
+    filter: brightness(0.9) saturate(0.95);
+    box-shadow:
+        inset 0 2px 0 0 rgba(255, 255, 255, 0.4),
+        inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+}
+
 @keyframes scale {
     0%,
     100% {

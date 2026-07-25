@@ -135,7 +135,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
   return (
     <div class="flex flex-col gap-6 lg:gap-10 py-10 lg:py-16 lg:min-h-[70vh] w-full max-w-5xl">
       <div class="flex flex-col lg:flex-row gap-6 lg:gap-10">
-        <div class="lg:sticky lg:top-1/2 lg:-translate-y-1/2 self-center lg:self-start flex justify-center">
+        <div class="self-center lg:self-center flex justify-center">
           <div class="relative hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl w-full max-w-xs lg:w-fit">
             <a class="pixel-corners p-2 block" href={project.url}>
               <div

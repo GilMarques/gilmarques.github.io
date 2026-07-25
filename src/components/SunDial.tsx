@@ -46,6 +46,21 @@ const SunDial = (props: DaySliderProps) => {
 
   const rangeAngle = createMemo(() => 180 - (percent() / 100) * 180);
 
+  // Track gradient spans the whole slider, blending the time-of-day bands:
+  //   0–20   rose       (dawn)
+  //   20–75  yellow     (day)
+  //   75–85  red        (sunset)
+  //   85–100 blue       (night)
+  // Stops are placed so each color dominates in its band and the transitions
+  // between bands are short and smooth. The band widths aren't uniform, so
+  // neither are the transitions — that's the "not exactly linear" part.
+  const trackGradient =
+    "linear-gradient(to right," +
+    " #fb7185 0%,  #fb7185 15%," + // hold rose
+    " #fde047 25%, #fde047 70%," + // hold yellow (wide day band)
+    " #ef4444 78%, #ef4444 82%," + // hold red (narrow sunset)
+    " #3b82f6 92%, #3b82f6 100%)"; // hold blue (night)
+
   const updateFromPointer = (e: PointerEvent) => {
     const target = e.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
@@ -186,8 +201,11 @@ const SunDial = (props: DaySliderProps) => {
         {/* Track - simple 8-bit rectangle */}
         <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 border-4 border-black bg-[#a8a29e]">
           <div
-            class="absolute inset-0 bg-yellow-300 pointer-events-none"
-            style={{ "clip-path": `inset(0 ${100 - percent()}% 0 0)` }}
+            class="absolute inset-0 pointer-events-none"
+            style={{
+              background: trackGradient,
+              "clip-path": `inset(0 ${100 - percent()}% 0 0)`,
+            }}
           />
         </div>
 

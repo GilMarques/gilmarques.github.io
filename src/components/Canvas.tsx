@@ -3,8 +3,18 @@ import { createEffect, onCleanup, onMount } from "solid-js";
 import { nimbus } from "../assets/sprites";
 
 const CLOUD_CENTER_Y = 300;
-const SPRING_STIFFNESS = 0.15;
 const TAIL_POINTS_COUNT = 60;
+
+// Idle Y bob: very long period, low amplitude.
+const Y_BOB_PERIOD_MS = 45_000;
+const Y_BOB_AMPLITUDE = 12;
+
+// Scroll-driven Y nudge: impulse → decaying offset that pulls the cloud off
+// the sine baseline, then springs back.
+const SCROLL_WHEEL_GAIN = 0.05;
+const SCROLL_TOUCH_GAIN = 0.15;
+const SCROLL_OFFSET_DAMPING = 0.95;
+const SCROLL_OFFSET_MAX = 120;
 
 class CloudScene {
   private stage!: Konva.Stage;
@@ -14,8 +24,21 @@ class CloudScene {
   private tailLine!: Konva.Line;
   private tailPoints: { x: number; y: number }[] = [];
   private cloudHistory: { x: number; y: number }[] = [];
-  private disposed = false;
-  private wavePhase = 0;
+
+  // Cloud is stationary in X. Y is the only moving axis.
+  private cloudX = 0;
+  private cloudY = CLOUD_CENTER_Y;
+  private scrollOffsetY = 0; // Y offset from scroll, decays back to 0
+
+  // Scroll input — accumulated per frame, applied then reset.
+  private scrollImpulse = 0;
+  private lastTouchY: number | null = null;
+
+  // Cleanup refs.
+  private wheelHandler?: (e: WheelEvent) => void;
+  private touchStartHandler?: (e: TouchEvent) => void;
+  private touchMoveHandler?: (e: TouchEvent) => void;
+  private touchEndHandler?: (e: TouchEvent) => void;
 
   private getRopeSegment(): number {
     const maxDim = Math.max(
@@ -24,17 +47,6 @@ class CloudScene {
     );
     return Math.max(maxDim * 0.15, 100);
   }
-
-  private isDragging = false;
-  private lastDragTime = 0;
-  private lastDragX = 0;
-  private lastDragY = 0;
-  private cloudX = 0;
-  private cloudY = CLOUD_CENTER_Y;
-  private velocityX = 0;
-  private velocityY = 0;
-  private currentScale = 1;
-  private targetScale = 1;
 
   constructor(private containerRef: HTMLDivElement) {}
 
@@ -52,113 +64,104 @@ class CloudScene {
     await this.createTail();
     await this.createCloud();
 
+    // Stationary X, centered. Y starts at the sine baseline.
     this.cloudX = this.stage.width() / 2;
     this.cloudY = CLOUD_CENTER_Y;
-    this.layoutCentered();
+    // Seed history at the current position so the tail starts as a point.
+    this.cloudHistory = Array.from({ length: TAIL_POINTS_COUNT }, () => ({
+      x: this.cloudX,
+      y: this.cloudY,
+    }));
+    this.cloudSprite.x(this.cloudX);
+    this.cloudSprite.y(this.cloudY);
 
     this.anim = new Konva.Animation((frame) => {
-      this.wavePhase = frame.time * 0.004;
-
       if (!this.cloudSprite || !this.tailLine) return;
 
-      const bob = Math.sin(-this.wavePhase);
+      // Y: long-period sine bob + scroll-driven offset that decays back.
+      const phase = (frame.time * 2 * Math.PI) / Y_BOB_PERIOD_MS;
+      const bob = Math.sin(phase) * Y_BOB_AMPLITUDE;
 
-      if (!this.isDragging) {
-        const centerX = this.stage.width() / 2;
-        const centerY = CLOUD_CENTER_Y;
+      this.scrollOffsetY += this.scrollImpulse;
+      this.scrollImpulse = 0;
+      this.scrollOffsetY *= SCROLL_OFFSET_DAMPING;
+      if (this.scrollOffsetY > SCROLL_OFFSET_MAX)
+        this.scrollOffsetY = SCROLL_OFFSET_MAX;
+      if (this.scrollOffsetY < -SCROLL_OFFSET_MAX)
+        this.scrollOffsetY = -SCROLL_OFFSET_MAX;
 
-        // Velocity friction
-        this.velocityX *= 0.97;
-        this.velocityY *= 0.97;
-
-        // Spring physics on Y to return to center
-        const springK_y = 0.02;
-        const damping_y = 1;
-
-        this.velocityY += (centerY - this.cloudY + bob) * springK_y;
-        this.velocityY *= damping_y;
-        this.cloudY += this.velocityY;
-
-        // Linear return to center on X
-        const xReturnSpeed = 0.1;
-        if (this.cloudX > centerX + 10) {
-          this.velocityX -= xReturnSpeed;
-        } else if (this.cloudX < centerX - 10) {
-          this.velocityX += xReturnSpeed;
-        }
-        this.cloudX += this.velocityX;
-      } else {
-        // Track velocity during drag
-        const now = performance.now();
-        const dt = Math.max(16, now - this.lastDragTime);
-        const rawVelX = this.cloudSprite.x() - this.lastDragX;
-        const rawVelY = this.cloudSprite.y() - this.lastDragY;
-
-        // Blend with existing velocity for smoother transitions
-        this.velocityX = this.velocityX * 0.3 + (rawVelX / dt) * 0.7;
-        this.velocityY = this.velocityY * 0.3 + (rawVelY / dt) * 0.7;
-
-        this.lastDragTime = now;
-        this.lastDragX = this.cloudSprite.x();
-        this.lastDragY = this.cloudSprite.y();
-
-        this.cloudX = this.cloudSprite.x();
-        this.cloudY = this.cloudSprite.y();
-      }
+      this.cloudY = CLOUD_CENTER_Y + bob + this.scrollOffsetY;
 
       this.cloudSprite.x(this.cloudX);
       this.cloudSprite.y(this.cloudY);
 
-      const scaleSpeed = 0.08;
-      if (this.currentScale < this.targetScale) {
-        this.currentScale = Math.min(
-          this.targetScale,
-          this.currentScale + scaleSpeed,
-        );
-      } else {
-        this.currentScale = Math.max(
-          this.targetScale,
-          this.currentScale - scaleSpeed,
-        );
-      }
-      this.cloudSprite.scale({ x: this.currentScale, y: this.currentScale });
-
-      // Save current position to history
+      // Tail history (unchanged from original — left as future work).
       this.cloudHistory.unshift({ x: this.cloudX, y: this.cloudY });
       if (this.cloudHistory.length > TAIL_POINTS_COUNT) {
         this.cloudHistory.pop();
       }
-
-      // Apply history positions to tail points (point 0 = current, point 59 = oldest)
       for (let i = 0; i < this.tailPoints.length; i++) {
         this.tailPoints[i].x =
           this.cloudHistory[i].x - i * 0.2 * this.getRopeSegment();
         this.tailPoints[i].y = this.cloudHistory[i].y;
       }
-
       this.tailLine.points(this.tailPoints.flatMap((p) => [p.x, p.y]));
       this.tailLine.position({ x: 0, y: 0 });
     }, this.layer);
 
     this.anim.start();
+    this.bindScrollInputs();
 
     const resizeObserver = new ResizeObserver(() => this.handleResize());
     resizeObserver.observe(this.containerRef);
+  }
+
+  private bindScrollInputs() {
+    // Desktop: wheel. deltaY > 0 (scroll down/forward) → push cloud DOWN.
+    // deltaY < 0 (scroll up/back) → push cloud UP.
+    this.wheelHandler = (e: WheelEvent) => {
+      this.scrollImpulse += e.deltaY * SCROLL_WHEEL_GAIN;
+    };
+    window.addEventListener("wheel", this.wheelHandler, { passive: true });
+
+    // Mobile: track finger Y between touchstart and touchend, accumulate deltaY.
+    this.touchStartHandler = (e: TouchEvent) => {
+      if (e.touches.length > 0) this.lastTouchY = e.touches[0].clientY;
+    };
+    this.touchMoveHandler = (e: TouchEvent) => {
+      if (e.touches.length > 0 && this.lastTouchY !== null) {
+        const currentY = e.touches[0].clientY;
+        // Finger moves up (currentY decreases) → forward scroll → push down.
+        const deltaY = this.lastTouchY - currentY;
+        this.scrollImpulse += deltaY * SCROLL_TOUCH_GAIN;
+        this.lastTouchY = currentY;
+      }
+    };
+    this.touchEndHandler = () => {
+      this.lastTouchY = null;
+    };
+    window.addEventListener("touchstart", this.touchStartHandler, {
+      passive: true,
+    });
+    window.addEventListener("touchmove", this.touchMoveHandler, {
+      passive: true,
+    });
+    window.addEventListener("touchend", this.touchEndHandler, {
+      passive: true,
+    });
+    window.addEventListener("touchcancel", this.touchEndHandler, {
+      passive: true,
+    });
   }
 
   private handleResize() {
     const rect = this.containerRef.getBoundingClientRect();
     this.stage.width(rect.width);
     this.stage.height(rect.height);
-    this.layoutCentered();
   }
 
   private async createTail() {
     this.tailPoints = Array.from({ length: TAIL_POINTS_COUNT }, () => ({
-      x: 0,
-      y: CLOUD_CENTER_Y,
-    }));
-    this.cloudHistory = Array.from({ length: TAIL_POINTS_COUNT }, () => ({
       x: 0,
       y: CLOUD_CENTER_Y,
     }));
@@ -189,53 +192,10 @@ class CloudScene {
       y: CLOUD_CENTER_Y,
       offsetX: halfWidth,
       offsetY: halfHeight,
-      draggable: true,
-    });
-
-    // Constrain drag within canvas bounds
-    this.cloudSprite.dragBoundFunc((pos) => {
-      const minX = halfWidth;
-      const maxX = this.stage.width() - halfWidth;
-      const minY = halfHeight;
-      const maxY = this.stage.height() - halfHeight;
-
-      return {
-        x: Math.max(minX, Math.min(maxX, pos.x)),
-        y: Math.max(minY, Math.min(maxY, pos.y)),
-      };
-    });
-
-    this.cloudSprite.on("mousedown", () => {
-      this.targetScale = 1.2;
-    });
-
-    this.cloudSprite.on("mouseup", () => {
-      this.targetScale = 1;
-    });
-
-    this.cloudSprite.on("dragstart", () => {
-      this.isDragging = true;
-      this.lastDragTime = performance.now();
-      this.lastDragX = this.cloudSprite.x();
-      this.lastDragY = this.cloudSprite.y();
-      // Dampen velocity at drag start
-      this.velocityX *= 0.5;
-      this.velocityY *= 0.5;
-    });
-
-    this.cloudSprite.on("dragend", () => {
-      this.isDragging = false;
-      this.targetScale = 1;
+      // no draggable: cursor interaction removed
     });
 
     this.layer.add(this.cloudSprite);
-  }
-
-  private layoutCentered() {
-    if (!this.stage || !this.cloudSprite) return;
-    if (!this.isDragging) {
-      this.cloudSprite.x(this.stage.width() / 2);
-    }
   }
 
   setDayMode(isDay: boolean) {
@@ -255,8 +215,16 @@ class CloudScene {
   }
 
   destroy() {
-    this.disposed = true;
     this.anim.stop();
+    if (this.wheelHandler) window.removeEventListener("wheel", this.wheelHandler);
+    if (this.touchStartHandler)
+      window.removeEventListener("touchstart", this.touchStartHandler);
+    if (this.touchMoveHandler)
+      window.removeEventListener("touchmove", this.touchMoveHandler);
+    if (this.touchEndHandler) {
+      window.removeEventListener("touchend", this.touchEndHandler);
+      window.removeEventListener("touchcancel", this.touchEndHandler);
+    }
     this.stage.destroy();
   }
 }
