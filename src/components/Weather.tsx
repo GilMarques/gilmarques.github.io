@@ -13,7 +13,13 @@ import { WeatherType } from "../hooks/useWeather.js";
 import type { CloudLayerConfig } from "../utils/cloudDensity.js";
 import { CloudDensityLevel } from "../utils/cloudDensity.js";
 
-const Rain = ({ intensity }: { intensity: "light" | "heavy" }) => {
+const Rain = ({
+  intensity,
+  daytime,
+}: {
+  intensity: "light" | "heavy";
+  daytime: DaytimeType;
+}) => {
   const keepProbability = intensity === "heavy" ? 1 : 0.5;
 
   var increment = 0;
@@ -29,7 +35,10 @@ const Rain = ({ intensity }: { intensity: "light" | "heavy" }) => {
   }
 
   return (
-    <div class={"rain pointer-events-none fixed top-0 min-h-full min-w-full"}>
+    <div
+      class={"rain pointer-events-none fixed top-0 min-h-full min-w-full"}
+      classList={{ night: daytime === "night" }}
+    >
       <For each={drops}>
         {(drop) => (
           <div
@@ -177,7 +186,7 @@ const Weather = (props: WeatherProps) => {
           <div class="snow"></div>
         </div>
       )}
-      {showRain() && <Rain intensity={rainIntensity()} />}
+      {showRain() && <Rain intensity={rainIntensity()} daytime={props.daytime} />}
       <>
         <div
           class="relative h-1/3"

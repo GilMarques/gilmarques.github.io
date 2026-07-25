@@ -240,6 +240,11 @@ body.splat-toggle .splat {
     filter: blur(1px) brightness(0.7);
 }
 
+.rain.night {
+    opacity: 0.45;
+    filter: brightness(0.7);
+}
+
 .snow,
 .snow:before,
 .snow:after {
