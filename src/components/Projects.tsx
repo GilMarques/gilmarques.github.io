@@ -1,6 +1,7 @@
 import { For } from "solid-js";
 import { angular, python, react, solidjs, typescript } from "../assets/icons";
 import { gg, inouno, portfolio, radiostation } from "../assets/projects";
+import Tooltip from "./Tooltip";
 
 export interface Project {
   title: string;
@@ -72,59 +73,64 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
   switch (type) {
     case ProjectType.React:
       return (
-        <div
-          class={`w-6 h-6 flex items-center justify-center rounded-full bg-blue-200 shadow-blue-400 `}
-          style={{ "box-shadow": "-2px 2px 0 #60a5fa" }}
-          data-tooltip="React"
-        >
-          <img src={react} alt="React" class="w-4 h-4" />
-        </div>
+        <Tooltip text="React">
+          <div
+            class={`w-6 h-6 flex items-center justify-center rounded-full bg-blue-200 shadow-blue-400 `}
+            style={{ "box-shadow": "-2px 2px 0 #60a5fa" }}
+          >
+            <img src={react} alt="React" class="w-4 h-4" />
+          </div>
+        </Tooltip>
       );
     case ProjectType.Angular:
       return (
-        <div
-          class={`w-6 h-6 flex items-center justify-center rounded-full bg-pink-300 `}
-          style={{ "box-shadow": "-2px 2px 0 #f472b6" }}
-          data-tooltip="Angular"
-        >
-          <img src={angular} alt="Angular" class="w-4 h-4" />
-        </div>
+        <Tooltip text="Angular">
+          <div
+            class={`w-6 h-6 flex items-center justify-center rounded-full bg-pink-300 `}
+            style={{ "box-shadow": "-2px 2px 0 #f472b6" }}
+          >
+            <img src={angular} alt="Angular" class="w-4 h-4" />
+          </div>
+        </Tooltip>
       );
     case ProjectType.Python:
       return (
-        <div
-          class={`w-6 h-6 flex items-center justify-center rounded-full bg-yellow-200 `}
-          style={{ "box-shadow": "-2px 2px 0 #fde047" }}
-          data-tooltip="Python"
-        >
-          <img src={python} alt="Python" class="w-4 h-4" />
-        </div>
+        <Tooltip text="Python">
+          <div
+            class={`w-6 h-6 flex items-center justify-center rounded-full bg-yellow-200 `}
+            style={{ "box-shadow": "-2px 2px 0 #fde047" }}
+          >
+            <img src={python} alt="Python" class="w-4 h-4" />
+          </div>
+        </Tooltip>
       );
     case ProjectType.TypeScript:
       return (
-        <div
-          class={`w-6 h-6 flex items-center justify-center rounded-full `}
-          style={{
-            "background-color": "#3178C6",
-            "box-shadow": "-2px 2px 0 #1d4ed8",
-          }}
-          data-tooltip="TypeScript"
-        >
-          <img src={typescript} alt="Typescript" class="w-4 h-4" />
-        </div>
+        <Tooltip text="TypeScript">
+          <div
+            class={`w-6 h-6 flex items-center justify-center rounded-full `}
+            style={{
+              "background-color": "#3178C6",
+              "box-shadow": "-2px 2px 0 #1d4ed8",
+            }}
+          >
+            <img src={typescript} alt="Typescript" class="w-4 h-4" />
+          </div>
+        </Tooltip>
       );
     case ProjectType.SolidJS:
       return (
-        <div
-          class={`w-6 h-6 flex items-center justify-center rounded-full`}
-          style={{
-            "background-color": "#5C95D4",
-            "box-shadow": "-2px 2px 0 #3178C6",
-          }}
-          data-tooltip="SolidJS"
-        >
-          <img src={solidjs} alt="SolidJS" class="w-4 h-4" />
-        </div>
+        <Tooltip text="SolidJS">
+          <div
+            class={`w-6 h-6 flex items-center justify-center rounded-full`}
+            style={{
+              "background-color": "#5C95D4",
+              "box-shadow": "-2px 2px 0 #3178C6",
+            }}
+          >
+            <img src={solidjs} alt="SolidJS" class="w-4 h-4" />
+          </div>
+        </Tooltip>
       );
     default:
       return null;

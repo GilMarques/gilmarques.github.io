@@ -362,7 +362,7 @@ body.splat-toggle .splat {
     pointer-events: none;
     content: attr(data-tooltip);
     left: 0;
-    top: calc(100% + 1px);
+    bottom: calc(100% + 1px);
     border: 2px solid black;
     background-color: #000;
     z-index: 10;
