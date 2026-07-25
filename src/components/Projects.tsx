@@ -145,21 +145,19 @@ const ProjectCard = ({ project }: { project: Project }) => {
           <div class="relative hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl w-full max-w-xs lg:w-fit">
             <a class="pixel-corners p-2 flex flex-col items-center" href={project.url}>
               <div
-                class={`pixel-corners aspect-[4/3] cursor-pointer flex flex-col w-full lg:aspect-3/4 lg:w-55 p-2 gap-2`}
+                class={`device-body pixel-corners aspect-[4/3] cursor-pointer flex flex-col w-full lg:aspect-3/4 lg:w-55 p-2 gap-2`}
                 style={{ background: project.background }}
               >
-                <div>
-                  <img
-                    src={project.thumbnail}
-                    alt={project.title}
-                    class="h-32 w-full object-cover lg:h-37.5"
-                    style={{
-                      border: "8px solid #000000",
-                      "border-radius": "8px 8px 32px 8px",
-                    }}
-                    draggable="false"
-                  />
-                </div>
+                <img
+                  src={project.thumbnail}
+                  alt={project.title}
+                  class="device-screen h-32 w-full object-cover lg:h-37.5"
+                  style={{
+                    border: "8px solid #000000",
+                    "border-radius": "8px 8px 32px 8px",
+                  }}
+                  draggable="false"
+                />
                 <div class="w-full flex justify-between items-center lg:w-55 px-3 mt-auto">
                   {project.oss && (
                     <a

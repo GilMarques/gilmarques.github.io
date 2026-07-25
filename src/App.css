@@ -384,3 +384,90 @@ body.is-night [data-tooltip]::after {
     background-color: #fff;
     color: #000;
 }
+
+/* =================================================================
+ * 8-bit device lighting
+ *
+ * The whole project card is treated as a single lit object. Every
+ * surface inside it — body, screen, buttons — reads light from the
+ * same direction so the device feels like one solid thing sitting
+ * in the scene (and later, sitting in the same light as the sun).
+ *
+ * The direction is a unit vector from the light source to the
+ * surface, expressed as two CSS custom properties on :root:
+ *   --light-x : +1 light from right, -1 from left
+ *   --light-y : -1 light from top,    +1 from bottom
+ *
+ *   top-right light  →  +1, -1   (default, matches the rest of
+ *                                     the UI's cast direction)
+ *   top-left  light  →  -1, -1
+ *   bottom-right    →  +1, +1
+ *
+ * For now the values below are hardcoded to top-right so the card
+ * has visible depth. The TODO in App.tsx shows where the sun
+ * position plugs in to drive these dynamically. When wired up, the
+ * device shading will track the sun across the sky in real time.
+ *
+ * 8-bit constraint: highlights stay aligned to the 4px pixel grid.
+ * The light must snap to 8 cardinal directions, not rotate
+ * continuously, or the stepped bevels will sub-pixel-blur.
+ * ================================================================= */
+
+:root {
+    --light-x: 1;
+    --light-y: -1;
+    --light-hi: rgba(255, 255, 255, 0.55);
+    --light-lo: rgba(0, 0, 0, 0.22);
+}
+
+/* Inner card body — stepped hi/lo on the top-right and
+   bottom-left corners. Inset box-shadows are clipped by the
+   pixel-corners clip-path so the bevel stays inside the
+   silhouette. */
+.device-body {
+    box-shadow:
+        inset calc(var(--light-x) * 3px) calc(var(--light-y) * 3px) 0 0 var(--light-hi),
+        inset calc(var(--light-x) * -5px) calc(var(--light-y) * -5px) 0 0 var(--light-lo);
+}
+
+/* The screen — applied directly to the <img>, NOT a wrapper.
+   Wrapping the image in a div leaks box-shadows into the
+   corners where the image's asymmetric border-radius cuts
+   off the wrapper's rectangular box. With the styles on the
+   image itself, the recess + glare follow the image's actual
+   shape automatically. */
+
+.device-screen {
+    position: relative;
+    /* Recess: a 1px dark ring right at the screen's content
+       edge (just inside the 8px black bezel). With the styles
+       on the image, inset 8px lands on the photo, not on the
+       bezel — that's what we want. */
+    box-shadow: inset 0 0 0 8px rgba(0, 0, 0, 0.45);
+}
+
+.device-screen::after {
+    content: "";
+    position: absolute;
+    /* Sit just inside the 8px bezel so the glare is on the
+       photo, not painted on top of the black frame. */
+    inset: 8px;
+    /* The image's content area is the image's outer
+       border-radius minus the 8px border:
+         outer 8/8/32/8  →  inner 0/0/24/0
+       That keeps the glare flush with the photo's edge. */
+    border-radius: 0 0 24px 0;
+    pointer-events: none;
+    background: linear-gradient(
+        /* 225deg = top-right to bottom-left, perpendicular
+           to a 45° top-right light source. The angle will
+           need to become a custom property when --light-x /
+           --light-y go dynamic. */
+        225deg,
+        rgba(255, 255, 255, 0.32) 0%,
+        rgba(255, 255, 255, 0.32) 16%,
+        rgba(255, 255, 255, 0) 30%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    mix-blend-mode: screen;
+}

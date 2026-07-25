@@ -138,6 +138,36 @@ function App() {
     ),
   );
 
+  // ─── Dynamic light direction (TODO) ────────────────────────────
+  // The device card shading in App.css is driven by --light-x /
+  // --light-y on :root. Right now they are hardcoded to top-right
+  // (+1, -1), which is fine for the initial depth pass.
+  //
+  // To make it track the sun, derive a unit vector from the sun's
+  // position toward the card center, then SNAP to 8 cardinal
+  // directions (every 45°) so the stepped bevels stay aligned to
+  // the 4px pixel grid. Continuous rotation would sub-pixel-blur
+  // the 8-bit look.
+  //
+  // Pseudocode:
+  //   createEffect(() => {
+  //     const { x: sx, y: sy } = bodyTrajectory().sun;
+  //     const cardCx = viewportWidth() / 2;
+  //     const cardCy = viewportHeight() / 2;
+  //     const dx = cardCx - sx;
+  //     const dy = cardCy - sy;
+  //     // only apply when the sun is above the horizon
+  //     if (sy < bodyTrajectory().sun.horizonY) {
+  //       const snapped = snapTo8Directions(dx, dy);
+  //       document.documentElement.style.setProperty("--light-x", String(snapped.x));
+  //       document.documentElement.style.setProperty("--light-y", String(snapped.y));
+  //     }
+  //   });
+  //
+  // snapTo8Directions is ~6 lines: atan2(dy, dx) → degrees → round
+  // to nearest 45 → cos/sin back to unit vector.
+  // ───────────────────────────────────────────────────────────────
+
   const isDay = createMemo(
     () => bodyTrajectory().sun.y < bodyTrajectory().sun.horizonY,
   );
