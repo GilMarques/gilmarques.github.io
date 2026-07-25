@@ -5,6 +5,11 @@ import { nimbus } from "../assets/sprites";
 const CLOUD_CENTER_Y = 300;
 const TAIL_POINTS_COUNT = 60;
 
+// Tail stroke — swapped by day/night instead of using a filter, because the
+// tail's `points` are a data property and caching it freezes the rope.
+const TAIL_STROKE_DAY = "#d8b301";
+const TAIL_STROKE_NIGHT = "#7a5e00";
+
 // Idle Y bob: very long period, low amplitude.
 const Y_BOB_PERIOD_MS = 45_000;
 const Y_BOB_AMPLITUDE = 120;
@@ -185,7 +190,7 @@ class CloudScene {
 
     this.tailLine = new Konva.Line({
       points: this.tailPoints.flatMap((p) => [p.x, p.y]),
-      stroke: "#d8b301",
+      stroke: TAIL_STROKE_DAY,
       strokeWidth: 30,
       lineCap: "round",
       lineJoin: "round",
@@ -219,20 +224,18 @@ class CloudScene {
     if (!this.cloudSprite || !this.tailLine) return;
     if (isDay) {
       this.cloudSprite.filters([]);
-      this.tailLine.filters([]);
-      // The tail's `points` are a data property, so caching it freezes the
-      // rendered snapshot. Clear the cache so the live points render every
-      // frame. (The cloud's cache is fine — its x()/y() are transform
-      // properties and the cached snapshot moves with the node.)
-      this.tailLine.clearCache();
     } else {
       this.cloudSprite.filters([Konva.Filters.Brighten]);
       this.cloudSprite.brightness(-0.4);
-      this.tailLine.filters([Konva.Filters.Brighten]);
-      this.tailLine.brightness(-0.4);
-      this.tailLine.cache();
     }
     this.cloudSprite.cache();
+    // Tail: swap stroke color by day/night. We can't use a filter here because
+    // filters require caching, and the tail's `points` are a data property —
+    // caching would freeze the rendered snapshot. Color swap is the cheap
+    // workaround.
+    this.tailLine.filters([]);
+    this.tailLine.clearCache();
+    this.tailLine.stroke(isDay ? TAIL_STROKE_DAY : TAIL_STROKE_NIGHT);
     this.tailLine.getLayer()?.batchDraw();
   }
 
