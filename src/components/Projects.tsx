@@ -148,6 +148,52 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
   }
 };
 
+const SpeakerGrille = () => (
+  <svg
+    width="27"
+    height="27"
+    viewBox="0 0 27 27"
+    fill="currentColor"
+    class="text-black/30"
+    style={{ "shape-rendering": "crispEdges" }}
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    {/* Row 0 */}
+    <rect x="12" y="0" width="3" height="3" />
+    {/* Row 1 */}
+    <rect x="8" y="4" width="3" height="3" />
+    <rect x="12" y="4" width="3" height="3" />
+    <rect x="16" y="4" width="3" height="3" />
+    {/* Row 2 */}
+    <rect x="4" y="8" width="3" height="3" />
+    <rect x="8" y="8" width="3" height="3" />
+    <rect x="12" y="8" width="3" height="3" />
+    <rect x="16" y="8" width="3" height="3" />
+    <rect x="20" y="8" width="3" height="3" />
+    {/* Row 3 — right edge missing for organic feel */}
+    <rect x="0" y="12" width="3" height="3" />
+    <rect x="4" y="12" width="3" height="3" />
+    <rect x="8" y="12" width="3" height="3" />
+    <rect x="12" y="12" width="3" height="3" />
+    <rect x="16" y="12" width="3" height="3" />
+    <rect x="20" y="12" width="3" height="3" />
+    {/* Row 4 — center missing */}
+    <rect x="0" y="16" width="3" height="3" />
+    <rect x="4" y="16" width="3" height="3" />
+    <rect x="12" y="16" width="3" height="3" />
+    <rect x="16" y="16" width="3" height="3" />
+    <rect x="20" y="16" width="3" height="3" />
+    {/* Row 5 — tapered */}
+    <rect x="4" y="20" width="3" height="3" />
+    <rect x="8" y="20" width="3" height="3" />
+    <rect x="12" y="20" width="3" height="3" />
+    <rect x="16" y="20" width="3" height="3" />
+    {/* Row 6 — stray */}
+    <rect x="12" y="24" width="3" height="3" />
+  </svg>
+);
+
 const ProjectCard = ({ project }: { project: Project }) => {
   return (
     <div class="flex flex-col gap-6 lg:gap-10 py-5 lg:py-8 w-full max-w-5xl">
@@ -156,7 +202,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
           <div class="relative hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl w-full max-w-xs lg:w-fit">
             <a class="pixel-corners p-2 flex flex-col items-center" href={project.url}>
               <div
-                class={`device-body pixel-corners aspect-[4/3] cursor-pointer flex flex-col w-full lg:aspect-3/4 lg:w-55 p-2 gap-2`}
+                class={`device-body pixel-corners aspect-[4/3] cursor-pointer flex flex-col w-full lg:aspect-3/4 lg:w-55 p-4 gap-2`}
                 style={{ background: project.background }}
               >
                 <img
@@ -190,14 +236,24 @@ const ProjectCard = ({ project }: { project: Project }) => {
 
                   <div class="flex gap-2">
                     <For each={project.types}>
-                      {(type) => <ProjectIcon type={type} />}
+                      {(type, index) => (
+                        <div
+                          class={
+                            project.types.length === 2
+                              ? index() === 0
+                                ? "translate-y-2"
+                                : "-translate-y-1"
+                              : ""
+                          }
+                        >
+                          <ProjectIcon type={type} />
+                        </div>
+                      )}
                     </For>
                   </div>
                 </div>
-                <div class="w-full flex gap-1 justify-center items-center my-2">
-                  <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
-                  <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
-                  <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
+                <div class="w-full flex justify-end items-end">
+                  <SpeakerGrille />
                 </div>
               </div>
             </a>

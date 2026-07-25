@@ -65,6 +65,29 @@ function App() {
     onCleanup(() => window.removeEventListener("resize", onResize));
   });
 
+  // The page itself never scrolls (html/body are overflow:hidden) — only
+  // `#main-scroll` does. Wheel events fired over the navbar or footer land
+  // on those elements and have nothing to scroll, so they get swallowed.
+  // Forward every wheel delta into `#main-scroll` regardless of cursor
+  // position, unless the event already originated inside the scrollable
+  // area or over a form control (the day slider in the SunDial).
+  createEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      const scrollEl = document.getElementById("main-scroll");
+      if (!scrollEl) return;
+      if (scrollEl.contains(e.target as Node)) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable='true']")) {
+        return;
+      }
+      if (scrollEl.scrollHeight <= scrollEl.clientHeight) return;
+      e.preventDefault();
+      scrollEl.scrollBy({ top: e.deltaY, behavior: "smooth" });
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    onCleanup(() => window.removeEventListener("wheel", onWheel));
+  });
+
   const bodyTrajectory = createMemo(() => {
     const normalized = Math.min(1, Math.max(0, daySliderValue() / 100));
     const leftMargin = 48;
