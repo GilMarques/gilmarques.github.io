@@ -87,6 +87,10 @@ body {
     top: 0;
 }
 
+#main-scroll {
+    scroll-behavior: smooth;
+}
+
 .rain {
     z-index: 2;
 }
@@ -282,6 +286,17 @@ body.splat-toggle .splat {
     padding: 16px;
     text-decoration: none;
     box-shadow: inset -4px -4px 0px 0px #a8a29e;
+    /* 4px solid black border around the button. We use `outline` (not
+       `border` and not the previous two-pseudo-element trick) so the
+       outline renders OUTSIDE the element's box without affecting layout
+       and without any box-sizing gymnastics. The previous design stacked
+       ::before (top+bottom borders) and ::after (left+right borders) with
+       a 4px content-box offset to put the borders outside the element;
+       that produced stair-step gaps at the corners on small elements
+       (slider handle, weather toggles). `outline` gives the same look
+       with one rule. */
+    outline: 4px solid black;
+    outline-offset: 0;
 }
 
 .eightbit-button:hover {
@@ -292,28 +307,11 @@ body.splat-toggle .splat {
     box-shadow: inset 4px 4px 0px 0px #a8a29e;
 }
 
-.eightbit-button:before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    box-sizing: content-box;
-    top: -4px;
-    left: 0px;
-    border-top: 4px black solid;
-    border-bottom: 4px black solid;
-}
-
-.eightbit-button:after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    box-sizing: content-box;
-    left: -4px;
-    top: 0px;
-    border-left: 4px black solid;
-    border-right: 4px black solid;
+/* Persistent "pressed in" look for toggle-style buttons (e.g. weather
+   selector). Same inset shadow as :active, so the selected button stays
+   visually depressed without changing the :active behavior. */
+.eightbit-button.is-pressed {
+    box-shadow: inset 4px 4px 0px 0px #a8a29e;
 }
 
 /* 16-bit button: SNES/PS1-style soft bevel. No press-in on click — just a
@@ -339,6 +337,33 @@ body.splat-toggle .splat {
     box-shadow:
         inset 0 2px 0 0 rgba(255, 255, 255, 0.4),
         inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+}
+
+/* 8/16-bit pill button. Same silhouette as the original stone-400 chip
+   (rounded-full + a single offset shadow) but with a chunky pixel border
+   and a thicker pure-black drop shadow so it reads as chunky/retro instead
+   of soft. The :active state snaps the button into the shadow's position
+   — classic NES/SNES press-down feel, no transition (instant on/off). */
+.bit-button {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    background: #a8a29e;
+    color: #000;
+    border: 3px solid #000;
+    box-shadow: -3px 3px 0 0 #000;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bit-button:hover {
+    background: #d6d3d1;
+}
+
+.bit-button:active {
+    transform: translate(-3px, 3px);
+    box-shadow: 0 0 0 0 #000;
+    background: #a8a29e;
 }
 
 @keyframes scale {

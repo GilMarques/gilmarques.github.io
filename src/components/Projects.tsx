@@ -75,10 +75,13 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
       return (
         <Tooltip text="React">
           <div
-            class={`w-6 h-6 flex items-center justify-center rounded-full bg-blue-200 shadow-blue-400 `}
-            style={{ "box-shadow": "-2px 2px 0 #60a5fa" }}
+            class={`w-8 h-8 flex items-center justify-center rounded-full overflow-hidden bg-blue-200 `}
+            style={{
+              "border": "2px solid #1d4ed8",
+              "box-shadow": "-2px 2px 0 #1d4ed8",
+            }}
           >
-            <img src={react} alt="React" class="w-4 h-4" />
+            <img src={react} alt="React" class="w-6 h-6" />
           </div>
         </Tooltip>
       );
@@ -86,10 +89,13 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
       return (
         <Tooltip text="Angular">
           <div
-            class={`w-6 h-6 flex items-center justify-center rounded-full bg-pink-300 `}
-            style={{ "box-shadow": "-2px 2px 0 #f472b6" }}
+            class={`w-8 h-8 flex items-center justify-center rounded-full overflow-hidden bg-pink-300 `}
+            style={{
+              "border": "2px solid #be185d",
+              "box-shadow": "-2px 2px 0 #be185d",
+            }}
           >
-            <img src={angular} alt="Angular" class="w-4 h-4" />
+            <img src={angular} alt="Angular" class="w-6 h-6" />
           </div>
         </Tooltip>
       );
@@ -97,10 +103,13 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
       return (
         <Tooltip text="Python">
           <div
-            class={`w-6 h-6 flex items-center justify-center rounded-full bg-yellow-200 `}
-            style={{ "box-shadow": "-2px 2px 0 #fde047" }}
+            class={`w-8 h-8 flex items-center justify-center rounded-full overflow-hidden bg-yellow-200 `}
+            style={{
+              "border": "2px solid #eab308",
+              "box-shadow": "-2px 2px 0 #eab308",
+            }}
           >
-            <img src={python} alt="Python" class="w-4 h-4" />
+            <img src={python} alt="Python" class="w-6 h-6" />
           </div>
         </Tooltip>
       );
@@ -108,13 +117,14 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
       return (
         <Tooltip text="TypeScript">
           <div
-            class={`w-6 h-6 flex items-center justify-center rounded-full `}
+            class={`w-8 h-8 flex items-center justify-center rounded-full overflow-hidden `}
             style={{
               "background-color": "#3178C6",
-              "box-shadow": "-2px 2px 0 #1d4ed8",
+              "border": "2px solid #1e3a8a",
+              "box-shadow": "-2px 2px 0 #1e3a8a",
             }}
           >
-            <img src={typescript} alt="Typescript" class="w-4 h-4" />
+            <img src={typescript} alt="Typescript" class="w-6 h-6" />
           </div>
         </Tooltip>
       );
@@ -122,13 +132,14 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
       return (
         <Tooltip text="SolidJS">
           <div
-            class={`w-6 h-6 flex items-center justify-center rounded-full`}
+            class={`w-8 h-8 flex items-center justify-center rounded-full overflow-hidden`}
             style={{
               "background-color": "#5C95D4",
-              "box-shadow": "-2px 2px 0 #3178C6",
+              "border": "2px solid #2563eb",
+              "box-shadow": "-2px 2px 0 #2563eb",
             }}
           >
-            <img src={solidjs} alt="SolidJS" class="w-4 h-4" />
+            <img src={solidjs} alt="SolidJS" class="w-6 h-6" />
           </div>
         </Tooltip>
       );
@@ -164,8 +175,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
                   {project.oss && (
                     <a
                       href={project.code}
-                      class="font-custom text-sm bg-stone-400 rounded-full px-2 py-1 text-center text-black"
-                      style={{ "box-shadow": "-2px 2px 0 #78716c" }}
+                      class="bit-button font-custom text-sm rounded-full px-2 py-1 text-center"
                     >
                       &#x3c;&#x3e; Source
                     </a>
@@ -174,8 +184,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
                   {!project.oss && (
                     <a
                       href={project.code}
-                      class="font-custom text-sm bg-stone-400 rounded-full px-2 py-1 text-center text-black"
-                      style={{ "box-shadow": "-2px 2px 0 #78716c" }}
+                      class="bit-button font-custom text-sm rounded-full px-2 py-1 text-center"
                     >
                       &#x3e; Page
                     </a>
