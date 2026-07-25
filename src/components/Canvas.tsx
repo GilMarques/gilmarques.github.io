@@ -7,7 +7,7 @@ const TAIL_POINTS_COUNT = 60;
 
 // Idle Y bob: very long period, low amplitude.
 const Y_BOB_PERIOD_MS = 45_000;
-const Y_BOB_AMPLITUDE = 12;
+const Y_BOB_AMPLITUDE = 120;
 
 // Scroll-driven Y nudge: impulse → decaying offset that pulls the cloud off
 // the sine baseline, then springs back.
@@ -163,6 +163,18 @@ class CloudScene {
     const rect = this.containerRef.getBoundingClientRect();
     this.stage.width(rect.width);
     this.stage.height(rect.height);
+    // Re-center the cloud on resize. The initial cloudX is set in init() from
+    // stage.width() / 2, but if the container measured 0x0 on mount (common on
+    // mobile before layout settles) the stage fell back to 800x600 and the
+    // cloud got parked off the right edge. Re-derive it here.
+    this.cloudX = this.stage.width() / 2;
+    if (this.cloudSprite) this.cloudSprite.x(this.cloudX);
+    // Also reseed the tail history at the new position so the rope doesn't
+    // show a stale streak from the old X.
+    this.cloudHistory = Array.from({ length: TAIL_POINTS_COUNT }, () => ({
+      x: this.cloudX,
+      y: this.cloudY,
+    }));
   }
 
   private async createTail() {
