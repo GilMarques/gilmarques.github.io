@@ -146,13 +146,19 @@ const Ocean = (props: OceanProps) => {
      * wants:
      *   - Morning (sun above midpoint of viewport): same bell curve as
      *     peakFactor, so 20% → 50% behaves exactly as before.
-     *   - Afternoon (sun between midpoint and horizon): pinned at 1, so
-     *     the reflection stays at full presence while it widens.
-     *   - Sunset (sun between horizon and horizon + 0.1·horizonY, i.e.
-     *     roughly the 75% → 80% slice of the day): smooth fade from 1
-     *     down to 0.
+     *   - Afternoon (sun between midpoint and the moment its center
+     *     crosses the horizon): pinned at 1, so the reflection stays at
+     *     full presence while it widens.
+     *   - Sunset (sun center between horizon and horizon + 0.1·horizonY,
+     *     i.e. roughly the 75% → 80% slice of the day): smooth fade
+     *     from 1 down to 0.
      * Width still uses peakFactor (so it keeps widening through the
      * afternoon) — only the brightness/edge-fade knobs switch over.
+     *
+     * `sunTopInViewport` here is actually the sun's *center* Y (set in
+     * `getBodyInfo`), so the afternoon/sunset boundary at `horizonY`
+     * already fires when the center reaches the line — half a sun
+     * radius earlier than a top-edge-based comparison would.
      */
     const getVisibilityFactor = (sunTopInViewport: number) => {
       if (!canvas) return 0;
@@ -165,10 +171,12 @@ const Ocean = (props: OceanProps) => {
         return Math.max(0, Math.cos((x * Math.PI) / 2));
       }
       if (sunTopInViewport < horizonY) {
-        // Afternoon: sun between midpoint and horizon — stay full on.
+        // Afternoon: sun center between midpoint and horizon — stay
+        // full on.
         return 1;
       }
-      // Sunset: smooth fade from 1 (at horizon) to 0 (10% of horizonY below).
+      // Sunset: smooth fade from 1 (sun center at horizon) to 0
+      // (sun center 0.1·horizonY below the horizon).
       const sunYBelowHorizon = sunTopInViewport - horizonY;
       const fadeRange = 0.1 * horizonY;
       const fadeT = Math.max(0, Math.min(1, sunYBelowHorizon / fadeRange));
@@ -358,12 +366,13 @@ const Ocean = (props: OceanProps) => {
       const target = props.sunRef || props.moonRef;
       if (!target) return null;
       const rect = target.getBoundingClientRect();
+      const sunCenterY = rect.top + rect.height * 0.5;
       return {
         canvasPos: viewportToCanvas(
           rect.left + rect.width * 0.5,
-          rect.top + rect.height * 0.5 - SUN_SIZE,
+          sunCenterY,
         ),
-        sunTopInViewport: rect.top,
+        sunTopInViewport: sunCenterY,
       };
     };
 
