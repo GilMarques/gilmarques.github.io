@@ -77,8 +77,8 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
           <div
             class={`w-8 h-8 flex items-center justify-center rounded-full overflow-hidden bg-blue-200 `}
             style={{
-              "border": "2px solid #1d4ed8",
-              "box-shadow": "-2px 2px 0 #1d4ed8",
+              "border": "2px solid #61DAFB",
+              "box-shadow": "-2px 2px 0 #61DAFB",
             }}
           >
             <img src={react} alt="React" class="w-6 h-6" />
@@ -135,8 +135,8 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
             class={`w-8 h-8 flex items-center justify-center rounded-full overflow-hidden`}
             style={{
               "background-color": "#5C95D4",
-              "border": "2px solid #2563eb",
-              "box-shadow": "-2px 2px 0 #2563eb",
+              "border": "2px solid #2C4F7C",
+              "box-shadow": "-2px 2px 0 #2C4F7C",
             }}
           >
             <img src={solidjs} alt="SolidJS" class="w-6 h-6" />
