@@ -154,7 +154,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
                     draggable="false"
                   />
                 </div>
-                <div class="w-full flex justify-between items-center lg:w-55 px-3">
+                <div class="w-full flex justify-between items-center lg:w-55 px-3 mt-auto">
                   {project.oss && (
                     <a
                       href={project.code}
@@ -181,7 +181,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
                     </For>
                   </div>
                 </div>
-                <div class="w-full flex gap-1 justify-center items-center">
+                <div class="w-full flex gap-1 justify-center items-center my-2">
                   <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
                   <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
                   <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>

@@ -29,6 +29,7 @@ class CloudScene {
   private cloudX = 0;
   private cloudY = CLOUD_CENTER_Y;
   private scrollOffsetY = 0; // Y offset from scroll, decays back to 0
+  private elapsedMs = 0; // accumulated frame deltas, drives the idle sine
 
   // Scroll input — accumulated per frame, applied then reset.
   private scrollImpulse = 0;
@@ -79,7 +80,11 @@ class CloudScene {
       if (!this.cloudSprite || !this.tailLine) return;
 
       // Y: long-period sine bob + scroll-driven offset that decays back.
-      const phase = (frame.time * 2 * Math.PI) / Y_BOB_PERIOD_MS;
+      // NOTE: frame.time in Konva is Date.now() (Unix timestamp), not elapsed
+      // time. Using it directly loses precision in Math.sin. Accumulate
+      // frame.timeDiff (per-frame delta) instead.
+      this.elapsedMs += frame.timeDiff;
+      const phase = (this.elapsedMs * 2 * Math.PI) / Y_BOB_PERIOD_MS;
       const bob = Math.sin(phase) * Y_BOB_AMPLITUDE;
 
       this.scrollOffsetY += this.scrollImpulse;
@@ -203,14 +208,19 @@ class CloudScene {
     if (isDay) {
       this.cloudSprite.filters([]);
       this.tailLine.filters([]);
+      // The tail's `points` are a data property, so caching it freezes the
+      // rendered snapshot. Clear the cache so the live points render every
+      // frame. (The cloud's cache is fine — its x()/y() are transform
+      // properties and the cached snapshot moves with the node.)
+      this.tailLine.clearCache();
     } else {
       this.cloudSprite.filters([Konva.Filters.Brighten]);
       this.cloudSprite.brightness(-0.4);
       this.tailLine.filters([Konva.Filters.Brighten]);
       this.tailLine.brightness(-0.4);
+      this.tailLine.cache();
     }
     this.cloudSprite.cache();
-    this.tailLine.cache();
     this.tailLine.getLayer()?.batchDraw();
   }
 
