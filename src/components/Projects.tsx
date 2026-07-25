@@ -133,20 +133,20 @@ const ProjectIcon = ({ type }: { type: ProjectType }) => {
 
 const ProjectCard = ({ project }: { project: Project }) => {
   return (
-    <div class="flex flex-col gap-6 lg:gap-10 py-10 lg:py-16 lg:min-h-[70vh] w-full max-w-5xl">
+    <div class="flex flex-col gap-6 lg:gap-10 py-5 lg:py-8 w-full max-w-5xl">
       <div class="flex flex-col lg:flex-row gap-6 lg:gap-10">
         <div class="self-center lg:self-center flex justify-center">
           <div class="relative hover:-translate-x-2 hover:-translate-y-5 hover:scale-105 hover:drop-shadow-xl w-full max-w-xs lg:w-fit">
-            <a class="pixel-corners p-2 block" href={project.url}>
+            <a class="pixel-corners p-2 flex flex-col items-center" href={project.url}>
               <div
-                class={`pixel-corners aspect-[4/3] cursor-pointer flex flex-col justify-between gap-2 px-2 py-6 w-full lg:aspect-3/4 lg:w-55`}
+                class={`pixel-corners aspect-[4/3] cursor-pointer flex flex-col w-full lg:aspect-3/4 lg:w-55 p-2 gap-2`}
                 style={{ background: project.background }}
               >
                 <div>
                   <img
                     src={project.thumbnail}
                     alt={project.title}
-                    class="h-32 w-full object-cover lg:h-37.5 lg:w-55"
+                    class="h-32 w-full object-cover lg:h-37.5"
                     style={{
                       border: "8px solid #000000",
                       "border-radius": "8px 8px 32px 8px",
@@ -154,11 +154,11 @@ const ProjectCard = ({ project }: { project: Project }) => {
                     draggable="false"
                   />
                 </div>
-                <div class="w-full flex justify-between items-center lg:w-55">
+                <div class="w-full flex justify-between items-center lg:w-55 px-3">
                   {project.oss && (
                     <a
                       href={project.code}
-                      class="font-custom text-sm bottom-5 bg-stone-400 rounded-full px-2 py-1 text-center text-black"
+                      class="font-custom text-sm bg-stone-400 rounded-full px-2 py-1 text-center text-black"
                       style={{ "box-shadow": "-2px 2px 0 #78716c" }}
                     >
                       &#x3c;&#x3e; Source
@@ -168,23 +168,23 @@ const ProjectCard = ({ project }: { project: Project }) => {
                   {!project.oss && (
                     <a
                       href={project.code}
-                      class="font-custom text-sm bottom-5 bg-stone-400 rounded-full px-2 py-1 text-center text-black"
+                      class="font-custom text-sm bg-stone-400 rounded-full px-2 py-1 text-center text-black"
                       style={{ "box-shadow": "-2px 2px 0 #78716c" }}
                     >
                       &#x3e; Page
                     </a>
                   )}
 
-                  <div class="flex gap-1 justify-end items-center">
-                    <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
-                    <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
-                    <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
-                  </div>
                   <div class="flex gap-2">
                     <For each={project.types}>
                       {(type) => <ProjectIcon type={type} />}
                     </For>
                   </div>
+                </div>
+                <div class="w-full flex gap-1 justify-center items-center">
+                  <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
+                  <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
+                  <div class="bg-stone-500 w-1 h-1 rounded-lg"></div>
                 </div>
               </div>
             </a>
@@ -204,7 +204,7 @@ const Projects = (props: { isDay: boolean }) => {
   return (
     <div class="px-4 lg:px-8">
       <div class={`font-custom ${props.isDay ? "text-black" : "text-white"}`}>
-        <div class="flex flex-col items-center gap-12 lg:gap-8">
+        <div class="flex flex-col items-center gap-6 lg:gap-4">
           <For each={projects}>
             {(project) => <ProjectCard project={project} />}
           </For>
