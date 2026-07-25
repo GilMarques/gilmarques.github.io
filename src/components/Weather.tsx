@@ -170,7 +170,10 @@ const Weather = (props: WeatherProps) => {
   return (
     <>
       {props.weather === WeatherType.Snow && (
-        <div class="snow_wrap pointer-events-none">
+        <div
+          class="snow_wrap pointer-events-none"
+          classList={{ night: props.daytime === "night" }}
+        >
           <div class="snow"></div>
         </div>
       )}

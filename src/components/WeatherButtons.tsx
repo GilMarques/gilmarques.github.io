@@ -24,7 +24,7 @@ const WEATHER_OPTIONS: { type: WeatherType; label: string; icon: string }[] =
 
 const WeatherButtons = (props: WeatherButtonsProps) => {
   return (
-    <div class="flex flex-row items-center justify-center gap-3 w-50">
+    <div class="flex flex-row items-center justify-center gap-3 min-w-50 w-fit">
       <For each={WEATHER_OPTIONS}>
         {(opt) => {
           const isActive = () => props.weather === opt.type;
@@ -34,7 +34,7 @@ const WeatherButtons = (props: WeatherButtonsProps) => {
               aria-label={opt.label}
               aria-pressed={isActive()}
               onClick={() => props.setWeather(opt.type)}
-              class={`eightbit-button !p-1 w-8 h-8 lg:w-9 lg:h-9 flex items-center justify-center ${
+              class={`eightbit-button !p-1 w-8 h-8 lg:w-9 lg:h-9 flex-shrink-0 flex items-center justify-center ${
                 isActive() ? "is-pressed" : ""
               }`}
             >

@@ -233,6 +233,13 @@ body.splat-toggle .splat {
     z-index: 10;
 }
 
+.snow_wrap.night .snow,
+.snow_wrap.night .snow:before,
+.snow_wrap.night .snow:after {
+    opacity: 0.35;
+    filter: blur(1px) brightness(0.7);
+}
+
 .snow,
 .snow:before,
 .snow:after {
