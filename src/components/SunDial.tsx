@@ -1,4 +1,4 @@
-import { createMemo, createSignal, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 import {
   indicator,
   cloudy,
@@ -25,6 +25,21 @@ const clamp = (value: number, min: number, max: number) =>
 
 const SunDial = (props: DaySliderProps) => {
   const [showWeatherButtons, setShowWeatherButtons] = createSignal(false);
+  let menuRef: HTMLDivElement | undefined;
+
+  createEffect(() => {
+    if (!showWeatherButtons()) return;
+
+    const onPointerDown = (e: PointerEvent) => {
+      const el = menuRef;
+      if (!el || el.contains(e.target as Node)) return;
+      setShowWeatherButtons(false);
+    };
+
+    document.addEventListener("pointerdown", onPointerDown);
+    onCleanup(() => document.removeEventListener("pointerdown", onPointerDown));
+  });
+
   const min = () => props.min ?? 0;
   const max = () => props.max ?? 100;
 
@@ -75,6 +90,7 @@ const SunDial = (props: DaySliderProps) => {
   return (
     <div class="flex flex-col items-center gap-2">
       <div
+        ref={menuRef}
         class="relative w-50 h-32 cursor-pointer"
         onClick={() => setShowWeatherButtons((open) => !open)}
         role="button"
