@@ -178,9 +178,9 @@ const SpeakerGrille = () => (
     <rect x="12" y="12" width="3" height="3" />
     <rect x="16" y="12" width="3" height="3" />
     <rect x="20" y="12" width="3" height="3" />
-    {/* Row 4 — center missing */}
     <rect x="0" y="16" width="3" height="3" />
     <rect x="4" y="16" width="3" height="3" />
+    <rect x="8" y="16" width="3" height="3" />
     <rect x="12" y="16" width="3" height="3" />
     <rect x="16" y="16" width="3" height="3" />
     <rect x="20" y="16" width="3" height="3" />
@@ -192,6 +192,19 @@ const SpeakerGrille = () => (
     {/* Row 6 — stray */}
     <rect x="12" y="24" width="3" height="3" />
   </svg>
+);
+
+const ConsoleButtons = () => (
+  <div class="flex gap-1.5">
+    <div
+      class="w-5 h-2 bg-stone-700 border-2 border-stone-800"
+      style={{ "box-shadow": "inset 0 -1px 0 rgba(0,0,0,0.4)" }}
+    ></div>
+    <div
+      class="w-5 h-2 bg-stone-700 border-2 border-stone-800"
+      style={{ "box-shadow": "inset 0 -1px 0 rgba(0,0,0,0.4)" }}
+    ></div>
+  </div>
 );
 
 const ProjectCard = ({ project }: { project: Project }) => {
@@ -252,8 +265,14 @@ const ProjectCard = ({ project }: { project: Project }) => {
                     </For>
                   </div>
                 </div>
-                <div class="w-full flex justify-end items-end">
-                  <SpeakerGrille />
+                <div class="w-full grid grid-cols-3 items-end">
+                  <div />
+                  <div class="flex justify-center">
+                    <ConsoleButtons />
+                  </div>
+                  <div class="flex justify-end">
+                    <SpeakerGrille />
+                  </div>
                 </div>
               </div>
             </a>
