@@ -4,7 +4,7 @@ import {
   cloudy,
   drizzle,
   snowflake,
-  sun,
+  sunny,
 } from "../assets/sprites/sun_dial";
 import { WeatherType } from "../hooks/useWeather";
 
@@ -15,7 +15,7 @@ type WeatherButtonsProps = {
 
 const WEATHER_OPTIONS: { type: WeatherType; label: string; icon: string }[] =
   [
-    { type: WeatherType.Clear, label: "Clear", icon: sun },
+    { type: WeatherType.Clear, label: "Clear", icon: sunny },
     { type: WeatherType.Clouds, label: "Clouds", icon: cloudy },
     { type: WeatherType.Drizzle, label: "Drizzle", icon: drizzle },
     { type: WeatherType.Rain, label: "Rain", icon: cloudRain },

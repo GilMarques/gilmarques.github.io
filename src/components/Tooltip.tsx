@@ -48,7 +48,7 @@ const Tooltip = (props: TooltipProps) => {
               transform: "translateX(-50%) translateY(calc(-100% - 6px))",
             }}
           >
-            <div class="border-2 border-black bg-black text-white text-xs px-1 whitespace-nowrap">
+            <div class="border-2 border-black bg-black text-white text-base px-1 whitespace-nowrap">
               {props.text}
             </div>
           </div>

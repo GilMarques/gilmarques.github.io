@@ -267,31 +267,33 @@ function App() {
         </div>
 
         <nav class="absolute top-0 left-0 right-0 z-20 p-3">
-          <div class="sixteenbit-button flex items-center justify-end gap-1 p-2">
-            <a
-              href="mailto:gilmmm4@gmail.com"
-              draggable="false"
-              class="flex items-center gap-2 px-3 py-2 transition-colors hover:bg-yellow-400 text-black rounded"
-            >
-              <img src={mail} alt="Email" class="h-5 pixelated" />
-              <span class="font-custom text-lg">Email</span>
-            </a>
-            <a
-              href="https://github.com/GilMarques"
-              draggable="false"
-              class="flex items-center gap-2 px-3 py-2 transition-colors hover:bg-yellow-400 text-black rounded"
-            >
-              <img src={github} alt="Github" class="h-5 pixelated" />
-              <span class="font-custom text-lg">Github</span>
-            </a>
-            <a
-              href="https://www.linkedin.com/in/gil-marques-ab86a524b/"
-              draggable="false"
-              class="flex items-center gap-2 px-3 py-2 transition-colors hover:bg-yellow-400 text-black rounded"
-            >
-              <img src={linkedin} alt="LinkedIn" class="h-5 pixelated" />
-              <span class="font-custom text-lg">LinkedIn</span>
-            </a>
+          <div class="sixteenbit-button flex items-center p-2">
+            <div class="mx-auto flex w-full max-w-5xl items-center justify-around">
+              <a
+                href="mailto:gilmmm4@gmail.com"
+                draggable="false"
+                class="flex items-center gap-2 px-3 py-2 transition-colors hover:bg-yellow-400 text-black rounded"
+              >
+                <img src={mail} alt="Email" class="h-5 pixelated" />
+                <span class="font-custom text-lg">Email</span>
+              </a>
+              <a
+                href="https://github.com/GilMarques"
+                draggable="false"
+                class="flex items-center gap-2 px-3 py-2 transition-colors hover:bg-yellow-400 text-black rounded"
+              >
+                <img src={github} alt="Github" class="h-5 pixelated" />
+                <span class="font-custom text-lg">Github</span>
+              </a>
+              <a
+                href="https://www.linkedin.com/in/gil-marques-ab86a524b/"
+                draggable="false"
+                class="flex items-center gap-2 px-3 py-2 transition-colors hover:bg-yellow-400 text-black rounded"
+              >
+                <img src={linkedin} alt="LinkedIn" class="h-5 pixelated" />
+                <span class="font-custom text-lg">LinkedIn</span>
+              </a>
+            </div>
           </div>
         </nav>
 
@@ -313,8 +315,7 @@ function App() {
               }`}
             >
               Hi, I'm <b>Gil</b>, a Full Stack Developer from Portugal.
-              <br />I build web apps with 3D, complex UIs, and engineering
-              tooling.
+              <br />I enjoy working on web apps with 3D, complex UIs, and engineering tooling.
             </p>
           </div>
 

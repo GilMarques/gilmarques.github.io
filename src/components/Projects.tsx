@@ -5,7 +5,7 @@ import Tooltip from "./Tooltip";
 
 export interface Project {
   title: string;
-  description: string;
+  description: string[];
   thumbnail: string;
   url?: string;
   code: string;
@@ -25,8 +25,11 @@ export enum ProjectType {
 const projects: Project[] = [
   {
     title: "Radio Station",
-    description:
-      "Browse radio stations from around the world through an interactive map. Pick a country, drop a pin, and tune in — stream metadata and live audio in a single click. Stations are pulled from a public radio directory REST API and rendered on the front-end with Angular and PrimeNG. The map handles panning, zooming, and clustering the station markers by region. A built-in player keeps the stream alive while you explore, and a side panel shows the currently playing track and genre.",
+    description: [
+      "Browse radio stations from around the world through an interactive map. Pick a country, drop a pin, and tune in to stream metadata and live audio in a single click.",
+      "Stations are pulled from a public radio directory REST API and rendered on the front-end with Angular and PrimeNG. The map handles panning, zooming, and clustering the station markers by region.",
+      "A built-in player keeps the stream alive while you explore, and a side panel shows the currently playing track and genre.",
+    ],
     thumbnail: radiostation,
     url: "https://gilmarques.github.io/radio-station/",
     code: "https://github.com/GilMarques/radio-station",
@@ -36,8 +39,11 @@ const projects: Project[] = [
   },
   {
     title: "Ino Uno",
-    description:
-      "A 3D reimagining of the classic UNO card game, built as a learning project for real-time web multiplayer. The board, cards, and animations are rendered in Three.js on top of a React front-end that drives the game state. A Python FastAPI backend with WebSocket connections handles multiplayer turns, validation, and game-room management. Play solo against a simple bot, or open a room and invite a friend for a match. Card physics, turn highlighting, and the UNO call are all hand-implemented.",
+    description: [
+      "A 3D reimagining of the classic UNO card game, built as a learning project for real-time web multiplayer.",
+      "The board, cards, and animations are rendered in Three.js on top of a React front-end that drives the game state. A Python FastAPI backend with WebSocket connections handles multiplayer turns, validation, and game-room management.",
+
+    ],
     thumbnail: inouno,
     url: "https://gilmarques.github.io/ino-uno-vite/",
     code: "https://github.com/GilMarques/ino-uno-vite",
@@ -47,8 +53,11 @@ const projects: Project[] = [
   },
   {
     title: "GG",
-    description:
-      "A mobile workout tracker for logging sets, reps, and progress over time — aimed at people who want a simple log without the bloat of full fitness apps. The first version was written in React Native, but the current rewrite is in Angular + Ionic for a smoother cross-platform feel and faster iteration. Create routines, track working weight over time, and mark personal records as you hit them. Still in active development — exercise history, PR detection, and a stats screen are next on the list.",
+    description: [
+      "A mobile workout tracker for logging sets, reps, and progress over time, aimed at people who want a simple log without the bloat of full fitness apps.",
+      "The first version was written in React Native, but the current rewrite is in Angular and Ionic for a smoother cross-platform feel and faster iteration.",
+      "Create routines, track working weight over time, and mark personal records as you hit them. Still in active development, with exercise history, PR detection, and a stats screen next on the list.",
+    ],
     thumbnail: gg,
     url: "https://github.com/GilMarques/gym-genius-rn",
     code: "https://github.com/GilMarques/gym-genius-rn",
@@ -58,8 +67,11 @@ const projects: Project[] = [
   },
   {
     title: "Personal Portfolio",
-    description:
-      "The very site you're scrolling through. A retro-inspired portfolio built with SolidJS for reactivity, Konva for the canvas work, and Tailwind for the layout — with the pixel-art UI (buttons, panels, animations) hand-rolled in CSS. The animated day/night sky, the draggable cloud with spring-physics tail, the rain and snow weather effects, and the responsive layout are all custom-built. It even pulls live weather data from the OpenWeather API, so the sky reflects the actual time of day and current conditions in your location.",
+    description: [
+      "The very site you're scrolling through. A retro-inspired portfolio built with SolidJS and Tailwind, with a pixel-art aesthetic throughout.",
+      "The sky shifts between day and night as the sun moves across the page, with animated clouds, rain, and snow changing to match. An animated cloud drifts in the background and reacts to scrolling.",
+      "It pulls live weather data from the OpenWeather API so the sky reflects the actual time of day and current conditions in your location. A slider and buttons let you override everything manually.",
+    ],
     thumbnail: portfolio,
     url: "https://gilmarques.github.io/",
     code: "https://github.com/GilMarques/gilmarques.github.io",
@@ -278,10 +290,12 @@ const ProjectCard = ({ project }: { project: Project }) => {
             </a>
           </div>
         </div>
-        <div class="font-custom flex-1 min-w-0">
-          <p class="text-base lg:text-xl leading-relaxed">
-            {project.description}
-          </p>
+        <div class="font-custom flex-1 min-w-0 flex flex-col gap-3">
+          <For each={project.description}>
+            {(para) => (
+              <p class="text-base lg:text-xl leading-relaxed">{para}</p>
+            )}
+          </For>
         </div>
       </div>
     </div>
