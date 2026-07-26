@@ -2,7 +2,6 @@ import { heart } from "../assets/sprites/index.js";
 import { WeatherType } from "../hooks/useWeather.js";
 import Ocean from "./Ocean.js";
 import SunDial from "./SunDial.js";
-import WeatherButtons from "./WeatherButtons.js";
 
 type FooterProps = {
   isDay: boolean;
@@ -40,11 +39,6 @@ const Footer = (props: FooterProps) => {
             weather={props.weather}
             value={props.daySliderValue}
             onChange={props.setDaySliderValue}
-            setWeather={props.setWeather}
-          />
-
-          <WeatherButtons
-            weather={props.weather}
             setWeather={props.setWeather}
           />
 

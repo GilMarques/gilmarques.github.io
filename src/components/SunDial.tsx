@@ -1,4 +1,4 @@
-import { createMemo } from "solid-js";
+import { createMemo, createSignal, Show } from "solid-js";
 import {
   indicator,
   cloudy,
@@ -9,6 +9,7 @@ import {
   sun_dial,
 } from "../assets/sprites/sun_dial";
 import { WeatherType } from "../hooks/useWeather";
+import WeatherButtons from "./WeatherButtons";
 
 type DaySliderProps = {
   weather: WeatherType;
@@ -23,6 +24,7 @@ const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
 const SunDial = (props: DaySliderProps) => {
+  const [showWeatherButtons, setShowWeatherButtons] = createSignal(false);
   const min = () => props.min ?? 0;
   const max = () => props.max ?? 100;
 
@@ -72,7 +74,28 @@ const SunDial = (props: DaySliderProps) => {
 
   return (
     <div class="flex flex-col items-center gap-2">
-      <div class="relative w-50 h-32">
+      <div
+        class="relative w-50 h-32 cursor-pointer"
+        onClick={() => setShowWeatherButtons((open) => !open)}
+        role="button"
+        aria-label="Toggle weather controls"
+        aria-expanded={showWeatherButtons()}
+      >
+        <Show when={showWeatherButtons()}>
+          <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 z-20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <WeatherButtons
+              weather={props.weather}
+              setWeather={(weather) => {
+                props.setWeather(weather);
+                setShowWeatherButtons(false);
+              }}
+            />
+          </div>
+        </Show>
+
         <img
           src={sun_dial}
           alt="sun dial"
